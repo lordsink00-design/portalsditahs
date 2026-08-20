@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pembayaran Buku Paket — Portal SD IT Abu Hurairah Sembalun</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 230px;
+      min-height: 100vh;
+      background: #1a4f8a;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+
+    .sidebar-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 28px 20px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      gap: 10px;
+    }
+
+    .sidebar-logo { width: 64px; height: 64px; object-fit: contain; }
+
+    .sidebar-school {
+      font-size: 12px; font-weight: 700; color: #fff;
+      text-align: center; line-height: 1.4; text-transform: uppercase;
+    }
+    .sidebar-school span {
+      display: block; font-size: 10px; font-weight: 400;
+      color: rgba(255,255,255,0.55); text-transform: none; margin-top: 2px;
+    }
+
+    .student-info {
+      display: flex; align-items: center; gap: 10px;
+      padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,0.2); display: flex;
+      align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0;
+    }
+
+    .student-name { font-size: 13px; font-weight: 600; color: #fff; }
+    .student-class { font-size: 11px; color: rgba(255,255,255,0.55); margin-top: 1px; }
+
+    .nav { padding: 12px 0; flex: 1; overflow-y: auto; }
+
+    .nav-section-label {
+      font-size: 10px; color: rgba(255,255,255,0.4);
+      padding: 8px 18px 4px; letter-spacing: 0.06em; text-transform: uppercase;
+    }
+
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 18px; cursor: pointer; font-size: 13px;
+      color: rgba(255,255,255,0.7); border-left: 3px solid transparent;
+      transition: all 0.13s; text-decoration: none;
+    }
+    .nav-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .nav-item.active {
+      background: rgba(255,255,255,0.13); color: #fff;
+      border-left-color: #fff; font-weight: 600;
+    }
+    .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.8; }
+    .nav-item.active svg { opacity: 1; }
+
+    /* ── SUBMENU ── */
+    .nav-parent {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 18px; cursor: pointer; font-size: 13px;
+      color: rgba(255,255,255,0.7); border-left: 3px solid transparent;
+      transition: all 0.13s; user-select: none;
+    }
+    .nav-parent:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .nav-parent.open {
+      background: rgba(255,255,255,0.13); color: #fff;
+      border-left-color: #fff; font-weight: 600;
+    }
+    .nav-parent svg { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.8; }
+    .nav-parent.open svg { opacity: 1; }
+
+    .nav-chevron {
+      margin-left: auto; width: 14px; height: 14px;
+      transition: transform 0.22s ease; opacity: 0.6; flex-shrink: 0;
+    }
+    .nav-parent.open .nav-chevron { transform: rotate(90deg); opacity: 1; }
+
+    .nav-submenu {
+      overflow: hidden; max-height: 0;
+      transition: max-height 0.28s cubic-bezier(0.4,0,0.2,1);
+      background: rgba(0,0,0,0.15);
+    }
+    .nav-submenu.open { max-height: 200px; }
+
+    .nav-sub-item {
+      display: flex; align-items: center; gap: 9px;
+      padding: 8px 18px 8px 36px; font-size: 12px;
+      color: rgba(255,255,255,0.6); border-left: 3px solid transparent;
+      text-decoration: none; transition: all 0.13s; cursor: pointer;
+    }
+    .nav-sub-item:hover { background: rgba(255,255,255,0.07); color: #fff; }
+    .nav-sub-item.active {
+      color: #fff; font-weight: 600;
+      background: rgba(255,255,255,0.1); border-left-color: rgba(255,255,255,0.6);
+    }
+    .nav-sub-item svg { width: 13px; height: 13px; flex-shrink: 0; opacity: 0.75; }
+    .nav-sub-item.active svg { opacity: 1; }
+
+    .sidebar-footer { padding: 14px 18px; border-top: 1px solid rgba(255,255,255,0.12); }
+    .btn-logout {
+      width: 100%; padding: 9px; background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2); border-radius: 8px;
+      color: rgba(255,255,255,0.8); font-size: 12px; cursor: pointer;
+      transition: background 0.13s;
+    }
+    .btn-logout:hover { background: rgba(255,255,255,0.18); }
+
+    /* ── MAIN ── */
+    .main { flex: 1; padding: 28px 32px; overflow-y: auto; }
+
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .page-title { font-size: 20px; font-weight: 700; color: #1a1a2e; }
+    .page-date { font-size: 13px; color: #999; margin-top: 2px; }
+
+    /* ── LOADING ── */
+    .loading-overlay {
+      display: flex; align-items: center; justify-content: center;
+      gap: 12px; padding: 60px 20px; color: #999; font-size: 14px;
+    }
+    .spinner {
+      width: 24px; height: 24px; border: 3px solid #e0e0e0;
+      border-top-color: #1a4f8a; border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── ERROR ── */
+    .error-state { text-align: center; padding: 40px 20px; color: #999; }
+    .error-state .error-icon { font-size: 40px; margin-bottom: 12px; }
+    .error-state p { font-size: 14px; line-height: 1.6; }
+
+    /* ── ALERT ── */
+    .alert-banner {
+      background: linear-gradient(135deg, #fff5f5, #fff0ee);
+      border: 1.5px solid #fca5a5; border-left: 5px solid #e53e3e;
+      border-radius: 12px; padding: 16px 20px;
+      display: flex; align-items: center; gap: 14px;
+      margin-bottom: 24px; animation: slideIn 0.4s ease;
+    }
+    .alert-banner.hidden { display: none; }
+    .alert-banner.info {
+      background: linear-gradient(135deg, #f0faf4, #e8f8ef);
+      border-color: #a7f3d0; border-left-color: #2d8653;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .alert-icon {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: #e53e3e; display: flex; align-items: center;
+      justify-content: center; flex-shrink: 0;
+    }
+    .alert-banner.info .alert-icon { background: #2d8653; }
+    .alert-icon svg { width: 20px; height: 20px; color: #fff; }
+    .alert-content { flex: 1; }
+    .alert-title { font-size: 14px; font-weight: 700; color: #c53030; margin-bottom: 3px; }
+    .alert-banner.info .alert-title { color: #1a6640; }
+    .alert-desc { font-size: 13px; color: #7f1d1d; line-height: 1.5; }
+    .alert-banner.info .alert-desc { color: #1a4a2e; }
+
+    /* ── STAT CARDS ── */
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .status-card {
+      background: #fff; border-radius: 14px;
+      padding: 18px 20px; border: 1px solid #eee;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .status-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .status-icon svg { width: 18px; height: 18px; }
+    .status-icon.red   { background: #fff5f5; color: #c53030; }
+    .status-icon.green { background: #f0faf4; color: #2d8653; }
+    .status-icon.blue  { background: #eef4fb; color: #1a4f8a; }
+    .status-icon.amber { background: #fffbeb; color: #b45309; }
+    .status-value { font-size: 22px; font-weight: 700; color: #1a1a2e; line-height: 1; }
+    .status-label { font-size: 12px; color: #999; }
+
+    /* ── CONTENT GRID ── */
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 20px;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: #fff; border-radius: 14px;
+      border: 1px solid #eee; margin-bottom: 20px; overflow: hidden;
+    }
+    .card:last-child { margin-bottom: 0; }
+    .card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px; border-bottom: 1px solid #f5f5f5;
+    }
+    .card-title { font-size: 14px; font-weight: 700; color: #1a1a2e; }
+    .card-subtitle { font-size: 12px; color: #aaa; margin-top: 2px; }
+
+    /* ── SEMESTER TABS ── */
+    .semester-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+    .semester-tab {
+      padding: 7px 18px; border-radius: 20px; font-size: 13px; font-weight: 500;
+      cursor: pointer; border: 1.5px solid #d8e0ea; color: #666;
+      background: #fff; transition: all 0.15s;
+    }
+    .semester-tab.active { background: #1a4f8a; color: #fff; border-color: #1a4f8a; }
+
+    /* ── BUKU CHIPS ── */
+    .buku-chips-wrap { padding: 16px 20px; }
+    .buku-chips-label { font-size: 11px; color: #aaa; margin-bottom: 10px; }
+    .buku-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .buku-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 5px 12px; border-radius: 20px;
+      font-size: 12px; font-weight: 600; border: 1.5px solid;
+    }
+    .buku-chip.lunas  { background: #f0faf4; color: #2d8653; border-color: #a7f3d0; }
+    .buku-chip.cicilan{ background: #fffbeb; color: #b45309; border-color: #fcd34d; }
+    .buku-chip.belum  { background: #fff5f5; color: #c53030; border-color: #fca5a5; }
+    .buku-chip-icon { font-size: 13px; }
+
+    /* ── BUKU LIST (legacy, hidden) ── */
+    .buku-list { padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+    .buku-item { display:none; }
+    .buku-icon, .buku-info, .buku-right, .buku-nama, .buku-meta, .buku-nominal, .buku-sub { display:none; }
+
+    .badge {
+      font-size: 11px; font-weight: 700;
+      padding: 3px 10px; border-radius: 20px; margin-top: 6px; display: inline-block;
+    }
+    .badge-lunas  { background: #f0faf4; color: #2d8653; }
+    .badge-cicilan{ background: #fffbeb; color: #b45309; }
+    .badge-belum  { background: #fff1f1; color: #e53e3e; }
+    .badge-lebih  { background: #eff6ff; color: #1d4ed8; }
+
+    /* ── PROGRESS BAR ── */
+    .progress-wrap { margin: 16px 20px; }
+    .progress-label {
+      display: flex; justify-content: space-between;
+      font-size: 12px; color: #aaa; margin-bottom: 6px;
+    }
+    .progress-bar-bg { height: 8px; background: #f0f0f0; border-radius: 99px; overflow: hidden; }
+    .progress-bar-fill {
+      height: 100%; border-radius: 99px;
+      background: linear-gradient(90deg, #2d8653, #38a169);
+      transition: width 0.8s cubic-bezier(.25,.8,.25,1);
+    }
+
+    /* ── RIWAYAT TABLE ── */
+    .riwayat-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .riwayat-table thead tr { background: #f8f9fb; }
+    .riwayat-table th {
+      padding: 10px 16px; text-align: left;
+      font-size: 11px; font-weight: 700; color: #999;
+      letter-spacing: 0.05em; text-transform: uppercase;
+      border-bottom: 1px solid #eee;
+    }
+    .riwayat-table td { padding: 12px 16px; border-bottom: 1px solid #f5f5f5; color: #444; }
+    .riwayat-table tr:last-child td { border-bottom: none; }
+    .riwayat-table tr:hover td { background: #fafafa; }
+    .col-buku  { font-weight: 600; color: #1a1a2e; }
+    .col-harga { font-weight: 700; color: #1a4f8a; }
+    .col-tgl   { color: #aaa; font-size: 12px; }
+
+    /* ── PANEL KANAN ── */
+    .info-card {
+      background: #fff; border-radius: 14px;
+      border: 1px solid #eee; overflow: hidden; margin-bottom: 20px;
+    }
+    .info-card-header {
+      padding: 14px 18px; border-bottom: 1px solid #f0f0f0;
+      font-size: 13px; font-weight: 700; color: #1a1a2e;
+    }
+    .info-card-body { padding: 16px 18px; }
+
+    .cara-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 10px 0; border-bottom: 1px solid #f5f5f5;
+    }
+    .cara-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .cara-num {
+      width: 24px; height: 24px; border-radius: 50%;
+      background: #eef4fb; color: #1a4f8a;
+      font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .cara-text { font-size: 12px; color: #555; line-height: 1.55; }
+    .cara-title { font-size: 13px; font-weight: 600; color: #1a1a2e; margin-bottom: 2px; }
+
+    .rek-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 0; border-bottom: 1px solid #f5f5f5; font-size: 13px;
+    }
+    .rek-row:last-child { border-bottom: none; }
+    .rek-label { color: #aaa; font-size: 11px; }
+    .rek-value { font-weight: 700; color: #1a1a2e; }
+    .rek-bank  { font-size: 12px; color: #1a4f8a; font-weight: 600; }
+
+    .kontak-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 0; border-bottom: 1px solid #f5f5f5; font-size: 13px;
+    }
+    .kontak-row:last-child { border-bottom: none; }
+    .kontak-icon {
+      width: 30px; height: 30px; border-radius: 8px;
+      background: #eef4fb; color: #1a4f8a;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .kontak-icon svg { width: 14px; height: 14px; }
+    .kontak-label { font-size: 11px; color: #aaa; }
+    .kontak-val { font-size: 13px; font-weight: 600; color: #1a1a2e; }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      text-align: center; padding: 40px 20px; color: #bbb;
+    }
+    .empty-state .empty-icon { font-size: 36px; margin-bottom: 10px; }
+    .empty-state p { font-size: 13px; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .content-grid { grid-template-columns: 1fr; }
+      .status-grid  { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── SIDEBAR ── -->
+<div class="sidebar">
+  <div class="sidebar-header">
+    <img class="sidebar-logo"
+         src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Abu_Hurairah.svg/200px-Abu_Hurairah.svg.png"
+         onerror="this.style.display='none'" alt="Logo" />
+    <div class="sidebar-school">
+      SD IT Abu Hurairah<br>Sembalun
+      <span>Lombok Timur, NTB</span>
+    </div>
+  </div>
+
+  <div class="student-info">
+    <div class="avatar" id="sidebar-avatar">—</div>
+    <div>
+      <div class="student-name" id="sidebar-nama">Memuat...</div>
+      <div class="student-class" id="sidebar-kelas">—</div>
+    </div>
+  </div>
+
+  <nav class="nav">
+    <div class="nav-section-label">Menu Utama</div>
+    <a class="nav-item" href="dashboard.html">
+      <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.4"/></svg>
+      Dashboard
+    </a>
+    <a class="nav-item" href="nilai-rapor.html">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M2 12L6 7l3 3 2-2 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Nilai &amp; Raport
+    </a>
+    <div class="nav-section-label">Administrasi</div>
+
+    <!-- Parent: Pembayaran (expandable) -->
+    <div class="nav-parent open" id="nav-pembayaran" onclick="toggleSubmenu()">
+      <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="4" width="14" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M1 7h14" stroke="currentColor" stroke-width="1.4"/></svg>
+      Pembayaran
+      <svg class="nav-chevron" viewBox="0 0 16 16" fill="none">
+        <path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+    <!-- Submenu Pembayaran -->
+    <div class="nav-submenu open" id="submenu-pembayaran">
+      <a class="nav-sub-item" href="pembayaran-spp.html">
+        <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="4" width="14" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M1 7h14" stroke="currentColor" stroke-width="1.4"/></svg>
+        SPP Bulanan
+      </a>
+      <a class="nav-sub-item active" href="pembayaran-buku.html">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M2 2h8l3 3v9H2V2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M10 2v3h3M5 7h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        Buku Paket
+      </a>
+      <a class="nav-sub-item" href="pembayaran-pangkal.html">
+        <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.4"/><path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Uang Pangkal
+      </a>
+    </div>
+
+    <div class="nav-section-label">Lainnya</div>
+    <a class="nav-item" href="e-talim.html">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M2 10V5a3 3 0 016 0v5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><rect x="1" y="10" width="14" height="4" rx="1" stroke="currentColor" stroke-width="1.4"/></svg>
+      E-Ta'lim
+    </a>
+    <a class="nav-item" href="jadwal.html">
+      <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="2" width="14" height="13" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M1 6h14M5 2v2M11 2v2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Jadwal Pelajaran
+    </a>
+    <a class="nav-item" href="absensi.html">
+      <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="6" r="3" stroke="currentColor" stroke-width="1.4"/><path d="M2 14c0-3 2.7-5 6-5s6 2 6 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Absensi
+    </a>
+    <a class="nav-item" href="info-sekolah.html">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M8 2a5 5 0 015 5v2l1 2H2l1-2V7a5 5 0 015-5z" stroke="currentColor" stroke-width="1.4"/><path d="M6.5 13a1.5 1.5 0 003 0" stroke="currentColor" stroke-width="1.4"/></svg>
+      Info Sekolah
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <button class="btn-logout" onclick="doLogout()">⇠ &nbsp;Keluar</button>
+  </div>
+</div>
+
+<!-- ── MAIN ── -->
+<div class="main">
+
+  <div class="topbar">
+    <div>
+      <div class="page-title">Pembayaran Buku Paket</div>
+      <div class="page-date" id="topbar-info">Memuat data...</div>
+    </div>
+    <div id="refresh-btn" style="cursor:pointer;color:#1a4f8a;font-size:12px;font-weight:600;display:none" onclick="muatUlang()">
+      ↻ Perbarui Data
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-overlay" id="loading-area">
+    <div class="spinner"></div>
+    Mengambil data buku paket dari server...
+  </div>
+
+  <!-- Error -->
+  <div id="error-area" style="display:none">
+    <div class="error-state">
+      <div class="error-icon">⚠️</div>
+      <p id="error-msg-text">Gagal memuat data. Periksa koneksi internet Anda.</p>
+      <br>
+      <button onclick="muatUlang()" style="background:#1a4f8a;color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:13px;cursor:pointer">Coba Lagi</button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div id="main-content" style="display:none">
+
+    <!-- Alert Banner -->
+    <div class="alert-banner hidden" id="alert-banner">
+      <div class="alert-icon">
+        <svg viewBox="0 0 20 20" fill="currentColor" style="color:#fff">
+          <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+        </svg>
+      </div>
+      <div class="alert-content">
+        <div class="alert-title" id="alert-title">—</div>
+        <div class="alert-desc"  id="alert-desc">—</div>
+      </div>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="status-grid">
+      <div class="status-card">
+        <div class="status-icon blue">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M2 2h8l3 3v9H2V2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M10 2v3h3M5 7h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        </div>
+        <div class="status-value" id="stat-kategori" style="font-size:15px">—</div>
+        <div class="status-label">Kategori Buku Paket</div>
+      </div>
+      <div class="status-card">
+        <div class="status-icon red">
+          <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="4" width="14" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M1 7h14" stroke="currentColor" stroke-width="1.4"/></svg>
+        </div>
+        <div class="status-value" style="color:#c53030;font-size:14px" id="stat-tagihan">—</div>
+        <div class="status-label">Total Tagihan</div>
+      </div>
+      <div class="status-card">
+        <div class="status-icon green">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="status-value" style="color:#2d8653;font-size:14px" id="stat-dibayar">—</div>
+        <div class="status-label">Sudah Dibayar</div>
+      </div>
+      <div class="status-card">
+        <div class="status-icon amber">
+          <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.4"/><path d="M8 5v3M8 11v.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </div>
+        <div class="status-value" style="color:#b45309;font-size:14px" id="stat-sisa">—</div>
+        <div class="status-label">Sisa Tagihan</div>
+      </div>
+    </div>
+
+    <!-- Semester Tabs -->
+    <div class="semester-tabs" id="semester-tabs"></div>
+
+    <!-- Content Grid -->
+    <div class="content-grid">
+
+      <!-- KIRI -->
+      <div>
+        <!-- Daftar Buku -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Daftar Buku Paket</div>
+              <div class="card-subtitle" id="label-semester-aktif">—</div>
+            </div>
+          </div>
+
+          <!-- Progress -->
+          <div class="progress-wrap">
+            <div class="progress-label">
+              <span>Progress pelunasan</span>
+              <span style="font-weight:700;color:#2d8653" id="progress-text">—</span>
+            </div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+            </div>
+          </div>
+
+          <div class="buku-chips-wrap">
+            <div class="buku-chips-label">Mata pelajaran yang mendapat buku paket:</div>
+            <div class="buku-chips" id="buku-list">
+              <!-- Di-render JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Riwayat Transaksi -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Riwayat Transaksi</div>
+              <div class="card-subtitle">Catatan pembayaran buku paket yang tercatat di sistem</div>
+            </div>
+          </div>
+          <table class="riwayat-table">
+            <thead>
+              <tr>
+                <th>Buku Paket</th>
+                <th>Tahun Ajaran</th>
+                <th>Total Tagihan</th>
+                <th>Dibayar</th>
+                <th>Sisa</th>
+                <th>Tgl Bayar</th>
+                <th>Metode</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="riwayat-tbody">
+              <!-- Di-render JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- KANAN -->
+      <div>
+
+        <!-- Ringkasan Keuangan -->
+        <div class="info-card">
+          <div class="info-card-header">💰 Ringkasan Keuangan</div>
+          <div class="info-card-body">
+            <div class="rek-row">
+              <div><div class="rek-label">Kategori Buku Paket</div><div class="rek-bank" style="color:#1a4f8a" id="summary-kategori">—</div></div>
+            </div>
+            <div class="rek-row">
+              <div><div class="rek-label">Jumlah Buku / Mapel</div><div class="rek-value" id="summary-jml-mapel">—</div></div>
+            </div>
+            <div class="rek-row">
+              <div><div class="rek-label">Total Tagihan</div><div class="rek-bank" style="color:#c53030" id="summary-tagihan">—</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cara Pembayaran -->
+        <div class="info-card">
+          <div class="info-card-header">📖 Cara Pembayaran Buku</div>
+          <div class="info-card-body">
+            <div class="cara-item">
+              <div class="cara-num">1</div>
+              <div>
+                <div class="cara-title">Transfer Bank / ATM</div>
+                <div class="cara-text">Transfer ke rekening sekolah. Cantumkan nama siswa + "BUKU" sebagai berita transfer.</div>
+              </div>
+            </div>
+            <div class="cara-item">
+              <div class="cara-num">2</div>
+              <div>
+                <div class="cara-title">Bayar Tunai di Sekolah</div>
+                <div class="cara-text">Datang ke ruang TU pada hari sekolah pukul 07.30–13.00 WITA.</div>
+              </div>
+            </div>
+            <div class="cara-item">
+              <div class="cara-num">3</div>
+              <div>
+                <div class="cara-title">Konfirmasi ke Wali Kelas</div>
+                <div class="cara-text">Setelah transfer, konfirmasi pembayaran ke wali kelas dengan mengirim bukti transfer.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rekening Sekolah -->
+        <div class="info-card">
+          <div class="info-card-header">🏦 Rekening Sekolah</div>
+          <div class="info-card-body">
+            <div class="rek-row">
+              <div>
+                <div class="rek-label">Bank</div>
+                <div class="rek-bank">BNI (Bank Negara Indonesia)</div>
+              </div>
+            </div>
+            <div class="rek-row">
+              <div>
+                <div class="rek-label">Nomor Rekening</div>
+                <div class="rek-value">1326013366</div>
+              </div>
+            </div>
+            <div class="rek-row">
+              <div>
+                <div class="rek-label">Atas Nama</div>
+                <div class="rek-value">Royandi Setiadi</div>
+              </div>
+            </div>
+            <div class="rek-row" style="border-bottom:none">
+              <div>
+                <div class="rek-label">Berita Transfer</div>
+                <div class="rek-value" style="color:#1a4f8a">BUKU [Nama Siswa] [Kelas]</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Kontak Operator -->
+        <div class="info-card">
+          <div class="info-card-header">📞 Kontak Operator</div>
+          <div class="info-card-body">
+            <div class="kontak-row">
+              <div class="kontak-icon">
+                <svg viewBox="0 0 16 16" fill="none"><path d="M3 2h2.5l1 3L5 6.5a9.5 9.5 0 004.5 4.5L11 9.5l3 1V13a1 1 0 01-1 1C5.8 14 2 10.2 2 3a1 1 0 011-1z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div>
+                <div class="kontak-label">WhatsApp</div>
+                <div class="kontak-val">0895-1824-1480</div>
+              </div>
+            </div>
+            <div class="kontak-row">
+              <div class="kontak-icon">
+                <svg viewBox="0 0 16 16" fill="none"><path d="M2 4l6 5 6-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><rect x="1" y="3" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.4"/></svg>
+              </div>
+              <div>
+                <div class="kontak-label">Email</div>
+                <div class="kontak-val" style="font-size:12px">tusditabuhurairahsembalun@gmail.com</div>
+              </div>
+            </div>
+            <div class="kontak-row" style="border-bottom:none">
+              <div class="kontak-icon">
+                <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="7" r="3" stroke="currentColor" stroke-width="1.4"/><path d="M2.5 14C2.5 11 5 9 8 9s5.5 2 5.5 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+              </div>
+              <div>
+                <div class="kontak-label">Petugas TU (Bendahara)</div>
+                <div class="kontak-val">Royandi Setiadi, S.Si.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Jadwal Operasional TU -->
+        <div class="info-card">
+          <div class="info-card-header">🕐 Jadwal Operasional TU (Bendahara)</div>
+          <div class="info-card-body" style="font-size:13px;color:#555;line-height:1.8">
+            <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f5f5f5">
+              <span>Senin – Jum'at</span>
+              <span style="font-weight:600;color:#1a1a2e">07.30 – 13.00</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f5f5f5">
+              <span>Sabtu</span>
+              <span style="font-weight:600;color:#1a1a2e">08.30 – 11.30</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:5px 0">
+              <span>Minggu &amp; Hari Libur</span>
+              <span style="font-weight:600;color:#aaa">Tutup</span>
+            </div>
+            <div style="margin-top:10px;background:#fffbf0;border:1px solid #fde68a;border-radius:8px;padding:10px 12px;font-size:12px;color:#92400e">
+              ⏰ Pembayaran buku dapat dilakukan langsung di TU sekolah pada jam operasional di atas.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /content-grid -->
+  </div><!-- /main-content -->
+</div><!-- /main -->
+
+<script>
+/*
+  ══════════════════════════════════════════════════════════
+  KONFIGURASI — Sheet "BAYAR BUKU"
+  Struktur data transaksi (kolom A–H):
+    A(0): NIS
+    B(1): NAMA
+    C(2): BUKU PAKET   → "1 PUTRA", "2 PUTRI", dst
+    D(3): TAHUN AJARAN
+    E(4): DIBAYAR      → nominal yang sudah dibayar
+    F(5): STATUS       → LUNAS / CICILAN / BELUM
+    G(6): METODE       → Transfer Bank / Tunai / QRIS / dll
+    H(7): TANGGAL BAYAR
+
+  Tabel referensi kelas (kolom K–M, mulai baris 2):
+    K(10): BUKU PAKET  → "1 PUTRA", "1 PUTRI", ..., "6 PUTRI"
+    L(11): MAPEL       → daftar mapel yang diterima
+    M(12): TOTAL TAGIHAN → nominal total yang harus dibayar
+  ══════════════════════════════════════════════════════════
+*/
+
+const SHEET_ID       = '1IBSU9uISBaLwEydw-uzviHFCgFwLeywy6EzKqz3GQto';
+const SHEET_URL_BUKU = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=BAYAR%20BUKU`;
+
+/* ── Master daftar mapel per kategori kelas ── */
+const MAPEL_KELAS_RENDAH = [
+  'MATEMATIKA','BAHASA INDONESIA','BAHASA INGGRIS',
+  'BAHASA ARAB','AKIDAH','FIQIH','ADAB','KEPRIBADIAN','HADIST'
+]; // Kelas 1 & 2
+
+const MAPEL_KELAS_TINGGI = [
+  'MATEMATIKA','BAHASA INDONESIA','BAHASA INGGRIS','IPAS',
+  'BAHASA ARAB','AKIDAH','FIQIH','ADAB','KEPRIBADIAN','HADIST'
+]; // Kelas 3–6
+
+const EMOJI_MAPEL = {
+  'matematika'     : '🔢',
+  'bahasa indonesia': '📝',
+  'bahasa inggris' : '🌐',
+  'bahasa arab'    : '📖',
+  'ipas'           : '🔬',
+  'akidah'         : '☪️',
+  'fiqih'          : '📜',
+  'adab'           : '🤝',
+  'kepribadian'    : '💡',
+  'hadist'         : '📿',
+  'default'        : '📘'
+};
+
+function getEmoji(mapel) {
+  if (!mapel) return '📘';
+  const key = mapel.toLowerCase().trim();
+  for (const [k, v] of Object.entries(EMOJI_MAPEL)) {
+    if (key.includes(k)) return v;
+  }
+  return EMOJI_MAPEL.default;
+}
+
+/* ── Session storage — sama persis dengan pembayaran-spp.html ── */
+function getProfil() {
+  const raw = sessionStorage.getItem('profil');
+  if (raw) { try { return JSON.parse(raw); } catch(e) {} }
+  const nis   = sessionStorage.getItem('nis');
+  const nama  = sessionStorage.getItem('nama');
+  const kelas = sessionStorage.getItem('kelas');
+  if (nis) return { nis, nama: nama || '—', kelas: kelas || '—' };
+  return null;
+}
+
+function fmtRupiah(n) {
+  if (!n && n !== 0) return '—';
+  return 'Rp ' + Math.round(Number(n)).toLocaleString('id-ID');
+}
+
+function fmtTanggal(str) {
+  if (!str || str === '—') return '—';
+  const s = String(str).trim();
+
+  // Format dari Google Sheets GViz: "Date(2025,9,1)" → tahun, bulan-0-indexed, hari
+  const gviz = s.match(/^Date\((\d{4}),(\d{1,2}),(\d{1,2})\)$/);
+  if (gviz) {
+    const d = new Date(Number(gviz[1]), Number(gviz[2]), Number(gviz[3]));
+    return d.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
+  }
+
+  // Format DD/MM/YYYY atau D/M/YYYY
+  const dmy = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+  if (dmy) {
+    const d = new Date(Number(dmy[3]), Number(dmy[2]) - 1, Number(dmy[1]));
+    if (!isNaN(d)) return d.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
+  }
+
+  // Format YYYY-MM-DD
+  const ymd = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (ymd) {
+    const d = new Date(Number(ymd[1]), Number(ymd[2]) - 1, Number(ymd[3]));
+    if (!isNaN(d)) return d.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
+  }
+
+  // Fallback: coba new Date() langsung
+  const d = new Date(s);
+  if (!isNaN(d)) return d.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
+
+  return s;
+}
+
+/*
+  Tentukan kategori buku paket dari KELAS siswa (diambil dari sheet SISWA)
+  KELAS = "1 PUTRA" / "1 PUTRI" / "2 PUTRA" / ... / "6 PUTRI"
+  Kembalikan string kategori seperti "1 PUTRA" untuk dicocokkan dengan kolom C dan tabel referensi K
+*/
+function getKategoriBuku(kelas) {
+  if (!kelas) return null;
+  // KELAS sudah berbentuk "1 PUTRA" / "2 PUTRI" dst — langsung kembalikan uppercase
+  return String(kelas).trim().toUpperCase();
+}
+
+/*
+  Tentukan daftar mapel berdasarkan nomor kelas
+*/
+function getMapelList(kategoriBuku) {
+  if (!kategoriBuku) return MAPEL_KELAS_RENDAH;
+  const angka = parseInt(kategoriBuku); // ambil angka dari "1 PUTRA" → 1
+  return (angka >= 3) ? MAPEL_KELAS_TINGGI : MAPEL_KELAS_RENDAH;
+}
+
+/* ══════════════════════════════════════════════════════════
+   FETCH — Ambil semua data dari sheet "BAYAR BUKU"
+   Sekaligus ambil tabel referensi di kolom K–M
+   ══════════════════════════════════════════════════════════ */
+async function fetchDataBuku() {
+  const res = await fetch(SHEET_URL_BUKU);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const text = await res.text();
+  const json = JSON.parse(text.replace(/^[^\(]+\(|\);?\s*$/g, ''));
+  const rows = json.table.rows;
+
+  const transaksi  = []; // Data pembayaran per siswa (kolom A–H)
+  const refKelas   = {}; // Tabel referensi: { "1 PUTRA": { mapel:[...], tagihan: 0 }, ... }
+
+  rows.forEach(r => {
+    if (!r.c) return;
+    const getV = (i) => {
+      if (!r.c[i]) return null;
+      return r.c[i].v ?? r.c[i].f ?? null;
+    };
+    const str  = (i) => String(getV(i) ?? '').trim();
+    const num  = (i) => { const v = getV(i); return v ? parseFloat(String(v).replace(/[^0-9.]/g,'')) || 0 : 0; };
+
+    // ── Baris transaksi (kolom A–H) ──
+    const nis = str(0);
+    if (nis && /^\d+$/.test(nis)) {
+      transaksi.push({
+        nis,
+        nama      : str(1),
+        bukuPaket : str(2).toUpperCase(),  // "1 PUTRA", "3 PUTRI", dst
+        tahunAjaran: str(3),
+        dibayar   : num(4),
+        status    : str(5).toUpperCase() || 'BELUM',
+        metode    : str(6) || '—',
+        tglBayar  : str(7),
+      });
+    }
+
+    // ── Baris referensi kelas (kolom K=10, L=11, M=12) ──
+    const refKey = str(10).toUpperCase(); // "1 PUTRA", "2 PUTRI", dst
+    if (refKey && refKey.match(/^\d+\s+(PUTRA|PUTRI)$/)) {
+      const mapelRaw = str(11); // bisa dipisah koma, newline, atau titik koma
+      const mapelArr = mapelRaw
+        .split(/[,\n;\/]+/)
+        .map(m => m.trim().toUpperCase())
+        .filter(m => m.length > 0);
+      const tagihan  = num(12);
+      refKelas[refKey] = { mapel: mapelArr, tagihan };
+    }
+  });
+
+  return { transaksi, refKelas };
+}
+
+/* ══════════════════════════════════════════════════════════
+   PROSES — Susun data untuk siswa tertentu
+   ══════════════════════════════════════════════════════════ */
+function prosesData(profil, transaksi, refKelas) {
+  const nis           = String(profil.nis).trim();
+  const kategoriBuku  = getKategoriBuku(profil.kelas); // mis. "1 PUTRA"
+
+  // Ambil data transaksi milik siswa ini
+  const myRows = transaksi.filter(r => r.nis === nis);
+
+  // Ambil referensi kelas (dari tabel K–M)
+  let ref = refKelas[kategoriBuku];
+
+  // Fallback jika tabel referensi kosong di sheet: gunakan data statis
+  if (!ref) {
+    const angka = parseInt(kategoriBuku) || 1;
+    const mapel = angka >= 3 ? MAPEL_KELAS_TINGGI : MAPEL_KELAS_RENDAH;
+    ref = { mapel, tagihan: 0 };
+  }
+
+  // Jika ada data transaksi → pakai statusnya
+  if (myRows.length > 0) {
+    // Kelompokkan per tahun ajaran (bisa lebih dari satu tahun)
+    const tahunMap = {};
+    myRows.forEach(r => {
+      const key = r.tahunAjaran || 'Tidak diketahui';
+      if (!tahunMap[key]) tahunMap[key] = [];
+      tahunMap[key].push(r);
+    });
+    return { hasilTransaksi: tahunMap, ref, kategoriBuku, adaTransaksi: true };
+  }
+
+  // Tidak ada data transaksi → tampilkan info kelas + status BELUM
+  return { hasilTransaksi: null, ref, kategoriBuku, adaTransaksi: false };
+}
+
+/* ══════════════════════════════════════════════════════════
+   RENDER UI
+   ══════════════════════════════════════════════════════════ */
+let globalData = null;
+let tahunKeys  = [];
+
+function renderUI(profil, hasil) {
+  const { hasilTransaksi, ref, kategoriBuku, adaTransaksi } = hasil;
+
+  // Sidebar
+  document.getElementById('sidebar-nama').textContent   = profil.nama  || '—';
+  document.getElementById('sidebar-kelas').textContent  = profil.kelas || '—';
+  document.getElementById('sidebar-avatar').textContent = (profil.nama || '?')[0].toUpperCase();
+
+  // Topbar
+  document.getElementById('topbar-info').textContent =
+    `${profil.nama} • ${profil.kelas} • ${new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'})}`;
+  document.getElementById('refresh-btn').style.display = 'block';
+
+  // ── Panel kanan: Ringkasan Kelas ──
+  document.getElementById('summary-kategori').textContent = `Buku Paket ${kategoriBuku}`;
+  document.getElementById('summary-jml-mapel').textContent = ref.mapel.length + ' mapel';
+  document.getElementById('summary-tagihan').textContent   = ref.tagihan > 0 ? fmtRupiah(ref.tagihan) : '—';
+
+  // ── Stat Cards ──
+  let totalTagihan = ref.tagihan || 0;
+  let totalDibayar = 0;
+  let statusUtama  = 'BELUM';
+  let metodeUtama  = '—';
+  let tglUtama     = '—';
+  let tahunUtama   = '—';
+
+  if (adaTransaksi && hasilTransaksi) {
+    // Ambil tahun ajaran terbaru
+    tahunKeys = Object.keys(hasilTransaksi).sort((a,b) => b.localeCompare(a));
+    tahunUtama = tahunKeys[0] || '—';
+    const rowsTerbaru = hasilTransaksi[tahunUtama];
+    const rowUtama = rowsTerbaru[0]; // hanya 1 baris per NIS per tahun
+    totalDibayar = rowUtama.dibayar || 0;
+    statusUtama  = rowUtama.status  || 'BELUM';
+    metodeUtama  = rowUtama.metode  || '—';
+    tglUtama     = rowUtama.tglBayar|| '—';
+    if (rowUtama.bukuPaket && ref.tagihan === 0) {
+      // Jika ref tidak ada tagihan, coba ambil dari data lain
+      totalTagihan = 0;
+    }
+  }
+
+  const selisih      = totalTagihan > 0 ? totalDibayar - totalTagihan : 0;
+  const totalSisa    = selisih < 0 ? Math.abs(selisih) : 0;  // kekurangan
+  const totalLebih   = selisih > 0 ? selisih : 0;             // kelebihan bayar
+  const pct          = totalTagihan > 0 ? Math.min(Math.round((totalDibayar / totalTagihan) * 100), 100) : 0;
+  const adaLebih     = totalLebih > 0;
+
+  // Stat cards
+  document.getElementById('stat-kategori').textContent = kategoriBuku;
+  document.getElementById('stat-tagihan').textContent  = fmtRupiah(totalTagihan);
+  document.getElementById('stat-dibayar').textContent  = fmtRupiah(totalDibayar);
+
+  // Card ke-4: dinamis — Sisa Tagihan / Kelebihan Bayar / Lunas Pas
+  const cardSisaEl    = document.getElementById('stat-sisa');
+  const labelSisaEl   = cardSisaEl.closest('.status-card').querySelector('.status-label');
+  const iconSisaEl    = cardSisaEl.closest('.status-card').querySelector('.status-icon');
+
+  if (adaLebih) {
+    // Kelebihan bayar — tampilkan biru
+    cardSisaEl.textContent        = fmtRupiah(totalLebih);
+    cardSisaEl.style.color        = '#1a4f8a';
+    labelSisaEl.textContent       = '💰 Kelebihan Bayar';
+    iconSisaEl.className          = 'status-icon blue';
+    iconSisaEl.innerHTML          = '<svg viewBox="0 0 16 16" fill="none"><path d="M8 2v12M5 5l3-3 3 3M5 11l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  } else if (totalSisa === 0 && statusUtama !== 'BELUM') {
+    // Lunas pas
+    cardSisaEl.textContent        = '✓ Lunas Pas';
+    cardSisaEl.style.color        = '#2d8653';
+    cardSisaEl.style.fontSize     = '14px';
+    labelSisaEl.textContent       = 'Sisa Tagihan';
+    iconSisaEl.className          = 'status-icon green';
+    iconSisaEl.innerHTML          = '<svg viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  } else {
+    // Masih ada sisa / belum bayar
+    cardSisaEl.textContent        = fmtRupiah(totalSisa);
+    cardSisaEl.style.color        = '#b45309';
+    labelSisaEl.textContent       = 'Sisa Tagihan';
+    iconSisaEl.className          = 'status-icon amber';
+    iconSisaEl.innerHTML          = '<svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.4"/><path d="M8 5v3M8 11v.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+  }
+
+  // Progress bar
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-text').textContent  = adaLebih ? '100% Lunas ✓' : pct + '% lunas';
+
+  // Alert banner
+  if (statusUtama === 'BELUM') {
+    tampilAlert('peringatan',
+      '⚠️ Pembayaran Buku Paket Belum Dilakukan',
+      `Total tagihan ${fmtRupiah(totalTagihan)}. Segera lakukan pembayaran ke TU sekolah.`);
+  } else if (statusUtama === 'CICILAN') {
+    tampilAlert('peringatan',
+      '⚑ Pembayaran Buku Paket Belum Lunas',
+      `Kekurangan pembayaran sebesar ${fmtRupiah(totalSisa)}. Harap segera dilunasi.`);
+  } else if (adaLebih) {
+    tampilAlert('info',
+      '✓ Pembayaran Lunas — Ada Kelebihan Bayar',
+      `Pembayaran ${fmtRupiah(totalDibayar)} telah diterima (tagihan ${fmtRupiah(totalTagihan)}). Kelebihan sebesar ${fmtRupiah(totalLebih)} — harap konfirmasi ke TU sekolah.`);
+  } else {
+    tampilAlert('info',
+      '✓ Pembayaran Buku Paket Lunas',
+      `Pembayaran sebesar ${fmtRupiah(totalDibayar)} telah diterima. Terima kasih!`);
+  }
+
+  // ── Render daftar buku (mapel) ──
+  renderDaftarBuku(ref.mapel, statusUtama, totalTagihan, totalDibayar, tglUtama, metodeUtama, tahunUtama);
+
+  // ── Render tab tahun ajaran (jika ada riwayat) ──
+  renderTabTahun(hasilTransaksi, ref);
+
+  // Tampilkan
+  document.getElementById('loading-area').style.display = 'none';
+  document.getElementById('main-content').style.display = 'block';
+}
+
+function tampilAlert(tipe, judul, deskripsi) {
+  const banner = document.getElementById('alert-banner');
+  banner.classList.remove('hidden', 'info');
+  if (tipe === 'info') banner.classList.add('info');
+  document.getElementById('alert-title').textContent = judul;
+  document.getElementById('alert-desc').textContent  = deskripsi;
+}
+
+function renderDaftarBuku(mapelArr, status, totalTagihan, totalDibayar, tgl, metode, tahun) {
+  const container = document.getElementById('buku-list');
+  const labelTahun = document.getElementById('label-semester-aktif');
+  container.innerHTML = '';
+
+  labelTahun.textContent = tahun !== '—' ? `Tahun Ajaran ${tahun}` : 'Tahun Ajaran Aktif';
+
+  const chipClass  = status === 'LUNAS' ? 'lunas' : status === 'CICILAN' ? 'cicilan' : 'belum';
+
+  mapelArr.forEach(mapel => {
+    const chip = document.createElement('span');
+    chip.className = `buku-chip ${chipClass}`;
+    chip.innerHTML = `<span class="buku-chip-icon">${getEmoji(mapel)}</span>${mapel}`;
+    container.appendChild(chip);
+  });
+}
+
+function renderTabTahun(hasilTransaksi, ref) {
+  const tabsEl  = document.getElementById('semester-tabs');
+  const tbody   = document.getElementById('riwayat-tbody');
+  tabsEl.innerHTML = '';
+  tbody.innerHTML  = '';
+
+  if (!hasilTransaksi || Object.keys(hasilTransaksi).length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:#aaa;padding:20px">
+      Belum ada riwayat pembayaran tercatat di sistem.</td></tr>`;
+    return;
+  }
+
+  const sortedTahun = Object.keys(hasilTransaksi).sort((a,b) => b.localeCompare(a));
+
+  sortedTahun.forEach((tahun, i) => {
+    // Tab
+    const btn = document.createElement('button');
+    btn.className = 'semester-tab' + (i === 0 ? ' active' : '');
+    btn.textContent = `TA ${tahun}`;
+    btn.onclick = () => {
+      document.querySelectorAll('.semester-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderRiwayatTahun(hasilTransaksi[tahun], ref, tahun);
+      renderDaftarBuku(
+        ref.mapel,
+        hasilTransaksi[tahun][0]?.status || 'BELUM',
+        ref.tagihan,
+        hasilTransaksi[tahun][0]?.dibayar || 0,
+        hasilTransaksi[tahun][0]?.tglBayar || '—',
+        hasilTransaksi[tahun][0]?.metode || '—',
+        tahun
+      );
+    };
+    tabsEl.appendChild(btn);
+  });
+
+  // Render tabel riwayat untuk tahun pertama
+  renderRiwayatTahun(hasilTransaksi[sortedTahun[0]], ref, sortedTahun[0]);
+}
+
+function renderRiwayatTahun(rows, ref, tahun) {
+  const tbody = document.getElementById('riwayat-tbody');
+  tbody.innerHTML = '';
+
+  rows.forEach(r => {
+    const status    = r.status || 'BELUM';
+    const tagihan   = ref.tagihan || 0;
+    const dibayar   = r.dibayar || 0;
+    const selisih   = tagihan > 0 ? dibayar - tagihan : 0;
+    const sisa      = selisih < 0 ? Math.abs(selisih) : 0;
+    const lebih     = selisih > 0 ? selisih : 0;
+
+    // Badge — jika LUNAS tapi ada kelebihan, tampilkan badge khusus
+    let badgeClass, badgeLabel;
+    if (status === 'LUNAS' && lebih > 0) {
+      badgeClass = 'badge-lebih'; badgeLabel = '✓ Lunas + Lebih';
+    } else if (status === 'LUNAS') {
+      badgeClass = 'badge-lunas'; badgeLabel = '✓ Lunas';
+    } else if (status === 'CICILAN') {
+      badgeClass = 'badge-cicilan'; badgeLabel = '⚑ Cicilan';
+    } else {
+      badgeClass = 'badge-belum'; badgeLabel = '✗ Belum';
+    }
+
+    // Kolom sisa/lebih — dinamis
+    let sisaHtml;
+    if (lebih > 0) {
+      sisaHtml = `<span style="color:#1a4f8a;font-weight:700">+${fmtRupiah(lebih)}<br><span style="font-size:10px;font-weight:400;color:#5b8fc7">kelebihan bayar</span></span>`;
+    } else if (sisa > 0) {
+      sisaHtml = `<span style="color:#e53e3e;font-weight:700">${fmtRupiah(sisa)}</span>`;
+    } else {
+      sisaHtml = `<span style="color:#aaa">—</span>`;
+    }
+
+    const tr = document.createElement('tr');
+    if (status === 'CICILAN') tr.style.background = '#fffdf0';
+    if (status === 'BELUM')   tr.style.background = '#fff9f9';
+    if (lebih > 0)            tr.style.background = '#f0f7ff';
+
+    tr.innerHTML = `
+      <td style="font-weight:600;color:#1a1a2e">${r.bukuPaket || '—'}</td>
+      <td>${tahun}</td>
+      <td style="font-weight:700;color:#1a4f8a">${tagihan > 0 ? fmtRupiah(tagihan) : '—'}</td>
+      <td style="font-weight:700;color:#2d8653">${dibayar > 0 ? fmtRupiah(dibayar) : '<span style="color:#aaa">—</span>'}</td>
+      <td>${sisaHtml}</td>
+      <td>${fmtTanggal(r.tglBayar)}</td>
+      <td>${r.metode && r.metode !== '—' ? r.metode : '<span style="color:#aaa">—</span>'}</td>
+      <td><span class="badge ${badgeClass}">${badgeLabel}</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+/* ══════════════════════════════════════════════════════════
+   ENTRY POINT
+   ══════════════════════════════════════════════════════════ */
+async function init() {
+  const profil = getProfil();
+  if (!profil || !profil.nis) {
+    window.location.href = 'index.html';
+    return;
+  }
+
+  try {
+    const { transaksi, refKelas } = await fetchDataBuku();
+    const hasil = prosesData(profil, transaksi, refKelas);
+    globalData  = { hasil, profil };
+    renderUI(profil, hasil);
+
+  } catch(err) {
+    console.error('[BUKU]', err);
+    document.getElementById('loading-area').style.display = 'none';
+    document.getElementById('error-area').style.display  = 'block';
+    document.getElementById('error-msg-text').textContent =
+      'Gagal mengambil data dari server. Pastikan spreadsheet sudah di-publish (Share → Anyone with link).';
+  }
+}
+
+function muatUlang() {
+  document.getElementById('main-content').style.display = 'none';
+  document.getElementById('error-area').style.display  = 'none';
+  document.getElementById('loading-area').style.display = 'flex';
+  init();
+}
+
+function doLogout() {
+  sessionStorage.clear();
+  window.location.href = 'index.html';
+}
+
+/* ── Toggle submenu pembayaran ── */
+function toggleSubmenu() {
+  const parent  = document.getElementById('nav-pembayaran');
+  const submenu = document.getElementById('submenu-pembayaran');
+  const isOpen  = submenu.classList.contains('open');
+  if (isOpen) {
+    submenu.classList.remove('open');
+    parent.classList.remove('open');
+  } else {
+    submenu.classList.add('open');
+    parent.classList.add('open');
+  }
+}
+
+init();
+</script>
+</body>
+</html>

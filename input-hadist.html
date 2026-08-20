@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Input Nilai Hadist — Portal SD IT Abu Hurairah Sembalun</title>
+  <link rel="stylesheet" href="responsive.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; min-height: 100vh; display: flex; }
+
+    .sidebar { width: 230px; min-height: 100vh; background: #1a4f8a; display: flex; flex-direction: column; flex-shrink: 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+    .sidebar-header { display: flex; flex-direction: column; align-items: center; padding: 28px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.12); gap: 10px; }
+    .sidebar-school { font-size: 12px; font-weight: 700; color: #fff; text-align: center; line-height: 1.4; text-transform: uppercase; }
+    .sidebar-school span { display: block; font-size: 10px; font-weight: 400; color: rgba(255,255,255,0.55); text-transform: none; margin-top: 2px; }
+    .guru-info { display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,0.12); }
+    .avatar { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
+    .guru-name { font-size: 13px; font-weight: 600; color: #fff; }
+    .guru-role { font-size: 11px; color: rgba(255,255,255,0.55); margin-top: 1px; }
+    .nav { padding: 12px 0; flex: 1; }
+    .nav-section-label { font-size: 10px; color: rgba(255,255,255,0.4); padding: 8px 18px 4px; letter-spacing: 0.06em; text-transform: uppercase; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 18px; cursor: pointer; font-size: 13px; color: rgba(255,255,255,0.7); border-left: 3px solid transparent; transition: all 0.13s; text-decoration: none; }
+    .nav-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .nav-item.active { background: rgba(255,255,255,0.13); color: #fff; border-left-color: #fff; font-weight: 600; }
+    .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.8; }
+    .nav-item.active svg { opacity: 1; }
+    .nav-item .soon { margin-left: auto; font-size: 9px; background: rgba(255,255,255,0.15); padding: 2px 6px; border-radius: 20px; font-weight: 600; }
+    .sidebar-footer { padding: 14px 18px; border-top: 1px solid rgba(255,255,255,0.12); }
+    .btn-logout { width: 100%; padding: 9px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: rgba(255,255,255,0.8); font-size: 12px; cursor: pointer; }
+    .btn-logout:hover { background: rgba(255,255,255,0.18); }
+
+    .main { flex: 1; padding: 28px 32px; overflow-y: auto; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+    .page-title { font-size: 20px; font-weight: 700; color: #1a1a2e; }
+    .page-date { font-size: 13px; color: #999; margin-top: 2px; }
+    .rdot { width: 7px; height: 7px; border-radius: 50%; background: #2d8653; flex-shrink: 0; display:inline-block; }
+    .rdot.spin { background: #f59e0b; animation: blink 0.8s infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+    .refresh-info { font-size: 11px; color: #aaa; display: flex; align-items: center; gap: 6px; }
+
+    #warn-bar { display:none; background:#fff3cd; border:1px solid #ffc107; border-radius:10px; padding:12px 16px; margin-bottom:20px; font-size:13px; color:#856404; line-height:1.6; }
+    #ok-bar   { display:none; background:#eafff3; border:1px solid #6ee7b7; border-radius:10px; padding:12px 16px; margin-bottom:20px; font-size:13px; color:#065f46; line-height:1.6; }
+    .empty { text-align:center; padding:24px; color:#bbb; font-size:13px; }
+    .card { background: #fff; border-radius: 14px; border: 1px solid #eee; padding: 20px 22px; margin-bottom: 20px; }
+    .card-title { font-size: 14px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+    .card-desc { font-size: 12px; color: #999; margin-bottom: 16px; }
+
+    .picker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: 12px; }
+    .picker-card { border: 1.5px solid #e5e5e5; border-radius: 12px; padding: 14px 16px; cursor: pointer; transition: all 0.15s; background:#fff; }
+    .picker-card:hover { border-color: #0891b2; box-shadow: 0 4px 14px rgba(8,145,178,0.1); }
+    .picker-title { font-size: 14.5px; font-weight: 700; color: #1a1a2e; }
+    .picker-sub { font-size: 12px; color: #999; margin-top: 2px; }
+
+    .search-box { position: relative; margin-bottom: 14px; }
+    .search-box input { width: 100%; padding: 9px 12px 9px 32px; border: 1px solid #e0e0e0; border-radius: 9px; font-size: 13px; }
+    .search-box svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: #bbb; }
+
+    .santri-row { display:flex; align-items:center; gap:12px; padding:11px 6px; border-bottom:1px solid #f5f5f5; cursor:pointer; border-radius: 8px; }
+    .santri-row:hover { background: #f0fbfd; }
+    .santri-row:last-child { border-bottom:none; }
+    .s-avatar { width:34px; height:34px; border-radius:50%; background:#e0f7fb; color:#0891b2; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0; }
+    .s-nama { font-size:13px; font-weight:600; color:#1a1a2e; }
+    .s-nis  { font-size:11px; color:#999; }
+
+    .active-head { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:6px; }
+    .active-nama { font-size:17px; font-weight:700; color:#1a1a2e; }
+    .active-meta { font-size:12.5px; color:#999; margin-top:2px; }
+    .btn-ganti { font-size:12px; color:#0891b2; background:#e0f7fb; border:none; border-radius:8px; padding:7px 12px; cursor:pointer; font-weight:600; flex-shrink:0; }
+
+    .stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:6px; }
+    .stat-mini { border-radius:12px; padding:16px 14px; text-align:center; transition:transform .15s; }
+    .stat-mini:hover { transform:translateY(-2px); }
+    .stat-mini .n { font-size:24px; font-weight:800; line-height:1; }
+    .stat-mini .l { font-size:11px; margin-top:6px; font-weight:600; }
+    .sm-belum { background:#f5f5f5; } .sm-belum .n,.sm-belum .l { color:#888; }
+    .sm-sedang { background:#eef4fb; } .sm-sedang .n,.sm-sedang .l { color:#1a4f8a; }
+    .sm-sudah { background:#f0faf4; } .sm-sudah .n,.sm-sudah .l { color:#065f46; }
+    .sm-progress { background:#f3f0ff; } .sm-progress .n,.sm-progress .l { color:#7c3aed; }
+
+    .status-filter { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px; }
+    .sf-btn { font-size:12px; padding:8px 16px; border-radius:20px; border:1.5px solid #e5e5e5; background:#fff; cursor:pointer; color:#666; font-weight:600; transition:all .15s; }
+    .sf-btn:hover { border-color:#0891b2; color:#0891b2; }
+    .sf-btn.active { background:#0891b2; border-color:#0891b2; color:#fff; font-weight:700; box-shadow:0 3px 10px rgba(8,145,178,0.3); }
+
+    .tabel-wrap { overflow-x:auto; border:1px solid #d5dbe3; border-radius:10px; max-height: 560px; overflow-y: auto; }
+    table.hadist-tbl { border-collapse:collapse; width:100%; min-width:820px; font-size:13px; table-layout:fixed; }
+
+    /* ── Override bug responsive.css: `table{display:block}` + `thead,tbody{display:table}`
+       memecah header & body jadi konteks layout terpisah, bikin kolom tidak sejajar.
+       Paksa balik ke tabel Excel-style yang sesungguhnya, khusus utk tabel ini. ── */
+    table.hadist-tbl { display: table; }
+    table.hadist-tbl thead { display: table-header-group; }
+    table.hadist-tbl tbody { display: table-row-group; }
+    table.hadist-tbl tr { display: table-row; }
+    table.hadist-tbl th, table.hadist-tbl td { display: table-cell; }
+
+    table.hadist-tbl th, table.hadist-tbl td { border:1px solid #dfe3e8; padding:0; text-align:left; white-space:nowrap; }
+    table.hadist-tbl thead th { background:#f7f9fc; color:#5a6472; font-weight:700; font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; position:sticky; top:0; z-index:1; padding:10px 12px; white-space:normal; }
+    table.hadist-tbl th:nth-child(1), table.hadist-tbl td.no-cell { text-align:center; }
+    table.hadist-tbl th:nth-child(3), table.hadist-tbl th:nth-child(4) { text-align:center; }
+    table.hadist-tbl tbody tr:hover td { background:#f7fbfc; }
+    table.hadist-tbl td.judul-cell { font-weight:600; color:#1a1a2e; padding:10px 14px; white-space:normal; }
+    table.hadist-tbl td.no-cell { color:#0891b2; font-weight:700; font-size:12px; background:#fafcfd; padding:10px 6px; }
+    table.hadist-tbl td.catatan-cell { padding:0; }
+
+    table.hadist-tbl col.col-no { width:40px; }
+    table.hadist-tbl col.col-judul { width:auto; }
+    table.hadist-tbl col.col-nilai { width:80px; }
+    table.hadist-tbl col.col-hasil { width:150px; }
+    table.hadist-tbl col.col-catatan { width:220px; }
+
+    table.hadist-tbl input {
+      width:100%; height:38px; padding:0 10px; margin:0; border:none; border-radius:0;
+      font-size:12.5px; background:transparent; box-sizing:border-box;
+    }
+    table.hadist-tbl input[type=number] { text-align:center; }
+    table.hadist-tbl input:focus { outline:2px solid #0891b2; outline-offset:-2px; background:#f7fbfc; }
+    table.hadist-tbl input::-webkit-outer-spin-button,
+    table.hadist-tbl input::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+    table.hadist-tbl input[type=number] { -moz-appearance:textfield; }
+    table.hadist-tbl td.hasil-cell { padding:6px 8px; }
+    .hasil-badge { padding:7px 10px; border-radius:8px; border:1.5px solid #e0e0e0; background:#fafafa; font-size:11.5px; font-weight:700; text-align:center; color:#aaa; }
+    .hasil-badge.sudah { background:#d1fae5; border-color:#2d8653; color:#065f46; }
+    .hasil-badge.mengulang { background:#fff5f5; border-color:#c53030; color:#c53030; }
+
+    .save-bar { position:sticky; bottom:0; background:#fff; border-top:1px solid #eee; margin:16px -22px -20px; padding:14px 22px; display:flex; align-items:center; justify-content:space-between; border-radius:0 0 14px 14px; flex-wrap:wrap; gap:10px; }
+    .btn-simpan { background:#0891b2; color:#fff; border:none; border-radius:10px; padding:12px 22px; font-size:14px; font-weight:700; cursor:pointer; }
+    .btn-simpan:hover { background:#067a94; }
+    .btn-simpan:disabled { background:#bbb; cursor:not-allowed; }
+    .save-note { font-size:11.5px; color:#999; }
+
+    .judul-link { display:inline-flex; align-items:center; gap:6px; cursor:pointer; color:#1a1a2e; }
+    .judul-link .jl-icon { color:#0891b2; font-size:13px; opacity:.7; flex-shrink:0; }
+    .judul-link .jl-text { border-bottom:1.5px dashed #cfe0e5; padding-bottom:1px; }
+    .judul-link:hover .jl-text { color:#0891b2; border-bottom-color:#0891b2; }
+    .judul-link:hover .jl-icon { opacity:1; }
+
+    .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
+    .modal-backdrop.open { display: flex; }
+    .modal-content { background: #fff; border-radius: 16px; max-width: 640px; width: 100%; max-height: 85vh; overflow-y: auto; padding: 24px; position: relative; }
+    .modal-close { position: absolute; top: 16px; right: 16px; width: 30px; height: 30px; border-radius: 50%; border: none; background: #f5f5f5; color: #666; font-size: 16px; cursor: pointer; }
+    .modal-close:hover { background: #eee; }
+    .modal-judul { font-size: 16px; font-weight: 700; color: #1a1a2e; margin-bottom: 16px; padding-right: 30px; }
+    .modal-arab { font-size: 22px; color: #1a1a2e; line-height: 2.1; text-align: right; direction: rtl; background: #f8f9fa; border-radius: 10px; padding: 18px; margin-bottom: 16px; font-family: 'Traditional Arabic', 'Scheherazade New', 'Amiri', 'Segoe UI', serif; }
+    .modal-terjemah { font-size: 13.5px; color: #444; line-height: 1.8; margin-bottom: 14px; }
+    .modal-perawi { font-size: 12.5px; color: #0891b2; font-weight: 700; }
+
+    @media (max-width: 900px) { .stats-row { grid-template-columns: repeat(2,1fr); } }
+  </style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div style="width:60px;height:60px;background:rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px">🕌</div>
+    <div class="sidebar-school">SD IT Abu Hurairah<br>Sembalun<span>Lombok Timur — NTB</span></div>
+  </div>
+  <div class="guru-info">
+    <div class="avatar" id="sb-inisial">—</div>
+    <div><div class="guru-name" id="sb-nama">Memuat…</div><div class="guru-role" id="sb-role">—</div></div>
+  </div>
+  <nav class="nav">
+    <div class="nav-section-label">Menu Utama</div>
+    <a class="nav-item" href="dashboard-guru.html">
+      <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.2" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="1" width="6" height="6" rx="1.2" stroke="currentColor" stroke-width="1.4"/><rect x="1" y="9" width="6" height="6" rx="1.2" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="9" width="6" height="6" rx="1.2" stroke="currentColor" stroke-width="1.4"/></svg>
+      Dashboard</a>
+    <a class="nav-item" href="absensi-guru.html">
+      <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.4"/><path d="M2 14c0-3 2.7-5 6-5s6 2 6 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Input Absensi</a>
+    <a class="nav-item" href="input-nilai.html" id="nav-nilai">
+      <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5 6h6M5 9h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Input Nilai</a>
+    <a class="nav-item" href="kelola-etalim.html">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M8 2L14 5v4c0 3-3 5-6 5S2 12 2 9V5l6-3z" stroke="currentColor" stroke-width="1.4"/></svg>
+      Kelola E-Ta'lim</a>
+    <a class="nav-item" href="input-tahfizh.html" id="nav-tahfizh">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M3 2h7l3 3v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.4"/><path d="M10 2v4h4" stroke="currentColor" stroke-width="1.4"/><path d="M5 9h6M5 11.5h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Input Tahfizh</a>
+    <a class="nav-item active" href="input-hadist.html" id="nav-hadist">
+      <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5 5.5h6M5 8h6M5 10.5h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Nilai Hadist</a>
+    <div class="nav-section-label" style="margin-top:8px">Info</div>
+    <a class="nav-item" href="jadwal-guru.html">
+      <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="11" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M1 7h14M5 1v4M11 1v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Jadwal Pelajaran</a>
+    <a class="nav-item" href="info-sekolah.html">
+      <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.4"/><path d="M8 7v5M8 5v.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      Info Sekolah</a>
+  </nav>
+  <div class="sidebar-footer"><button class="btn-logout" onclick="doLogout()">&#8592; Keluar</button></div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div><div class="page-title">Input Nilai Hadist</div><div class="page-date" id="today-date"></div></div>
+    <div class="refresh-info"><div class="rdot" id="rdot"></div><span id="rlabel">Menghubungkan…</span></div>
+  </div>
+
+  <div id="warn-bar">⚠️ <span id="warn-msg"></span></div>
+  <div id="ok-bar">✅ <span id="ok-msg"></span></div>
+
+  <div class="card" id="kelas-picker-card">
+    <div class="card-title">Pilih Kelas Hadist</div>
+    <div class="card-desc">Daftar kelas diambil dari jadwal mengajar mapel Hadits Anda.</div>
+    <div class="picker-grid" id="kelas-grid"><div class="empty">Memuat jadwal…</div></div>
+  </div>
+
+  <div class="card" id="santri-picker-card" style="display:none">
+    <div class="active-head">
+      <div class="card-title" style="margin-bottom:0">Pilih Siswa — Kelas <span id="kelas-terpilih-label"></span></div>
+      <button class="btn-ganti" onclick="gantiKelas()">↺ Ganti kelas</button>
+    </div>
+    <div class="search-box">
+      <svg viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.4"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      <input type="text" id="search-santri" placeholder="Cari nama siswa…" oninput="renderSantriList()">
+    </div>
+    <div id="santri-list"><div class="empty">Memuat siswa…</div></div>
+  </div>
+
+  <div id="workspace" style="display:none">
+    <div class="card">
+      <div class="active-head">
+        <div>
+          <div class="active-nama" id="active-nama">—</div>
+          <div class="active-meta" id="active-meta">—</div>
+        </div>
+        <button class="btn-ganti" onclick="gantiSantri()">↺ Ganti siswa</button>
+      </div>
+      <div class="stats-row" id="stats-row"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Hafalan Hadist Arbain An-Nawawi</div>
+      <div class="card-desc" id="hadist-desc">Nilai ≥ 80 = Sudah Hafal. Di bawah 80 = Mengulang, tinggal isi ulang nilainya kapan saja saat retes. Bisa ubah beberapa hadist sekaligus, lalu klik Simpan Perubahan di bawah.</div>
+      <div class="status-filter" id="status-filter"></div>
+      <div class="tabel-wrap">
+        <table class="hadist-tbl">
+          <colgroup>
+            <col class="col-no"><col class="col-judul"><col class="col-nilai"><col class="col-hasil"><col class="col-catatan">
+          </colgroup>
+          <thead><tr><th>#</th><th>Judul Hadist</th><th>Nilai</th><th>Hasil</th><th>Catatan</th></tr></thead>
+          <tbody id="hadist-tbody"></tbody>
+        </table>
+      </div>
+      <div class="save-bar">
+        <div class="save-note" id="save-note">Belum ada perubahan.</div>
+        <button class="btn-simpan" id="btn-simpan" onclick="simpanPerubahan()">Simpan Perubahan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-backdrop" onclick="closeModal(event)">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-judul" id="m-judul"></div>
+    <div class="modal-arab" id="m-arab"></div>
+    <div class="modal-terjemah" id="m-terjemah"></div>
+    <div class="modal-perawi" id="m-perawi"></div>
+  </div>
+</div>
+
+<script>
+const SS_ID = '1IBSU9uISBaLwEydw-uzviHFCgFwLeywy6EzKqz3GQto';
+const GID = { SISWA: '0', JADWAL: '1914920371' };
+
+const HADIST_API_URL = 'https://script.google.com/macros/s/AKfycbzg4kO6jRSbheNjf4uzLic7HSN4onrADl4O_KNmio0Qa26zDqoz9lGFgydRoIVqZ9CX/exec';
+
+const HARI  = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+const BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+const HADIST_LIST = [
+  { no:1, judul:`Amalan Bergantung pada Niat`, arab:`عَنْ أَمِيرِ المُؤمِنينَ أَبي حَفْصٍ عُمَرَ بْنِ الخَطَّابِ رَضيَ اللهُ عنْهُ قَالَ: سَمِعْتُ رَسُولَ اللهِ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ يَقُوْلُ: إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ، وَإِنَّمَا لِكُلِّ امْرِئٍ مَا نَوَى، فَمَنْ كَانَتْ هِجْرَتُهُ إِلَى اللهِ وَرَسُولِهِ فَهِجْرَتُهُ إِلَى اللهِ وَرَسُولِهِ، وَمَنْ كَانَتْ هِجْرَتُهُ لِدُنْيَا يُصِيبُهَا أَوِ امْرَأَةٍ يَنْكِحُهَا فَهِجْرَتُهُ إِلَى مَا هَاجَرَ إِلَيْهِ. رَوَاهُ البُخَارِيُّ وَمُسْلِمٌ`, terjemah:`Dari Amirul Mukminin Abu Hafsh Umar bin Al Khaththab radhiyallahu 'anhu, dia berkata: Aku mendengar Rasulullah shallallahu 'alaihi wa sallam bersabda: “Amalan-amalan itu hanyalah tergantung pada niatnya, dan setiap orang hanya akan dibalas berdasarkan apa yang dia niatkan. Maka barang siapa yang hijrahnya karena Allah dan Rasul-Nya, maka hijrahnya kepada Allah dan Rasul-Nya. Namun barang siapa yang hijrahnya untuk mendapatkan dunia atau seorang wanita yang ingin ia nikahi, maka hijrahnya kepada apa yang ia niatkan tersebut.”`, perawi:`HR. Bukhari & Muslim` },
+  { no:2, judul:`Rukun Islam, Iman, dan Ihsan`, arab:`عَنْ عُمَرَ رَضِيَ اللهُ عَنْهُ أَيْضاً قَالَ: بَيْنَمَا نَحْنُ جُلُوْسٌ عِنْدَ رَسُوْلِ اللهِ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ ذَاتَ يَوْمٍ إِذْ طَلَعَ عَلَيْنَا رَجُلٌ شَدِيْدُ بَيَاضِ الثِّيَابِ شَدِيْدُ سَوَادِ الشَّعْرِ، لاَ يُرَى عَلَيْهِ أَثَرُ السَّفَرِ، وَلاَ يَعْرِفُهُ مِنَّا أَحَدٌ، حَتَّى جَلَسَ إِلَى النَّبِيِّ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ فَأَسْنَدَ رُكْبَتَيْهِ إِلَى رُكْبَتَيْهِ وَوَضَعَ كَفَّيْهِ عَلَى فَخِذَيْهِ وَقَالَ: يَا مُحَمَّد أَخْبِرْنِي عَنِ اْلإِسْلاَمِ، فَقَالَ رَسُوْلُ اللهِ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ: اْلإِسِلاَمُ أَنْ تَشْهَدَ أَنْ لاَ إِلَهَ إِلاَّ اللهُ وَأَنَّ مُحَمَّدًا رَسُوْلُ اللهِ وَتُقِيْمَ الصَّلاَةَ وَتُؤْتِيَ الزَّكاَةَ وَتَصُوْمَ رَمَضَانَ وَتَحُجَّ الْبَيْتَ إِنِ اسْتَطَعْتَ إِلَيْهِ سَبِيْلاً. قَالَ: صَدَقْتَ، فَعَجِبْنَا لَهُ يَسْأَلُهُ وَيُصَدِّقُهُ، قَالَ: فَأَخْبِرْنِي عَنِ اْلإِيْمَانِ. قَالَ: أَنْ تُؤْمِنَ بِاللهِ وَمَلاَئِكَتِهِ وَكُتُبِهِ وَرُسُلِهِ وَالْيَوْمِ الآخِرِ وَتُؤْمِنَ بِالْقَدَرِ خَيْرِهِ وَشَرِّهِ. قَالَ: صَدَقْتَ، قَالَ: فَأَخْبِرْنِي عَنِ اْلإِحْسَانِ. قَالَ: أَنْ تَعْبُدَ اللهَ كَأَنَّكَ تَرَاهُ فَإِنْ لَمْ تَكُنْ تَرَاهُ فَإِنَّهُ يَرَاكَ. قَالَ: فَأَخْبِرْنِي عَنِ السَّاعَةِ. قَالَ: مَا الْمَسْؤُوْلُ عَنْهَا بِأَعْلَمَ مِنَ السَّائِلِ. قَالَ: فَأَخْبِرْنِي عَنْ أَمَارَاتِهَا. قَالَ: أَنْ تَلِدَ اْلأَمَةُ رَبَّتَهَا وَأَنْ تَرَى الْحُفَاةَ الْعُرَاةَ الْعَالَةَ رِعَاءَ الشَّاءِ يَتَطَاوَلُوْنَ فِي الْبُنْيَانِ، ثُمَّ انْطَلَقَ فَلَبِثْتُ مَلِيًّا، ثُمَّ قَالَ: يَا عُمَرُ أَتَدْرِي مَنِ السَّائِلُ؟ قُلْتُ: اللهُ وَرَسُوْلُهُ أَعْلَمُ. قَالَ: فَإِنَّهُ جِبْرِيْلُ أَتَاكُمْ يُعَلِّمُكُمْ دِيْنَكُمْ. رَوَاهُ مُسْلِمٌ`, terjemah:`Dari Umar radhiyallahu 'anhu, dia berkata: Ketika kami sedang duduk-duduk bersama Rasulullah shallallahu 'alaihi wa sallam pada suatu hari, tiba-tiba datang kepada kami seorang laki-laki berpakaian sangat putih dan berambut sangat hitam. Tidak tampak padanya tanda bekas perjalanan jauh, dan tidak seorang pun di antara kami mengenalnya. Ia duduk di hadapan Nabi shallallahu 'alaihi wa sallam, menempelkan kedua lututnya ke lutut beliau, meletakkan kedua telapak tangannya di atas kedua pahanya, lalu berkata: “Wahai Muhammad, beritahukan kepadaku tentang Islam.” Rasulullah shallallahu 'alaihi wa sallam menjawab: “Islam adalah engkau bersaksi bahwa tidak ada sesembahan yang berhak diibadahi selain Allah dan bahwa Muhammad adalah utusan Allah, mendirikan shalat, menunaikan zakat, puasa Ramadhan, dan haji ke Baitullah jika engkau mampu menempuh perjalanan ke sana.” Ia berkata: “Engkau benar.” Kami pun heran, ia yang bertanya namun ia pula yang membenarkan jawabannya. Ia bertanya lagi: “Beritahukan kepadaku tentang iman.” Beliau menjawab: “Engkau beriman kepada Allah, malaikat-malaikat-Nya, kitab-kitab-Nya, rasul-rasul-Nya, hari akhir, dan engkau beriman kepada takdir baik maupun buruknya.” Ia berkata: “Engkau benar.” Ia bertanya lagi: “Beritahukan kepadaku tentang ihsan.” Beliau menjawab: “Engkau beribadah kepada Allah seakan-akan engkau melihat-Nya, jika engkau tidak melihat-Nya maka sesungguhnya Dia melihatmu.” Ia bertanya: “Beritahukan kepadaku tentang hari Kiamat.” Beliau menjawab: “Yang ditanya tidak lebih tahu dari yang bertanya.” Ia bertanya: “Beritahukan kepadaku tanda-tandanya.” Beliau menjawab: “Jika seorang budak wanita melahirkan tuannya, dan jika engkau melihat orang-orang tak beralas kaki, tak berpakaian, miskin, dan penggembala kambing berlomba-lomba meninggikan bangunan.” Kemudian orang itu pergi, dan aku terdiam sejenak. Lalu beliau bersabda: “Wahai Umar, tahukah engkau siapa yang bertanya tadi?” Aku menjawab: “Allah dan Rasul-Nya lebih mengetahui.” Beliau bersabda: “Sesungguhnya dia adalah Jibril, datang kepada kalian untuk mengajarkan agama kalian.”`, perawi:`HR. Muslim` },
+  { no:3, judul:`Islam Dibangun di atas Lima Dasar`, arab:`عَنْ أَبِي عَبْدِ الرَّحْمَنِ عَبْدِ اللهِ بْنِ عُمَرَ بْنِ الخَطَّابِ رَضِيَ اللهُ عَنْهُمَا قَالَ: سَمِعْتُ رَسُوْلَ اللهِ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ يَقُوْلُ: بُنِيَ الإِسْلاَمُ عَلَى خَمْسٍ: شَهَادَةِ أَنْ لاَ إِلَهَ إِلاَّ اللهُ وَأَنَّ مُحَمَّدًا رَسُوْلُ اللهِ، وَإِقَامِ الصَّلاَةِ، وَإِيْتَاءِ الزَّكَاةِ، وَحَجِّ البَيْتِ، وَصَوْمِ رَمَضَانَ. رَوَاهُ البُخَارِيُّ وَمُسْلِمٌ`, terjemah:`Dari Abu Abdurrahman, Abdullah bin Umar bin Al-Khaththab radhiyallahu 'anhuma, dia berkata: Aku mendengar Rasulullah shallallahu 'alaihi wa sallam bersabda: “Islam itu dibangun di atas lima dasar: persaksian bahwa tidak ada sesembahan yang berhak disembah kecuali Allah dan Muhammad adalah utusan Allah, menegakkan shalat, menunaikan zakat, haji ke Baitullah, dan puasa di bulan Ramadhan.”`, perawi:`HR. Bukhari & Muslim` },
+  { no:4, judul:`Takdir Setiap Manusia sudah Tertulis`, arab:`عَنْ عَبْدِ اللهِ بنِ مَسْعُوْدْ رَضِيَ اللهُ عَنْهُ قَالَ: حَدَّثَنَا رَسُوْلُ اللهِ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ وَهُوَ الصَّادِقُ الْمَصْدُوْقُ: إِنَّ أَحَدَكُمْ يُجْمَعُ خَلْقُهُ فِيْ بَطْنِ أُمِّهِ أَرْبَعِيْنَ يَوْمًا نُطْفَةً، ثُمَّ يَكُوْنُ عَلَقَةً مِثْلَ ذَلِكَ، ثُمَّ يَكُوْنُ مُضْغَةً مِثْلَ ذَلِكَ، ثُمَّ يُرْسَلُ إِلَيْهِ المَلَكُ فَيَنفُخُ فِيْهِ الرٌّوْحَ، وَيُؤْمَرُ بِأَرْبَعِ كَلِمَاتٍ: بِكَتْبِ رِزْقِهِ وَأَجَلِهِ وَعَمَلِهِ وَشَقِيٌّ أَوْ سَعِيْدٌ. فَوَاللهِ الَّذِيْ لاَ إِلَهَ غَيْرُهُ إِنَّ أَحَدَكُمْ لَيَعْمَلُ بِعَمَلِ أَهْلِ الجَنَّةِ حَتَّى مَا يَكُوْنُ بَيْنَهُ وَبَيْنَهَا إلاَّ ذِرَاعٌ فَيَسْبِقُ عَلَيْهِ الكِتَابُ فَيَعْمَلُ بِعَمَلِ أَهْلِ النَّارِ فَيَدْخُلُهَا، وَإِنَّ أَحَدَكُمْ لَيَعْمَلُ بِعَمَلِ أَهْلِ النَّارِ حَتَّى مَا يَكُوْنُ بَيْنَهُ وَبَيْنَهَا إلاَّ ذِرَاعٌ فَيَسْبِقُ عَلَيْهِ الكِتَابُ فَيَعْمَلُ بِعَمَلِ أَهْلِ الجَنَّةِ فَيَدْخُلُهَا. رَوَاهُ البُخَارِيُّ وَمُسْلِمٌ`, terjemah:`Dari Abdullah bin Mas'ud radhiyallahu 'anhu, dia berkata: Rasulullah shallallahu 'alaihi wa sallam telah bercerita kepada kami, dan beliau adalah orang yang benar lagi dibenarkan: “Sesungguhnya penciptaan salah seorang dari kalian dikumpulkan dalam rahim ibunya selama 40 hari sebagai nutfah (setetes mani), kemudian menjadi 'alaqah (segumpal darah) selama itu juga, kemudian menjadi mudghah (segumpal daging) selama itu juga. Kemudian diutus seorang malaikat untuk meniupkan ruh kepadanya, dan dia diperintahkan menulis empat perkara: rezekinya, ajalnya, amalnya, dan apakah dia celaka atau bahagia. Demi Allah yang tiada sesembahan yang haq selain Dia, sesungguhnya salah seorang dari kalian benar-benar beramal dengan amalan penduduk surga hingga jarak antara dia dan surga tinggal sehasta, namun catatan takdir mendahuluinya sehingga ia beramal dengan amalan penduduk neraka, maka masuklah ia ke dalamnya. Dan sungguh, salah seorang dari kalian beramal dengan amalan penduduk neraka hingga jarak antara dia dan neraka tinggal sehasta, namun catatan takdir mendahuluinya sehingga ia beramal dengan amalan penduduk surga, maka masuklah ia ke dalamnya.”`, perawi:`HR. Bukhari & Muslim` },
+  { no:5, judul:`Larangan Membuat Sesuatu yang Baru dalam Agama`, arab:`عَنْ أُمِّ الْمُؤْمِنِيْنَ أُمِّ عَبْدِ اللهِ عَائِشَةَ رَضِيَ اللهُ عَنْهَا قَالَتْ: قَالَ رَسُوْلُ اللهِ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ: مَنْ أَحْدَثَ فِيْ أَمْرِنَا هَذَا مَا لَيْسَ مِنْهُ فَهُوَ رَدٌّ. رَوَاهُ البُخَارِيُّ وَمُسْلِمٌ. وَفِيْ رِوَايَةٍ لِمُسْلِمٍ: مَنْ عَمِلَ عَمَلاً لَيْسَ عَلَيْهَ أَمْرُنَا فَهُوَ رَدٌّ`, terjemah:`Dari Ummul Mukminin, Ummu Abdillah, Aisyah radhiyallahu 'anha, dia berkata: Rasulullah shallallahu 'alaihi wa sallam bersabda: “Barangsiapa mengada-adakan (sesuatu yang baru) dalam urusan agama kami ini yang bukan bagian darinya, maka amalan tersebut tertolak.” Dalam riwayat Muslim: “Barangsiapa mengerjakan sebuah amalan yang tidak ada padanya perintah dari kami, maka amalan tersebut tertolak.”`, perawi:`HR. Bukhari & Muslim` },
+  { no:6, judul:`Segala Hal yang Haram dan yang Halal telah Jelas`, arab:`عَنْ أَبِيْ عَبْدِ اللهِ النُّعْمَانِ بْنِ بَشِيْرٍ رَضِيَ اللهُ عَنْهُمَا قَالَ: سَمِعْتُ رَسُوْلَ اللهِ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ يَقُوْلُ: إِنَّ الحَلاَلَ بَيِّنٌ وَإِنَّ الحَرَامَ بَيِّنٌ وَبَيْنَهُمَا أُمُوْرٌ مُشْتَبِهَاتٌ لاَ يَعْلَمُهُنَّ كَثِيْرٌ مِنَ النَّاسِ، فَمَنِ اتَّقَى الشُّبُهَاتِ فَقَدِ اسْتَبْرأَ لِدِيْنِهِ وعِرْضِهِ، وَمَنْ وَقَعَ فِي الشُّبُهَاتِ وَقَعَ فِيْ الحَرَامِ، كَالرَّاعِي يَرْعَى حَوْلَ الحِمَى يُوشِكُ أَنْ يَقَعَ فِيْهِ. أَلاَ وَإِنَّ لِكُلِّ مَلِكٍ حِمَىً. أَلا وَإِنَّ حِمَى اللهِ مَحَارِمُهُ، أَلاَ وإِنَّ فِي الْجَسَدِ مُضْغَةً إِذَا صَلَحَتْ صَلَحَ الجَسَدُ كُلُّهُ وإذَا فَسَدَتْ فَسَدَ الْجَسَدُ كُلُّهُ أَلاَ وَهيَ اْلقَلْبُ. رَوَاهُ البُخَارِيُّ وَمُسْلِمٌ`, terjemah:`Dari Nu'man bin Basyir radhiyallahu 'anhuma, dia berkata: Aku mendengar Rasulullah shallallahu 'alaihi wa sallam bersabda: “Sesungguhnya yang halal itu jelas dan yang haram itu jelas. Di antara keduanya ada perkara-perkara samar yang tidak diketahui banyak orang. Barangsiapa menjaga diri dari perkara samar, ia telah menjaga agama dan kehormatannya. Barangsiapa terjerumus ke dalam perkara samar, ia terjerumus ke dalam yang haram, seperti penggembala yang menggembala di sekitar tanah larangan, dikhawatirkan ia akan masuk ke dalamnya. Ketahuilah, setiap raja punya larangan, dan larangan Allah adalah segala yang Dia haramkan. Ketahuilah, dalam tubuh ada segumpal daging; jika ia baik maka baiklah seluruh tubuh, dan jika ia rusak maka rusaklah seluruh tubuh. Ketahuilah, itu adalah hati.”`, perawi:`HR. Bukhari & Muslim` },
+  { no:7, judul:`Agama Ini adalah Nasehat`, arab:`عَنْ أَبِيْ رُقَيَّةَ تَمِيْم بْنِ أَوْسٍ الدَّارِيِّ رَضِيَ اللهُ عَنْهُ، أَنَّ النَّبِيَّ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ قَالَ: الدِّيْنُ النَّصِيْحَةُ. قُلْنَا: لِمَنْ؟ قَالَ: للهِ، وَلِكِتَابِهِ، ولِرَسُوْلِهِ، وَلأَئِمَّةِ المُسْلِمِيْنَ، وَعَامَّتِهِمْ. رَوَاهُ مُسْلِمٌ`, terjemah:`Dari Abu Ruqayyah Tamim bin Aus Ad-Dari radhiyallahu 'anhu, sesungguhnya Nabi shallallahu 'alaihi wa sallam bersabda: “Agama itu nasihat.” Kami bertanya: “Untuk siapa?” Beliau menjawab: “Untuk Allah, kitab-Nya, Rasul-Nya, para pemimpin kaum muslimin, dan kaum muslimin pada umumnya.”`, perawi:`HR. Muslim` },
+  { no:8, judul:`Terjaganya Darah dan Harta Seorang Muslim`, arab:`عَنْ ابْنِ عُمَرَ رَضِيَ اللهُ عَنْهُمَا أَنَّ رَسُوْلَ اللهِ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ قَالَ: أُمِرْتُ أَنْ أُقَاتِلَ النَّاسَ حَتَّى يَشْهَدُوْا أَنْ لاَ إِلَهَ إِلاَّ اللهُ وَأَنَّ مُحَمَّدَاً رَسُوْلُ اللهِ وَيُقِيْمُوْا الصَّلاةَ وَيُؤْتُوْا الزَّكَاةَ فَإِذَا فَعَلُوْا ذَلِكَ عَصَمُوْا مِنِّيْ دِمَاءَهَمْ وَأَمْوَالَهُمْ إِلاَّ بِحَقِّ الإِسْلاَمِ وَحِسَابُهُمْ عَلَى اللهِ تَعَالَى. رَوَاهُ البُخَارِيُّ وَمُسْلِمٌ`, terjemah:`Dari Ibnu Umar radhiyallahu 'anhuma, sesungguhnya Rasulullah shallallahu 'alaihi wa sallam bersabda: “Aku diperintahkan untuk memerangi manusia hingga mereka bersaksi bahwa tidak ada sesembahan yang haq selain Allah, dan Muhammad adalah utusan Allah, menegakkan shalat, dan menunaikan zakat. Apabila mereka telah melakukan itu, terlindungilah darah dan harta mereka dariku kecuali dengan hak Islam, dan hisab mereka ada pada Allah Ta'ala.”`, perawi:`HR. Bukhari & Muslim` },
+  { no:9, judul:`Kerjakanlah Perintah yang Kamu Mampu`, arab:`عَنْ أَبِي هُرَيْرَةَ عَبْدِ الرَّحْمَنِ بْنِ صَخْرٍ رَضِيَ اللهُ تَعَالَى عَنْهُ قَالَ: سَمِعْتُ رَسُوْلَ اللهِ صَلَّى اللهَ عَلَيْهَ وَسَلَّمَ يَقُوْلُ: مَا نَهَيْتُكُمْ عَنْهُ فَاجْتَنِبُوْهُ وَمَا أَمَرْتُكُمْ بِهِ فأْتُوْا مِنْهُ مَا اسْتَطَعْتُمْ؛ فَإِنَّمَا أَهْلَكَ الَّذِيْنَ مِنْ قَبْلِكُمْ كَثْرَةُ مَسَائِلِهِمْ وَاخْتِلاَفُهُمْ عَلَى أَنْبِيَائِهِمْ. رَوَاهُ البُخَارِيُّ وَمُسْلِمٌ`, terjemah:`Dari Abu Hurairah Abdurrahman bin Shakhr radhiyallahu 'anhu, dia berkata: Aku mendengar Rasulullah shallallahu 'alaihi wa sallam bersabda: “Apa saja yang aku larang, jauhilah. Dan apa saja yang aku perintahkan, kerjakanlah semampu kalian. Karena sesungguhnya yang membinasakan umat sebelum kalian adalah banyaknya pertanyaan mereka dan perselisihan mereka terhadap nabi-nabi mereka.”`, perawi:`HR. Bukhari & Muslim` },
+  { no:10, judul:`Larangan Menerima Kecuali yang Baik (Halal)`, arab:`عَنْ أَبِي هُرَيْرَةَ رَضِيَ اللهُ عَنْهُ قَالَ: قَالَ رَسُوْلُ اللهِ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ: أَيُّهَا النَّاسُ، إِنَّ اللهَ طَيِّبٌ لاَ يَقْبَلُ إِلاَّ طَيِّبًا، وَإِنَّ اللهَ أَمَرَ الْمُؤْمِنِيْنَ بِمَا أَمَرَ بِهِ الْمُرْسَلِيْنَ، فَقَالَ تَعَالَى: {يَا أَيُّهَا الرُّسُلُ كُلُوْا مِنَ الطَّيِّبَاتِ وَاعْمَلُوْا صَالِحًا}، وَقَالَ تَعَالَى: {يَا أَيُّهَا الَّذِيْنَ آمَنُوْا كُلُوْا مِنْ طَيِّبَاتِ مَا رَزَقْنَاكُمْ}، ثُمَّ ذَكَرَ الرَّجُلَ يُطِيْلُ السَّفَرَ أَشْعَثَ أَغْبَرَ، يَمُدُّ يَدَيْهِ إِلَى السَّمَاءِ: يَا رَبِّ يَا رَبِّ، وَمَطْعَمُهُ حَرَامٌ، وَمَشْرَبُهُ حَرَامٌ، وَمَلْبَسُهُ حَرَامٌ، وَغُذِيَ بِالْحَرَامِ، فَأَنَّى يُسْتَجَابُ لِذَلِكَ؟ رَوَاهُ مُسْلِمٌ`, terjemah:`Dari Abu Hurairah radhiyallahu 'anhu, dia berkata: Rasulullah shallallahu 'alaihi wa sallam bersabda: “Wahai manusia, sesungguhnya Allah itu Maha Baik, tidak menerima kecuali yang baik. Sesungguhnya Allah memerintahkan orang-orang mukmin sebagaimana Dia memerintahkan para rasul. Allah Ta'ala berfirman: 'Wahai para rasul, makanlah dari yang baik-baik dan kerjakanlah amal shalih.' Dan Allah Ta'ala berfirman: 'Wahai orang-orang yang beriman, makanlah dari rezeki yang baik-baik yang telah Kami berikan kepada kalian.' Kemudian beliau menyebutkan seorang laki-laki yang menempuh perjalanan jauh hingga rambutnya kusut dan berdebu, ia menengadahkan kedua tangannya ke langit seraya berdoa: 'Wahai Rabb-ku, wahai Rabb-ku,' padahal makanannya haram, minumannya haram, pakaiannya haram, dan ia diberi makan dari yang haram. Maka bagaimana mungkin doanya akan dikabulkan?”`, perawi:`HR. Muslim` },
+  { no:11, judul:`Tinggalkanlah Sesuatu yang Membuatmu Ragu`, arab:`عَنْ أَبِي مُحَمَّدٍ الحَسَنِ بنِ عَلِيّ بْنِ أَبِيْ طَالِبٍ سِبْطِ رَسُولِ اللهِ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ وَرَيْحَانَتِهِ رَضِيَ اللهُ عَنْهُمَا قَالَ: حَفِظْتُ مِنْ رَسُوْلِ اللهِ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ: دَعْ مَا يَرِيْبُكَ إِلَى مَا لاَ يَرِيْبُكَ. رَوَاهُ التِّرْمِذِي وَقَالَ: حَدِيْثٌ حَسَنٌ صَحِيْحٌ`, terjemah:`Dari Abu Muhammad Al Hasan bin Ali bin Abi Thalib radhiyallahu 'anhuma, cucu kesayangan Rasulullah shallallahu 'alaihi wa sallam, dia berkata: “Aku hafal dari Rasulullah shallallahu 'alaihi wa sallam: Tinggalkanlah apa yang meragukanmu kepada apa yang tidak meragukanmu.”`, perawi:`HR. Tirmidzi (hasan shahih)` },
+  { no:12, judul:`Meninggalkan Perkara yang Tidak Bermanfaat`, arab:`عَنْ أَبِيْ هُرَيْرَةَ رَضِيَ اللهُ عَنْهُ قَالَ: قَالَ رَسُوْلُ اللهِ صلى الله عليه وسلّم: مِنْ حُسْنِ إِسْلامِ المَرْءِ تَرْكُهُ مَا لاَيَعْنِيْهِ. حَدِيْثٌ حَسَنٌ، رَوَاهُ التِّرْمِذِي وَغَيْرُهُ هَكَذَا`, terjemah:`Dari Abu Hurairah radhiyallahu 'anhu, dia berkata: Rasulullah shallallahu 'alaihi wa sallam bersabda: “Termasuk kebaikan Islam seseorang adalah dia meninggalkan perkara yang tidak bermanfaat baginya.”`, perawi:`HR. Tirmidzi (hasan)` },
+  { no:13, judul:`Mencintai Kebaikan untuk Saudaranya`, arab:`عَنْ أَبِيْ حَمْزَة أَنَسِ بْنِ مَالِكٍ رَضِيَ اللهُ تَعَالَى عَنْهُ خَادِمِ النَّبِيِّ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ عَنْ النَّبِيِّ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ قَالَ: لاَ يُؤْمِنُ أَحَدُكُمْ حَتَّى يُحِبَّ لأَخِيْهِ مَا يُحِبُّ لِنَفْسِهِ. رَوَاهُ البُخَارِيّ وَمُسْلِمٌ`, terjemah:`Dari Abu Hamzah, Anas bin Malik radhiyallahu 'anhu, pembantu Rasulullah shallallahu 'alaihi wa sallam, dari Nabi shallallahu 'alaihi wa sallam, beliau bersabda: “Tidaklah salah seorang di antara kalian beriman (dengan sempurna) sampai dia mencintai untuk saudaranya apa yang dia cintai untuk dirinya sendiri.”`, perawi:`HR. Bukhari & Muslim` },
+  { no:14, judul:`Tidak Halal Darah seorang Muslim`, arab:`عَنِ ابْنِ مَسْعُوْدٍ رَضِيَ اللهُ عَنْهُ قَالَ: قَالَ رَسُوْلُ اللهِ صلى الله عليه وسلم: لاَ يَحِلُّ دَمُ امْرِئٍ مُسْلِمٍ يَشْهَدُ أَنْ لاَ إِلَهَ إِلاَّ اللهُ وَأَنِّي رَسُوْلُ اللهِ إِلاَّ بِإِحْدَى ثَلاَثٍ: الثَّيِّبُ الزَّانِيْ، وَالنَّفْسُ بِالنَّفْسِ، وَالتَّاركُ لِدِيْنِهِ المُفَارِقُ للجمَاعَةِ. رَوَاهُ البُخَارِيّ وَمُسْلِمٌ`, terjemah:`Dari Ibnu Mas'ud radhiyallahu 'anhu, dia berkata: Rasulullah shallallahu 'alaihi wa sallam bersabda: “Tidak halal darah seorang muslim yang bersaksi bahwa tidak ada sesembahan yang haq selain Allah dan bahwa aku adalah utusan Allah, kecuali karena salah satu dari tiga hal: orang yang sudah menikah namun berzina, jiwa dibalas dengan jiwa (qishash), dan orang yang meninggalkan agamanya serta memisahkan diri dari jamaah.”`, perawi:`HR. Bukhari & Muslim` },
+  { no:15, judul:`Barangsiapa Beriman kepada Allah dan Hari Akhir`, arab:`عَن أَبِي هُرَيْرَةَ رضي الله عنه قَالَ: قَالَ رَسُولَ اللهِ صلى الله عليه وسلم: مَنْ كَانَ يُؤمِنُ بِاللهِ وَاْليَوْمِ الآخِرِ فَلْيَقُلْ خَيْراً أَو لِيَصْمُتْ، وَمَنْ كَانَ يُؤمِنُ بِاللهِ وَاْليَومِ الآخِرِ فَلاَ يُؤْذِ جَارَهُ، ومَنْ كَانَ يُؤمِنُ بِاللهِ واليَومِ الآخِرِ فَلْيُكْرِمْ ضَيْفَهُ. رَوَاهُ البُخَارِيّ وَمُسْلِمٌ`, terjemah:`Dari Abu Hurairah radhiyallahu 'anhu, dia berkata: Rasulullah shallallahu 'alaihi wa sallam bersabda: “Barangsiapa beriman kepada Allah dan hari akhir, hendaklah dia berbicara yang baik atau diam. Barangsiapa beriman kepada Allah dan hari akhir, janganlah dia menyakiti tetangganya. Dan barangsiapa beriman kepada Allah dan hari akhir, hendaklah dia memuliakan tamunya.”`, perawi:`HR. Bukhari & Muslim` },
+  { no:16, judul:`Janganlah Engkau Marah`, arab:`عَنْ أَبِي هُرَيْرَةَ رَضِيَ اللهُ عَنْهُ أَنَّ رَجُلاً قَالَ لِلنَّبيِّ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ: أَوْصِنِيْ، قَالَ: لاَ تَغْضَبْ. فَرَدَّدَ مِرَارًا قَالَ: لاَ تَغْضَبْ. رَوَاهُ البُخَارِيّ`, terjemah:`Dari Abu Hurairah radhiyallahu 'anhu, seseorang berkata kepada Nabi shallallahu 'alaihi wa sallam: “Berilah aku nasihat.” Beliau bersabda: “Janganlah engkau marah.” Orang itu mengulangi permintaannya beberapa kali, dan beliau tetap bersabda: “Janganlah engkau marah.”`, perawi:`HR. Bukhari` },
+  { no:17, judul:`Kewajiban Berlaku Ihsan pada Segala Sesuatu`, arab:`عَنْ أَبِي يَعْلَى شَدَّادِ بنِ أَوْسٍ رَضِيَ اللهُ تَعَالَى عَنْهُ عَنْ رَسُولِ اللهِ صلى الله عليه وسلّم قَالَ: إِنَّ اللهَ كَتَبَ الإِحْسَانَ عَلَى كُلِّ شَيءٍ. فَإِذَا قَتَلْتُمْ فَأَحْسِنُوْا اْلقِتْلَةَ، وَإِذَا ذَبَحْتُمْ فَأَحْسِنُوْا الذِّبْحَةَ، وَلْيُحِدَّ أَحَدُكُمْ شَفْرَتَهُ، وَلْيُرِحْ ذَبِيْحَتَهُ. رَوَاهُ مُسْلِمٌ`, terjemah:`Dari Abu Ya'la Syaddad bin Aus radhiyallahu 'anhu, dari Rasulullah shallallahu 'alaihi wa sallam, beliau bersabda: “Sesungguhnya Allah mewajibkan berbuat ihsan (baik) pada segala sesuatu. Jika kalian membunuh, bunuhlah dengan cara yang baik. Jika kalian menyembelih, sembelihlah dengan cara yang baik. Hendaklah salah seorang dari kalian menajamkan pisaunya dan menenangkan sembelihannya.”`, perawi:`HR. Muslim` },
+  { no:18, judul:`Bertakwalah di manapun Engkau Berada`, arab:`عَنْ أَبِيْ ذَرٍّ جُنْدُبِ بنِ جُنَادَةَ وَأَبِي عَبْدِ الرَّحْمَنِ مُعَاذِ بِنِ جَبَلٍ رَضِيَ اللهُ عَنْهُمَا عَنْ رَسُولِ اللهِ صلى الله عليه وسلم قَالَ: اتَّقِ اللهَ حَيْثُمَا كُنْتَ، وَأَتْبِعِ السَّيِّئَةَ الحَسَنَةَ تَمْحُهَا، وَخَالِقِ النَّاسَ بِخُلُقٍ حَسَنٍ. رَوَاهُ التِّرْمِذِيّ وَقَالَ: حَدِيْثٌ حَسَنٌ. وَفِيْ بَعْضِ النَّسَخِ: حَسَنٌ صَحِيْحٌ`, terjemah:`Dari Abu Dzar Jundub bin Junadah dan Abu Abdurrahman Mu'adz bin Jabal radhiyallahu 'anhuma, dari Rasulullah shallallahu 'alaihi wa sallam, beliau bersabda: “Bertakwalah kepada Allah di mana pun engkau berada. Iringilah keburukan dengan kebaikan, niscaya kebaikan itu akan menghapusnya. Dan pergaulilah manusia dengan akhlak yang baik.”`, perawi:`HR. Tirmidzi (hasan/hasan shahih)` },
+  { no:19, judul:`Jagalah Allah niscaya Allah Menjagamu`, arab:`عَنْ أَبِي الْعَبَّاسِ عَبْدِ اللهِ بنِ عَبَّاسٍ رضي الله عنهما قَالَ: كُنْتُ خَلْفَ رَسُوْلَ اللَّهِ صلى الله عليه وسلّم فَقَالَ: يَا غُلاَمُ إِنّي أُعَلِّمُكَ كَلِمَاتٍ: احْفَظِ اللهَ يَحفَظْكَ، احْفَظِ اللهَ تَجِدْهُ تُجَاهَكَ، إِذَاَ سَأَلْتَ فَاسْأَلِ اللهَ، وَإِذَاَ اسْتَعَنتَ فَاسْتَعِن بِاللهِ، وَاعْلَم أَنَّ الأُمَّةَ لَوِ اجْتَمَعَت عَلَى أن يَنفَعُوكَ بِشيءٍ لَمْ يَنْفَعُوكَ إِلا بِشيءٍ قَد كَتَبَهُ اللهُ لَك، ولَوِ اِجْتَمَعوا عَلَى أَنْ يَضُرُّوكَ بِشيءٍ لَمْ يَضروك إلا بشيءٍ قَد كَتَبَهُ اللهُ عَلَيْكَ، رُفعَت الأَقْلامُ، وَجَفّتِ الصُّحُفُ. رَوَاهُ التِّرْمِذِيّ وَقَالَ: حَدِيْثٌ حَسَنٌ صَحِيْحٌ`, terjemah:`Dari Abdullah bin Abbas radhiyallahu 'anhuma, dia berkata: Suatu hari aku berboncengan bersama Rasulullah shallallahu 'alaihi wa sallam, lalu beliau bersabda: “Wahai anak kecil, sungguh aku akan mengajarimu beberapa kalimat: Jagalah Allah, niscaya Dia akan menjagamu. Jagalah Allah, niscaya engkau akan mendapati-Nya di hadapanmu. Apabila engkau meminta, mintalah kepada Allah. Apabila engkau memohon pertolongan, mintalah pertolongan kepada Allah. Ketahuilah, seandainya seluruh umat manusia berkumpul untuk memberikan manfaat kepadamu, mereka tidak akan mampu kecuali dengan sesuatu yang telah Allah tetapkan untukmu. Dan seandainya mereka berkumpul untuk membahayakanmu, mereka tidak akan mampu kecuali dengan sesuatu yang telah Allah tetapkan akan menimpamu. Pena-pena telah diangkat dan lembaran-lembaran telah kering.”`, perawi:`HR. Tirmidzi (hasan shahih)` },
+  { no:20, judul:`Jika Engkau tidak Malu maka Berbuatlah Sesukamu`, arab:`عَنْ أَبيْ مَسْعُوْدٍ عُقْبَةَ بْنِ عَمْرٍو الأَنْصَارِيِّ البَدْرِيِّ رضي الله عنه قَالَ: قَالَ رَسُوْلُ اللهِ صلى الله عليه وسلّم: إِنَّ مِمَّا أَدْرَكَ النَّاسُ مِنْ كَلاَمِ النُّبُوَّةِ الأُولَى إِذا لَم تَستَحْيِ فاصْنَعْ مَا شِئْتَ. رَوَاهُ البُخَارِيّ`, terjemah:`Dari Abu Mas'ud Uqbah bin Amr Al Anshari Al Badri radhiyallahu 'anhu, dia berkata: Rasulullah shallallahu 'alaihi wa sallam bersabda: “Sesungguhnya di antara yang diketahui manusia dari perkataan kenabian terdahulu adalah: Jika engkau tidak malu, berbuatlah sesukamu.”`, perawi:`HR. Bukhari` },
+  { no:21, judul:`Istiqamah`, arab:`عَنْ أَبِي عَمْرٍو، وَقِيلَ أَبِي عَمْرَةَ، سُفْيَانَ بْنِ عَبْدِ اللهِ رَضِيَ اللهُ عَنْهُ قَالَ: قُلْتُ: يَا رَسُوْلَ اللهِ، قُلْ لِيْ فِي اْلإِسْلاَمِ قَوْلاً لاَ أَسْأَلُ عَنْهُ أَحَدًا غَيْرَكَ. قَالَ: قُلْ: آمَنْتُ بِاللهِ، ثُمَّ اسْتَقِمْ. رَوَاهُ مُسْلِمٌ`, terjemah:`Dari Abu 'Amr — ada yang mengatakan Abu 'Amrah — Sufyan bin Abdullah radhiyallahu 'anhu, dia berkata: Aku berkata: “Wahai Rasulullah, katakanlah kepadaku suatu perkataan tentang Islam yang aku tidak akan bertanya lagi tentangnya kepada siapa pun selainmu.” Beliau shallallahu 'alaihi wa sallam bersabda: “Katakanlah: 'Aku beriman kepada Allah,' kemudian beristiqamahlah (berpegang teguhlah pada keimanan itu).”`, perawi:`HR. Muslim` },
+  { no:22, judul:`Apakah Aku akan Masuk Al-Jannah?`, arab:`عَنْ أَبِيْ عَبْدِ اللهِ جَابِر بْنِ عَبْدِ اللهِ الأَنْصَارِيِّ رَضِيَ اللهُ عَنْهُمَا أَنَّ رَجُلاً سَأَلَ رَسُولَ اللهِ صلى الله عليه وسلم فَقَالَ: يَارَسُولَ اللهِ أَرَأَيْتَ إِذَا صَلَّيْتُ الصَّلَوَاتِ الْمَكْتُوبَاتِ، وَصُمْتُ رَمَضَانَ، وَأَحْلَلْتُ الْحَلاَلَ وَحَرَّمْتُ الْحَرَامَ، وَلَمْ أَزِدْ عَلَى ذَلِكَ شَيْئًا أَأَدْخُلُ الَجَنَّةَ؟ قَالَ: نَعَمْ. قَالَ: وَاللهِ لاَ أَزِيْدُ عَلَى ذَلِكَ شَيْئًا. رواه مسلم`, terjemah:`Dari Abu Abdillah, Jabir bin Abdullah Al Anshari radhiyallahu 'anhuma, seseorang bertanya kepada Rasulullah shallallahu 'alaihi wa sallam: “Wahai Rasulullah, apa pendapatmu jika aku mengerjakan shalat-shalat wajib, puasa Ramadhan, aku menghalalkan apa yang halal dan mengharamkan apa yang haram, serta aku tidak menambahnya dengan sesuatu pun selain itu, apakah aku akan masuk surga?” Beliau menjawab: “Ya.” Orang itu berkata: “Demi Allah, aku tidak akan menambahnya dengan sesuatu pun.”`, perawi:`HR. Muslim` },
+  { no:23, judul:`Kesucian itu Separuh dari Iman`, arab:`عَنْ أَبِي مَالِكٍ الْحَارِثِ بْنِ عَاصِمٍ الأَشْعَرِيِّ رضي الله عنه قَالَ: قَالَ رَسُوْلُ اللهِ صلى الله عليه وسلم: الطُّهُوْرُ شَطْرُ الإِيْمَانِ، وَالْحَمْدُ للهِ تَمْلأُ الْمِيْزَانَ، وَسُبْحَانَ اللهِ وَالْحَمْدُ للهِ تَمْلأَنِ –أَوْ تَمْلأُ- مَا بَيْنَ السَّمَاءِ وَالأَرْضِ، وَالصَّلاَةُ نُوْرٌ وَالصَّدَقَةُ بُرْهَانٌ وَالصَّبْرُ ضِيَاءٌ وَالْقُرْآنُ حُجَّةٌ لَكَ أَوْ عَلَيْكَ، كُلُّ النَّاسِ يَغْدُو فَبَائِعُ نفْسَهُ فَمُقْتِقُهَا أَوْ مُوْبِقُهَا. رواه مسلم`, terjemah:`Dari Abu Malik Al Harits bin Ashim Al Asy'ari radhiyallahu 'anhu, dia berkata: Rasulullah shallallahu 'alaihi wa sallam bersabda: “Kesucian itu separuh dari iman. Ucapan Alhamdulillah memenuhi timbangan. Ucapan Subhanallah dan Alhamdulillah, keduanya memenuhi apa yang ada di antara langit dan bumi. Shalat adalah cahaya, sedekah adalah bukti, sabar adalah dhiya' (cahaya yang terang), dan Al-Qur'an bisa menjadi hujjah (pembela) bagimu atau (justru) hujjah atas dirimu. Setiap orang berangkat di pagi hari lalu menjual dirinya; ada yang membebaskannya dan ada yang membinasakannya.”`, perawi:`HR. Muslim` },
+  { no:24, judul:`Janganlah Kalian saling Menzhalimi`, arab:`عَنْ أَبِى ذَرٍّ الْغِفَارِيّ رضي الله عنه عَنِ النَّبِيِّ صلى الله عليه وسلم فِيْمَا يَرْوِيْهِ عَنْ رَبِّهِ سبحانه وتعالى أَنَّهُ قَالَ: يَاعِبَادِي إِنِّي حَرَّمْتُ الظُّلْمَ عَلَى نَفْسِي وَجَعَلْتُهُ بَيْنَكُمْ مُحَرَّمًا فَلاَ تَظَالَمُوا, يَاعِبَادِي كُلُّكُمْ ضَالٌّ إِلاَّ مَنْ هَدَيْتُهُ فَاسْتَهْدُونِي أَهْدِكُمْ, يَاعِبَادِي كُلُّكُمْ جَائِعٌ إِلاَّ مَنْ أَطْعَمْتُهُ فَاسْتَطْعِمُونِي أُطْعِمْكُمْ, يَاعِبَادِي كُلُّكُمْ عَار إِلاَّ مَنْ كَسَوْتُهُ فَاسْتَكْسُونِي أَكْسُكُمْ, يَاعِبَادِي إِنَّكُمْ تُخْطِئُونَ بِاللَّيْلِ وَالنَّهَارِ وَأَنَا أَغْفِرُ الذُّنُوبَ جَمِيْعًا فَاسْتَغْفِرُونِي أَغْفِرْ لَكُمْ, يَاعِبَادِي إِنَّكُمْ لَنْ تَبْلُغُوا ضُرِّي فَتَضُرُّونِي وَلَنْ تَبْلُغُوا نَفْعِي فَتَنْفَعُونِي, يَاعِبَادِي لَوْ أَنَّ أَوَّلَكُمْ وَآخِرَكُمْ وَإِنْسَكُمْ وَجِنَّكُمْ كَانُوا عَلَى أَتْقَى قَلْبِ رَجُلٍ وَاحِدٍ مِنْكُمْ مَا زَادَ ذَلِكَ فِي مُلْكِي شَيْئًا, يَاعِبَادِي لَوْ أَنَّ أَوَّلَكُمْ وَآخِرَكُمْ وَإِنْسَكُمْ وَجِنَّكُمْ كَانُوا عَلَى أَفْجَرِ قَلْبِ رَجُلٍ وَاحِدٍ مِنْكُمْ مَانَقَصَ ذَلِكَ مِنْ مُلْكِي شَيْئًا, يَاعِبَادِي لَوْ أَنَّ أَوَّلَكُمْ وَآخِرَكُمْ وَإِنْسَكُمْ وَجِنَّكُمْ قَامُوا فِي صَعِيْدٍ وَاحِدٍ فَسَأَلُونِي فَأَعْطَيْتُ كُلَّ إِنْسَانٍ مَسْأَلَتَهُ مَانَقَصَ ذَلِكَ مِمَّا عِنْدِي إِلاَّ كَمَا يَنْقُصُ المِخْيَطُ إِذَا أُدْخِلَ البَحْرَ, يَاعِبَادِي إِنَّمَا هِيَ أَعْمَالُكُمْ أُحْصِيْهَا لَكُمْ ثُمَّ أُوَفِّيْكُمْ إِيَّاهَا فَمَنْ وَجَدَ خَيْرًا فَلْيَحْمَدِ اللهَ وَمَنْ وَجَدَ غَيْرَ ذَلِكَ فَلاَ يَلُومَنَّ إِلاَّ نَفْسَهُ. رَوَاهُ مُسْلِمٌ`, terjemah:`Dari Abu Dzar Al-Ghifary radhiyallahu 'anhu, dari Nabi shallallahu 'alaihi wa sallam, dalam hadits qudsi yang beliau riwayatkan dari Rabb-nya, Allah subhanahu wa ta'ala berfirman: “Wahai hamba-hamba-Ku, sesungguhnya Aku telah mengharamkan kezhaliman atas diri-Ku, dan Aku jadikan kezhaliman itu haram di antara kalian, maka janganlah kalian saling menzhalimi. Wahai hamba-hamba-Ku, kalian semua sesat kecuali yang Aku beri petunjuk, maka mintalah petunjuk kepada-Ku, niscaya Aku akan menunjuki kalian. Wahai hamba-hamba-Ku, kalian semua kelaparan kecuali yang telah Aku beri makan, maka mintalah makan kepada-Ku, niscaya Aku akan memberi kalian makan. Wahai hamba-hamba-Ku, kalian semua telanjang kecuali yang Aku beri pakaian, maka mintalah pakaian kepada-Ku, niscaya Aku akan memberi kalian pakaian. Wahai hamba-hamba-Ku, sesungguhnya kalian berbuat salah siang dan malam, dan Aku mengampuni semua dosa, maka mintalah ampun kepada-Ku, niscaya Aku akan mengampuni kalian. Wahai hamba-hamba-Ku, sesungguhnya kalian tidak akan mampu membahayakan-Ku sehingga membahayakan-Ku, dan tidak akan mampu memberi manfaat kepada-Ku sehingga memberi-Ku manfaat. Wahai hamba-hamba-Ku, seandainya orang pertama dan terakhir di antara kalian, manusia dan jin kalian, berada dalam keadaan setakwa hati orang yang paling bertakwa di antara kalian, hal itu tidak akan menambah kerajaan-Ku sedikit pun. Wahai hamba-hamba-Ku, seandainya orang pertama dan terakhir di antara kalian, manusia dan jin kalian, berada dalam keadaan sedurhaka hati orang yang paling durhaka di antara kalian, hal itu tidak akan mengurangi kerajaan-Ku sedikit pun. Wahai hamba-hamba-Ku, seandainya orang pertama dan terakhir di antara kalian, manusia dan jin kalian, berdiri di satu tempat lalu meminta kepada-Ku, kemudian Aku beri setiap orang permintaannya, hal itu tidak akan mengurangi apa yang ada di sisi-Ku, kecuali seperti berkurangnya air laut ketika dicelupkan sebuah jarum ke dalamnya. Wahai hamba-hamba-Ku, sesungguhnya itu hanyalah amalan-amalan kalian yang Aku hitung untuk kalian, kemudian Aku balas secara penuh. Barangsiapa mendapati kebaikan, hendaklah ia memuji Allah, dan barangsiapa mendapati selain itu, janganlah ia mencela kecuali dirinya sendiri.”`, perawi:`HR. Muslim` },
+  { no:25, judul:`Sedekah Terbuka Luas bagi Setiap Muslim`, arab:`عَنْ أَبِي ذَرٍّ رَضِيَ اللهُ عَنْهُ: أَنَّ نَاساً مِنْ أَصْحَابِ رَسُوْلِ اللهِ صَلَّى الله عليه وسلم قَالُوا لِلنَّبِيِّ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ: يَا رَسُوْلَ اللهِ، ذَهَبَ أَهْلُ الدُّثُوْرِ بِاْلأُجُوْرِ يُصَلُّوْنَ كَمَا نُصَلِّي، وَيَصُوْمُوْنَ كَمَا نَصُوْمُ، وَيتَصَدَّقُوْنَ بِفُضُوْلِ أَمْوَالِهِمْ. قَالَ: أَوَ لَيْسَ قَدْ جَعَلَ اللهُ لَكُمْ مَا تَصَدَّقُوْنَ: إِنَّ لَكُمْ بِكُلِّ تَسْبِيْحَةٍ صَدَقَةً وَكُلِّ تَكْبِيْرَةٍ صَدَقَةً وَكُلِّ تَحْمِيْدَةٍ صَدَقَةً، وَكُلِّ تَهْلِيْلَةٍ صَدَقَةً وَأَمْرٍ بِالْمَعْرُوْفِ صَدَقَةً وَنَهْيٍ عَن مُنْكَرٍ صَدَقَةً وَفِي بُضْعِ أَحَدِكُمْ صَدَقَةً. رواه مسلم`, terjemah:`Dari Abu Dzar radhiyallahu 'anhu: sejumlah sahabat Rasulullah shallallahu 'alaihi wa sallam berkata kepada beliau: “Wahai Rasulullah, orang-orang kaya membawa pergi pahala yang banyak; mereka shalat sebagaimana kami shalat, mereka puasa sebagaimana kami puasa, dan mereka bersedekah dengan kelebihan harta mereka.” Beliau bersabda: “Bukankah Allah telah menjadikan bagi kalian sesuatu untuk bersedekah? Sesungguhnya setiap tasbih adalah sedekah, setiap takbir adalah sedekah, setiap tahmid adalah sedekah, setiap tahlil adalah sedekah, menyuruh kepada kebaikan adalah sedekah, mencegah kemungkaran adalah sedekah, dan pada hubungan suami-istri seorang dari kalian pun ada sedekah.”`, perawi:`HR. Muslim` },
+  { no:26, judul:`Setiap Anggota Tubuh Wajib Bersedekah`, arab:`عَنْ أَبِيْ هُرَيْرَةَ رَضِيَ اللهُ عَنْهُ قَالَ: قَالَ رَسُوْلُ اللهِ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ: كُلُّ سُلاَمَى مِنَ النَّاسِ عَلَيْهِ صَدَقَةٌ، كُلُّ يَوْمٍ تَطْلُعُ فِيْهِ الشَّمْسُ تَعْدِلُ بَيْنَ اثْنَيْنِ صَدَقَةٌ، وَتُعِيْنُ الرَّجُلَ فِي دَابَّتِهِ فَتَحْمِلُهُ عَلَيْهَا أَوْ تَرْفَعُ لَهُ عَلَيْهَا مَتَاعَهُ صَدَقَةٌ وَالْكَلِمَةُ الطَّيِّبَةُ صَدَقَةٌ، وَبِكُلِّ خُطْوَةٍ تَمْشِيْهَا إِلَى الصَّلاَةِ صَدَقَةٌ وَتُمِيْطُ اْلأَذَى عَنِ الطَّرِيْقِ صَدَقَةٌ. رواه البخاري ومسلم`, terjemah:`Dari Abu Hurairah radhiyallahu 'anhu, dia berkata: Rasulullah shallallahu 'alaihi wa sallam bersabda: “Setiap ruas persendian manusia wajib disedekahi. Setiap hari terbitnya matahari, engkau berlaku adil di antara dua orang adalah sedekah, engkau menolong seseorang naik ke kendaraannya atau mengangkatkan barangnya adalah sedekah, ucapan yang baik adalah sedekah, setiap langkah menuju shalat adalah sedekah, dan menyingkirkan gangguan dari jalan adalah sedekah.”`, perawi:`HR. Bukhari & Muslim` },
+  { no:27, judul:`Kebajikan adalah Akhlak yang Baik`, arab:`عَنْ النَّوَّاسِ بنِ سَمْعَانَ رَضِيَ اللهُ عَنْهُ، عَنِ النَّبِيِّ صَلَّى الله عليه وسلم قَالَ: الْبِرُّ حُسْنُ الْخُلُقِ وَاْلإِثْمُ مَا حَاكَ فِي نَفْسِكَ وَكَرِهْتَ أَنْ يَطَّلِعَ عَلَيْهِ النَّاسُ. رَوَاهُ مُسْلِم. وَعَنْ وَابِصَةَ بْنِ مَعْبَد رَضِيَ اللهُ عَنْهُ قَالَ: أَتَيْتُ رَسُوْلَ اللهِ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ فَقَالَ: جِئْتَ تَسْألُ عَنِ الْبِرِّ. قُلْتُ: نَعَمْ. قَالَ: اِسْتَفْتِ قَلْبَكَ، الْبِرُّ مَا اطْمَأَنَّتْ إِلَيْهِ النَّفْسُ وَاطْمَأَنَّ إِلَيْهِ الْقَلْبُ، وَاْلإِثْمُ مَا حَاكَ فِي النَّفْسِ وَتَرَدَّدَ فِي الصَّدْرِ، وَإِنْ أَفْتَاكَ النَّاسُ وَأَفْتَوْكَ. حديث حسن رويناه في مسندي الإمامين أحمد بن حنبل والدارمي بإسناد حسن`, terjemah:`Dari Nawwas bin Sam'an radhiyallahu 'anhu, dari Nabi shallallahu 'alaihi wa sallam, beliau bersabda: “Kebajikan adalah akhlak yang baik, dan dosa adalah apa yang mengganggu jiwamu dan engkau tidak suka jika diketahui orang lain.” Dan dari Wabishah bin Ma'bad radhiyallahu 'anhu, dia berkata: Aku mendatangi Rasulullah shallallahu 'alaihi wa sallam, lalu beliau bersabda: “Engkau datang untuk bertanya tentang kebajikan?” Aku menjawab: “Ya.” Beliau bersabda: “Mintalah pendapat dari hatimu. Kebajikan adalah apa yang membuat jiwa dan hati tenang karenanya, dan dosa adalah apa yang mengganggu jiwa dan meragukan dalam dada, meskipun orang-orang memberikan fatwa (membenarkan) kepadamu.”`, perawi:`HR. Muslim; Hasan (Ahmad & Ad-Darimi)` },
+  { no:28, judul:`Berpegang Teguh pada Sunnah`, arab:`عَنْ أَبِي نَجِيْحٍ الْعِرْبَاضِ بْنِ سَاريةَ رَضي الله عنه قَالَ: وَعَظَنَا رَسُوْلُ اللهِ صَلىَّ الله عليه وسلم مَوْعِظَةً وَجِلَتْ مِنْهَا الْقُلُوْبُ، وَذَرِفَتْ مِنْهَا الْعُيُوْنُ، فَقُلْنَا: يَا رَسُوْلَ اللهِ، كَأَنَّهَا مَوْعِظَةُ مُوَدَّعٍ، فَأَوْصِنَا. قَالَ: أُوْصِيْكُمْ بِتَقْوَى اللهِ عَزَّ وَجَلَّ، وَالسَّمْعِ وَالطَّاعَةِ وَإِنْ تَأَمَّرَ عَلَيْكُمْ عَبْدٌ، فَإِنَّهُ مَنْ يَعِشْ مِنْكُمْ فَسَيَرَى اخْتِلاَفاً كًثِيْراً. فَعَلَيْكُمْ بِسُنَّتِي وَسُنَّةِ الْخُلَفَاءِ الرَّاشِدِيْنَ الْمَهْدِيِّيْنَ عَضُّوا عَلَيْهَا بِالنَّوَاجِذِ، وَإِيَّاكُمْ وَمُحْدَثَاتِ اْلأُمُوْرِ، فَإِنَّ كُلَّ بِدْعَةٍ ضَلاَلَةٌ. رَوَاه أبو داود والترمذي وقال: حديث حسن صحيح`, terjemah:`Dari Al Irbadh bin Sariyah radhiyallahu 'anhu, dia berkata: Rasulullah shallallahu 'alaihi wa sallam pernah memberi kami nasihat yang menggetarkan hati dan membuat mata kami berlinang. Kami berkata: “Wahai Rasulullah, seakan-akan ini nasihat perpisahan, berilah kami wasiat.” Beliau bersabda: “Aku wasiatkan kalian bertakwa kepada Allah, mendengar dan taat (kepada pemimpin) meskipun yang memimpin kalian seorang budak. Karena siapa yang hidup di antara kalian setelah ini akan melihat banyak perselisihan. Maka wajib bagi kalian berpegang teguh pada sunnahku dan sunnah Khulafaur Rasyidin yang mendapat petunjuk; gigitlah ia dengan gigi geraham kalian (pegang erat-erat). Dan jauhilah perkara-perkara baru (dalam agama), karena setiap bid'ah adalah sesat.”`, perawi:`HR. Abu Dawud & Tirmidzi (hasan shahih)` },
+  { no:29, judul:`Pintu-Pintu Kebaikan`, arab:`عَنْ مُعَاذِ بْنِ جَبَلٍ رَضِيَ اللهُ عَنْهُ قَالَ: قُلْتُ يَا رَسُوْلَ اللهِ أَخْبِرْنِي بِعَمَلٍ يُدْخِلُنِي الجَنَّةَ وَيُبَاعِدُنِي عَنِ النَّارِ. قَالَ: لَقَدْ سَأَلْتَ عَنْ عَظِيمٍ وَإِنَّهُ لَيَسِيرٌ عَلَى مَنْ يَسَّرَهُ اللَّهُ عَلَيْهِ: تَعْبُدُ اللَّهَ لاَ تُشْرِكُ بِهِ شَيْئًا وَتُقِيمُ الصَّلاَةَ وَتُؤْتِى الزَّكَاةَ وَتَصُومُ رَمَضَانَ وَتَحُجُّ الْبَيْتَ. ثُمَّ قَالَ: أَلاَ أَدُلُّكَ عَلَى أَبْوَابِ الْخَيْرِ؟ الصَّوْمُ جُنَّةٌ وَالصَّدَقَةُ تُطْفِئُ الْخَطِيئَةَ كَمَا يُطْفِئُ الْمَاءُ النَّارَ وَصَلاَةُ الرَّجُلِ فِي جَوْفِ اللَّيْلِ. ثُمَّ قَالَ: أَلاَ أُخْبِرُكَ بِرَأْسِ الأَمْرِ وَعَمُودِهِ وَذِرْوَةِ سَنَامِهِ؟ قُلْتُ: بَلَى يَا رَسُولَ اللَّهِ. قَالَ: رَأْسُ الأَمْرِ الإِسْلاَمُ وَعَمُودُهُ الصَّلاَةُ وَذِرْوَةُ سَنَامِهِ الْجِهَادُ. رواه الترمذي وقال: حديث حسن صحيح`, terjemah:`Dari Mu'adz bin Jabal radhiyallahu 'anhu, dia berkata: “Wahai Rasulullah, beritahukan aku amalan yang memasukkanku ke surga dan menjauhkanku dari neraka.” Beliau bersabda: “Engkau telah bertanya tentang perkara besar, dan itu mudah bagi orang yang dimudahkan Allah: engkau beribadah kepada Allah tanpa menyekutukan-Nya, mendirikan shalat, menunaikan zakat, puasa Ramadhan, dan haji.” Kemudian beliau bersabda: “Maukah kutunjukkan pintu-pintu kebaikan? Puasa adalah perisai, sedekah memadamkan kesalahan sebagaimana air memadamkan api, dan shalat seseorang di tengah malam.” Kemudian beliau bersabda: “Maukah kuberitahu pokok segala perkara, tiangnya, dan puncaknya?” Aku menjawab: “Tentu, wahai Rasulullah.” Beliau bersabda: “Pokok segala perkara adalah Islam, tiangnya adalah shalat, dan puncaknya adalah jihad.”`, perawi:`HR. Tirmidzi (hasan shahih)` },
+  { no:30, judul:`Batasan-Batasan Allah`, arab:`عَنْ أَبِي ثَعْلَبَةَ الْخُشَنِي جُرْثُوْمِ بْنِ نَاشِرٍ رَضِيَ اللهُ عَنْهُ، عَنْ رَسُوْلِ اللهِ صلى الله عليه وسلم قَالَ: إِنَّ اللهَ تَعَالَى فَرَضَ فَرَائِضَ فَلاَ تُضَيِّعُوْهَا، وَحَدَّ حُدُوْداً فَلاَ تَعْتَدُوْهَا، وَحَرَّمَ أَشْيَاءَ فَلاَ تَنْتَهِكُوْهَا، وَسَكَتَ عَنْ أَشْيَاءَ رَحْمَةً لَكُمْ غَيْرَ نِسْيَانٍ فَلاَ تَبْحَثُوا عَنْهَا. حديث حسن رواه الدارقطني وغيره`, terjemah:`Dari Abu Tsa'labah Al Khusyani radhiyallahu 'anhu, dari Rasulullah shallallahu 'alaihi wa sallam, beliau bersabda: “Sesungguhnya Allah Ta'ala telah menetapkan kewajiban-kewajiban, maka janganlah kalian sia-siakan. Dia menetapkan batasan-batasan, maka janganlah kalian melampauinya. Dia mengharamkan hal-hal tertentu, maka janganlah kalian melanggarnya. Dan Dia mendiamkan hal-hal lain sebagai rahmat bagi kalian, bukan karena lupa, maka janganlah kalian mencari-cari (hukumnya).”`, perawi:`Hasan (HR. Daruquthni dan lainnya)` },
+  { no:31, judul:`Zuhud terhadap Dunia`, arab:`عَنْ أَبِي الْعَبَّاس سَهْل بِنْ سَعْد السَّاعِدِي رَضِيَ الله عَنْهُ قَالَ: جَاءَ رَجُلٌ إِلَى النَّبِيِّ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ فَقَالَ: ياَ رَسُوْلَ اللهِ دُلَّنِي عَلَى عَمَلٍ إِذَا عَمِلْتُهُ أَحَبَّنِيَ اللهُ وَأَحَبَّنِي النَّاسُ. فَقَالَ: ازْهَدْ فِي الدُّنْيَا يُحِبُّكَ اللهُ، وَازْهَدْ فِيْمَا عِنْدَ النَّاسِ يُحِبُّكَ النَّاسُ. حديث حسن رواه ابن ماجة وغيره بأسانيد حسنة`, terjemah:`Dari Sahl bin Sa'ad radhiyallahu 'anhu, dia berkata: Seseorang datang kepada Nabi shallallahu 'alaihi wa sallam dan berkata: “Wahai Rasulullah, tunjukkan kepadaku sebuah amalan yang jika aku kerjakan, aku akan dicintai Allah dan dicintai manusia.” Beliau bersabda: “Zuhudlah terhadap dunia, niscaya Allah akan mencintaimu. Dan zuhudlah terhadap apa yang dimiliki manusia, niscaya manusia akan mencintaimu.”`, perawi:`Hasan (HR. Ibnu Majah dan lainnya)` },
+  { no:32, judul:`Larangan Membahayakan Diri dan Orang Lain`, arab:`عَنْ أَبِي سَعِيْدٍ سَعَدْ بْنِ سِنَانِ الْخُدْرِي رَضِيَ اللهُ عَنْهُ أَنَّ رَسُوْلَ اللهِ صَلَّى الله عليه وسلَّمَ قَالَ: لاَ ضَرَرَ وَلاَ ضِرَارَ. حَدِيْثٌ حَسَنٌ رَوَاهُ ابْنُ مَاجَه وَالدَّارُقُطْنِي وَغَيْرُهُمَا مُسْنَداً`, terjemah:`Dari Abu Sa'id Sa'ad bin Sinan Al Khudri radhiyallahu 'anhu, sesungguhnya Rasulullah shallallahu 'alaihi wa sallam bersabda: “Tidak boleh membahayakan diri sendiri dan tidak boleh membahayakan orang lain.”`, perawi:`Hasan (HR. Ibnu Majah & Daruquthni)` },
+  { no:33, judul:`Bukti bagi Penuduh, Sumpah bagi yang Mengingkari`, arab:`عَنْ ابْنِ عَبَّاسٍ رَضِيَ اللهُ عَنْهُمَا، أَنَّ رَسُوْلَ اللهِ صَلَّى الله عليه وسلم قَالَ: لَوْ يُعْطَى النَّاسُ بِدَعْوَاهُمْ، لاَدَّعَى رِجَالٌ أَمْوَالَ قَوْمٍ وَدِمَاءَهُمْ، لَكِنَّ الْبَيِّنَةَ عَلَى الْمُدَّعِيْ وَالْيَمِيْنَ عَلَى مَنْ أَنْكَرَ. حديث حسن رواه البيهقي وغيره هكذا، وبعضه في الصحيحين`, terjemah:`Dari Ibnu Abbas radhiyallahu 'anhuma, sesungguhnya Rasulullah shallallahu 'alaihi wa sallam bersabda: “Seandainya setiap tuduhan manusia begitu saja diterima, niscaya banyak orang akan mengklaim harta dan darah suatu kaum. Akan tetapi, bukti wajib bagi orang yang menuduh, dan sumpah bagi orang yang mengingkari.”`, perawi:`Hasan (HR. Baihaqi, sebagiannya dalam Shahihain)` },
+  { no:34, judul:`Mengubah Kemungkaran`, arab:`عَنْ أَبِي سَعِيْد الْخُدْرِي رَضِيَ اللهُ عَنْهُ قَالَ: سَمِعْتُ رَسُوْلَ اللهِ صلى الله عليه وسلم يَقُوْلُ: مَنْ رَأَى مِنْكُمْ مُنْكَراً فَلْيُغَيِّرْهُ بِيَدِهِ، فَإِنْ لَمْ يَسْتَطِعْ فَبِلِسَانِهِ، فَإِنْ لَمْ يَسْتَطِعْ فَبِقَلْبِهِ وَذَلِكَ أَضْعَفُ اْلإِيْمَانِ. رواه مسلم`, terjemah:`Dari Abu Sa'id Al Khudri radhiyallahu 'anhu, dia berkata: Aku mendengar Rasulullah shallallahu 'alaihi wa sallam bersabda: “Barangsiapa di antara kalian melihat kemungkaran, hendaklah ia mengubahnya dengan tangannya. Jika tidak mampu, dengan lisannya. Jika tidak mampu, dengan hatinya, dan itu adalah selemah-lemah iman.”`, perawi:`HR. Muslim` },
+  { no:35, judul:`Larangan Saling Dengki dan Membenci`, arab:`عَنْ أَبِي هُرَيْرَةَ رَضِيَ اللهُ عَنْهُ قَالَ: قَالَ رَسُوْلُ اللهِ صلى الله عليه وسلم: لاَ تَحَاسَدُوا وَلاَ تَنَاجَشُوا وَلاَ تَبَاغَضُوا وَلاَ تَدَابَرُوا وَلاَ يَبِعْ بَعْضُكُمْ عَلَى بَيْعِ بَعْضٍ وَكُوْنُوا عِبَادَ اللهِ إِخْوَاناً. الْمُسْلِمُ أَخُو الْمُسْلِمِ لاَ يَظْلِمُهُ وَلاَ يَخْذُلُهُ وَلاَ يَكْذِبُهُ وَلاَ يَحْقِرُهُ. التَّقْوَى هَهُنَا –وَيُشِيْرُ إِلَى صَدْرِهِ ثَلاَثَ مَرَّاتٍ– بِحَسَبِ امْرِئٍ مِنَ الشَّرِّ أَنْ يَحْقِرَ أَخَاهُ الْمُسْلِمَ، كُلُّ الْمُسْلِمِ عَلَى الْمُسْلِمِ حَرَامٌ دَمُهُ وَمَالُهُ وَعِرْضُهُ. رواه مسلم`, terjemah:`Dari Abu Hurairah radhiyallahu 'anhu, dia berkata: Rasulullah shallallahu 'alaihi wa sallam bersabda: “Janganlah kalian saling dengki, saling menipu (dalam jual beli), saling membenci, saling membelakangi (memutus hubungan), dan janganlah sebagian kalian menjual atas penjualan sebagian yang lain. Jadilah kalian hamba-hamba Allah yang bersaudara. Seorang muslim adalah saudara bagi muslim yang lain; ia tidak menzhaliminya, tidak membiarkannya (dalam kesulitan), tidak mendustakannya, dan tidak menghinanya. Takwa itu di sini — sambil menunjuk dadanya tiga kali. Cukuplah seseorang dikatakan buruk jika ia menghina saudaranya sesama muslim. Setiap muslim atas muslim yang lain haram darahnya, hartanya, dan kehormatannya.”`, perawi:`HR. Muslim` },
+  { no:36, judul:`Melapangkan Kesulitan Saudara`, arab:`عَنْ أَبِي هُرَيْرَةَ رَضِي اللهُ عَنْهُ، عَنِ النَّبِيِّ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ قَالَ: مَنْ نَفَّسَ عَنْ مُؤْمِنٍ كُرْبَةً مِنْ كُرَبِ الدُّنْيَا نَفَّسَ اللهُ عَنْهُ كُرْبَةً مِنْ كُرَبِ يَوْمِ الْقِيَامَةِ، وَمَنْ يَسَّرَ عَلَى مُعْسِرٍ يَسَّرَ اللهُ عَلَيْهِ فِي الدُّنْيَا وَالآخِرَةِ، وَمَنْ سَتَرَ مُسْلِماً سَتَرَهُ اللهُ فِي الدُّنْيَا وَالآخِرَةِ وَاللهُ فِي عَوْنِ الْعَبْدِ مَا كاَنَ الْعَبْدُ فِي عَوْنِ أَخِيْهِ. وَمَنْ سَلَكَ طَرِيْقاً يَلْتَمِسُ فِيْهِ عِلْماً سَهَّلَ اللهُ بِهِ طَرِيْقاً إِلَى الْجَنَّةِ. مُتَّفَقٌ عَلَيْهِ`, terjemah:`Dari Abu Hurairah radhiyallahu 'anhu, dari Nabi shallallahu 'alaihi wa sallam, beliau bersabda: “Barangsiapa melapangkan satu kesusahan seorang mukmin dari kesusahan-kesusahan dunia, Allah akan melapangkan darinya satu kesusahan di hari kiamat. Barangsiapa memudahkan orang yang kesulitan, Allah akan memudahkan urusannya di dunia dan akhirat. Barangsiapa menutupi aib seorang muslim, Allah akan menutupi aibnya di dunia dan akhirat. Allah senantiasa menolong hamba-Nya selama hamba itu menolong saudaranya. Dan barangsiapa menempuh jalan untuk menuntut ilmu, Allah akan mudahkan baginya jalan menuju surga.”`, perawi:`Muttafaq 'alaih` },
+  { no:37, judul:`Allah Mencatat Kebaikan dan Keburukan`, arab:`عَنْ ابْنِ عَبَّاسِ رَضِيَ اللهُ عَنْهُمَا، عَنْ رَسُوْلِ اللهِ صَلى الله عليه وسلم فِيْمَا يَرْوِيْهِ عَنْ رَبِّهِ تَبَارَكَ وَتَعَالَى: إِنَّ اللهَ كَتَبَ الْحَسَنَاتِ وَالسَّيِّئَاتِ، ثُمَّ بَيَّنَ ذَلِكَ: فَمَنْ هَمَّ بِحَسَنَةٍ فَلَمْ يَعْمَلْهَا كَتَبَهَا عِنْدَهُ حَسَنَةً كَامِلَةً، وَإِنْ هَمَّ بِهَا فَعَمِلَهَا كَتَبَهَا اللهُ عِنْدَهُ عَشْرَةَ حَسَنَاتٍ إِلَى سَبْعِمِائَةِ ضِعْفٍ إِلَى أَضْعَافٍ كَثِيْرَةٍ، وَإِنْ هَمَّ بِسَيِّئَةٍ فَلَمْ يَعْمَلْهَا كَتَبَهَا اللهُ عِنْدَهُ حَسَنَةً كَامِلَةً، وَإِنْ هَمَّ بِهَا فَعَمِلَهَا كَتَبَهَا اللهُ سَيِّئَةً وَاحِدَةً. رواه البخاري ومسلم`, terjemah:`Dari Ibnu Abbas radhiyallahu 'anhuma, dari Rasulullah shallallahu 'alaihi wa sallam, sebagaimana beliau riwayatkan dari Rabb-nya: “Sesungguhnya Allah mencatat kebaikan-kebaikan dan keburukan-keburukan, kemudian menjelaskan hal itu: barangsiapa berniat melakukan kebaikan lalu tidak melaksanakannya, Allah mencatat baginya satu kebaikan penuh di sisi-Nya. Jika ia berniat dan melaksanakannya, Allah mencatatnya sepuluh kebaikan hingga tujuh ratus kali lipat, bahkan berlipat-lipat lebih banyak lagi. Dan jika ia berniat melakukan keburukan lalu tidak melaksanakannya, Allah mencatat baginya satu kebaikan penuh. Namun jika ia berniat lalu melaksanakannya, Allah mencatatnya sebagai satu keburukan saja.”`, perawi:`HR. Bukhari & Muslim` },
+  { no:38, judul:`Wali Allah`, arab:`عَنْ أَبِي هُرَيْرَةَ رَضِيَ اللهُ عَنْهُ قَالَ: قَالَ رَسُوْلُ اللهِ صلى الله عليه وسلم: إِنَّ اللهَ تَعَالَى قَالَ: مَنْ عَادَى لِي وَلِيًّا فَقَدْ آذَنْتُهُ بِالْحَرْبِ، وَمَا تَقَرَّبَ إِلَيَّ عَبْدِي بِشَيْءٍ أَحَبَّ إِلَيَّ مِمَّا افْتَرَضْتُهُ عَلَيْهِ، وَلاَ يَزَالُ عَبْدِي يَتَقَرَّبُ إِلَيَّ بِالنَّوَافِلِ حَتَّى أُحِبَّهُ، فَإِذَا أَحْبَبْتُهُ كُنْتُ سَمْعَهُ الَّذِي يَسْمَعُ بِهِ وَبَصَرَهُ الَّذِي يُبْصِرُ بِهِ، وَيَدَهُ الَّتِي يَبْطِشُ بِهَا، وَرِجْلَهُ الَّتِي يَمْشِي بِهَا، وَلَئِنْ سَأَلَنِي لأُعْطِيَنَّهُ، وَلَئِنِ اسْتَعَاذَنِي لأُعِيْذَنَّهُ. رواه البخاري`, terjemah:`Dari Abu Hurairah radhiyallahu 'anhu, dia berkata: Rasulullah shallallahu 'alaihi wa sallam bersabda: Allah Ta'ala berfirman: “Barangsiapa memusuhi wali-Ku, maka sungguh Aku umumkan perang terhadapnya. Tidak ada suatu ibadah pendekatan diri hamba-Ku kepada-Ku yang lebih Aku cintai daripada menjalankan apa yang telah Aku wajibkan atasnya. Dan hamba-Ku senantiasa mendekatkan diri kepada-Ku dengan amalan-amalan sunnah hingga Aku mencintainya. Apabila Aku telah mencintainya, Aku menjadi pendengarannya yang dengannya ia mendengar, penglihatannya yang dengannya ia melihat, tangannya yang dengannya ia memukul, dan kakinya yang dengannya ia berjalan. Jika ia meminta kepada-Ku, pasti Aku akan memberinya. Jika ia meminta perlindungan kepada-Ku, pasti Aku akan melindunginya.”`, perawi:`HR. Bukhari` },
+  { no:39, judul:`Allah Memaafkan Kesalahan, Lupa, dan Paksaan`, arab:`عَنِ ابْنِ عَبَّاس رَضِيَ اللهُ عَنْهُمَا: أَنَّ رَسُوْلَ اللهِ صَلَّى الله عليه وسلم قَالَ: إِنَّ اللهَ تَجَاوَزَ لِيْ عَنْ أُمَّتِي: الْخَطَأُ وَالنِّسْيَانُ وَمَا اسْتُكْرِهُوا عَلَيْهِ. حديث حسن رواه ابن ماجة والبيهقي وغيرهما`, terjemah:`Dari Ibnu Abbas radhiyallahu 'anhuma, sesungguhnya Rasulullah shallallahu 'alaihi wa sallam bersabda: “Sesungguhnya Allah memaafkan umatku karena aku (dari perbuatan): tersalah, lupa, dan sesuatu yang dipaksakan kepada mereka.”`, perawi:`Hasan (HR. Ibnu Majah & Baihaqi)` },
+  { no:40, judul:`Jadilah Engkau di Dunia seperti Orang Asing`, arab:`عَنْ ابْنِ عُمَرْ رضي الله عَنْهُمَا قَالَ: أَخَذَ رَسُوْلُ اللهِ صلى الله عليه وسلم بِمَنْكِبَيَّ فَقَالَ: كُنْ فِي الدُّنْيَا كَأَنَّكَ غَرِيْبٌ أَوْ عَابِرُ سَبِيْلٍ. وَكاَنَ ابْنُ عُمَرَ رَضِيَ اللهُ عَنْهُمَا يَقُوْلُ: إِذَا أَمْسَيْتَ فَلاَ تَنْتَظِرِ الصَّبَاحَ، وَإِذَا أَصْبَحْتَ فَلاَ تَنْتَظِرِ الْمَسَاءَ، وَخُذْ مِنْ صِحَّتِكَ لِمَرَضِكَ، وَمِنْ حَيَاتِكَ لِمَوْتِكَ. رواه البخاري`, terjemah:`Dari Ibnu Umar radhiyallahu 'anhuma, dia berkata: Rasulullah shallallahu 'alaihi wa sallam memegang kedua pundakku seraya bersabda: “Jadilah engkau di dunia ini seperti orang asing atau pengembara.” Ibnu Umar berkata: “Jika engkau berada di sore hari, jangan menunggu pagi hari. Jika engkau berada di pagi hari, jangan menunggu sore hari. Gunakanlah masa sehatmu sebelum sakitmu, dan masa hidupmu sebelum matimu.”`, perawi:`HR. Bukhari` },
+  { no:41, judul:`Ikuti Apa yang Aku Bawa`, arab:`عَنْ أَبِي مُحَمَّدٍ عَبْدِ اللهِ بْنِ عَمْرو بْنِ الْعَاصِ رَضِيَ اللهُ عَنْهُمَا قَالَ: قَالَ رَسُوْلُ اللهِ صلى الله عليه وسلم: لاَ يُؤْمِنُ أَحَدُكُمْ حَتَّى يَكُوْنَ هَوَاهُ تَبَعاً لِمَا جِئْتُ بِهِ. حَديثٌ حَسَنٌ صَحِيْحٌ وَرَوَيْنَاهُ فِي كِتَابِ الْحُجَّة بإسنادٍ صحيحٍ`, terjemah:`Dari Abdullah bin Amr bin Al-Ash radhiyallahu 'anhuma, dia berkata: Rasulullah shallallahu 'alaihi wa sallam bersabda: “Tidaklah beriman salah seorang dari kalian hingga hawa nafsunya mengikuti apa yang aku bawa.”`, perawi:`Hasan Shahih (Kitab Al-Hujjah)` },
+  { no:42, judul:`Luasnya Ampunan Allah`, arab:`عَنْ أَنَسٍ رَضِيَ اللهُ عَنْهُ قَالَ: سَمِعْتُ رَسُوْلَ اللهِ صَلَّى الله عليه وسلم يَقُوْلُ: قَالَ اللهُ تَعَالَى: يَا ابْنَ آدَمَ، إِنَّكَ مَا دَعَوْتَنِي وَرَجَوْتَنِي غَفَرْتُ لَكَ عَلَى مَاكَانَ مِنْكَ وَلاَ أُبَالِي، يَا ابْنَ آدَمَ لَوْ بَلَغَتْ ذُنُوْبُكَ عَنَانَ السَّماَءِ ثُمَّ اسْتَغْفَرْتَنِي غَفَرْتُ لَكَ، يَا ابْنَ آدَمَ، إِنَّكَ لَوْ أَتَيْتَنِي بِقُرَابِ اْلأَرْضِ خَطاَياَ ثُمَّ لَقِيْتَنِي لاَ تُشْرِكْ بِي شَيْئاً لأَتَيْتُكَ بِقُرَابِهَا مَغْفِرَةً. رواه الترمذي وقال حديث حسن صحيح`, terjemah:`Dari Anas bin Malik radhiyallahu 'anhu, dia berkata: Aku mendengar Rasulullah shallallahu 'alaihi wa sallam bersabda: Allah Ta'ala berfirman: “Wahai anak Adam, selama engkau berdoa dan berharap kepada-Ku, akan Aku ampuni dosa yang ada padamu, dan Aku tidak peduli (sebanyak apa pun dosamu). Wahai anak Adam, seandainya dosa-dosamu setinggi awan di langit, kemudian engkau memohon ampun kepada-Ku, niscaya akan Aku ampuni engkau. Wahai anak Adam, seandainya engkau datang kepada-Ku dengan kesalahan sepenuh bumi, kemudian engkau menjumpai-Ku dalam keadaan tidak menyekutukan-Ku dengan sesuatu apa pun, niscaya akan Aku datangkan kepadamu ampunan sepenuh itu pula.”`, perawi:`HR. Tirmidzi (hasan shahih)` },
+];
+const FALLBACK_LULUS = 80; // dipakai HANYA sebelum data KKM dari server termuat
+let KKM_AKTIF = FALLBACK_LULUS; // diisi dari server (sheet KKM) setelah kelas dipilih
+const HASIL_LABEL = { belum: '—', sudah: '✓ Sudah Hafal', mengulang: '✗ Mengulang' };
+
+const sesiNip   = sessionStorage.getItem('nip');
+const sesiNama  = sessionStorage.getItem('nama');
+const sesiRole  = sessionStorage.getItem('role');
+const sesiWali  = sessionStorage.getItem('wali_kelas') || '';
+const sesiMapel = sessionStorage.getItem('mapel') || '';
+// ─── Klasifikasi mapel guru → tampilkan menu sesuai yang diajar ───
+// MAPEL bisa berisi lebih dari satu (dipisah koma/"dan"/"&"/"/"), mis. "PJOK, Fikih" atau "Hadist, Bahasa Arab".
+function klasifikasiMapel(raw) {
+  var tokens = String(raw || '').split(/,|\/|&|\bdan\b/i).map(function (t) { return t.trim(); }).filter(Boolean);
+  var kat = { tahfizh: false, hadist: false, umum: false };
+  tokens.forEach(function (t) {
+    var tl = t.toLowerCase();
+    if (tl.indexOf('tahfizh') >= 0 || tl.indexOf('tahfiz') >= 0) kat.tahfizh = true;
+    else if (tl.indexOf('hadist') >= 0 || tl.indexOf('hadits') >= 0) kat.hadist = true;
+    else kat.umum = true;
+  });
+  return kat;
+}
+function toggleNav(id, show) { var el = document.getElementById(id); if (el) el.style.display = show ? 'flex' : 'none'; }
+var katMapel = klasifikasiMapel(sesiMapel);
+toggleNav('nav-nilai', katMapel.umum);
+toggleNav('nav-tahfizh', katMapel.tahfizh);
+toggleNav('nav-hadist', katMapel.hadist);
+toggleNav('quick-nilai', katMapel.umum);
+toggleNav('quick-tahfizh', katMapel.tahfizh);
+
+if (!sesiNip || !sesiNama || sesiRole !== 'guru') { window.location.href = 'index.html'; throw new Error('redirect'); }
+function doLogout() { sessionStorage.clear(); window.location.href = 'index.html'; }
+
+function inisialGuru(nama) {
+  const base = nama.split(',')[0].trim();
+  const honorifics = ['USTADZAH','USTADZ','BAPAK','IBU','PAK','BU','DRS','DRA'];
+  let parts = base.split(/\s+/).filter(Boolean);
+  if (parts.length > 1 && honorifics.includes(parts[0].toUpperCase().replace(/\.$/, ''))) parts = parts.slice(1);
+  if (parts.length === 0) return '??';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+function labelJabatan() {
+  const m = sesiMapel.toUpperCase();
+  if (m === 'GURU KELAS' && sesiWali) return `Wali Kelas ${sesiWali}`;
+  if (m === 'GURU KELAS') return 'Guru Kelas';
+  if (m === 'STAFF ADMINISTRASI') return 'Staff Administrasi';
+  if (m === 'KEPALA SEKOLAH') return 'Kepala Sekolah';
+  if (m) return `Guru ${m.charAt(0) + m.slice(1).toLowerCase()}`;
+  return 'Guru';
+}
+document.getElementById('sb-nama').textContent = sesiNama;
+document.getElementById('sb-role').textContent = labelJabatan();
+document.getElementById('sb-inisial').textContent = inisialGuru(sesiNama);
+
+const now = new Date();
+document.getElementById('today-date').textContent = HARI[now.getDay()] + ', ' + now.getDate() + ' ' + BULAN[now.getMonth()] + ' ' + now.getFullYear();
+
+async function fetchGViz(gid, label) {
+  const url = `https://docs.google.com/spreadsheets/d/${SS_ID}/gviz/tq?tqx=out:json&gid=${gid}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Gagal mengambil "${label}" (HTTP ${res.status})`);
+  const txt = await res.text();
+  const s = txt.indexOf('{'), e = txt.lastIndexOf('}');
+  if (s < 0) throw new Error(`Respons "${label}" tidak valid`);
+  const obj = JSON.parse(txt.slice(s, e + 1));
+  if (!obj.table) throw new Error(`Sheet "${label}" kosong atau tidak ada`);
+  const cols = obj.table.cols.map(c => (c.label || c.id || '').trim().toUpperCase().replace(/_/g, ' '));
+  const rows = (obj.table.rows || []).map(r => (r.c || []).map(cell => {
+    if (!cell || cell.v == null) return '';
+    return String(cell.f != null ? cell.f : cell.v).trim();
+  }));
+  return { cols, rows };
+}
+const norm = s => (s || '').toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
+function colIdx(cols, ...kws) { for (const kw of kws) { const i = cols.findIndex(c => c.includes(kw)); if (i >= 0) return i; } return -1; }
+function erEl(id, msg) { document.getElementById(id).innerHTML = `<div class="empty" style="color:#e53e3e">⚠️ ${msg}</div>`; }
+function showWarn(msg) { document.getElementById('warn-msg').textContent = msg; document.getElementById('warn-bar').style.display = 'block'; }
+function showOk(msg) { document.getElementById('ok-msg').textContent = msg; document.getElementById('ok-bar').style.display = 'block'; document.getElementById('warn-bar').style.display = 'none'; }
+
+let KELAS_LIST = [];
+let KELAS_TERPILIH = null;
+let SANTRI_LIST = [];
+let SANTRI_TERPILIH = null;
+let HADIST_DATA = {};
+let EDIT = {};
+let STATUS_FILTER = 'semua';
+
+async function muatKelas() {
+  try {
+    const { cols, rows } = await fetchGViz(GID.JADWAL, 'JADWAL');
+    const iKELAS = colIdx(cols, 'KELAS'), iMAPEL = colIdx(cols, 'MATA PELAJARAN', 'MAPEL'), iNIPG = colIdx(cols, 'NIP GURU', 'NIP');
+    if (iNIPG < 0) { erEl('kelas-grid', 'Kolom "NIP GURU" tidak ditemukan di sheet JADWAL.'); return; }
+    const seen = new Set();
+    KELAS_LIST = [];
+    rows.forEach(r => {
+      if (String(r[iNIPG] || '').trim() !== String(sesiNip).trim()) return;
+      const mapel = norm(r[iMAPEL >= 0 ? iMAPEL : ''] || '');
+      if (mapel !== 'hadits' && mapel !== 'hadist') return;
+      const kelas = r[iKELAS >= 0 ? iKELAS : 0] || '';
+      if (!kelas || seen.has(kelas)) return;
+      seen.add(kelas);
+      KELAS_LIST.push(kelas);
+    });
+    renderKelasGrid();
+  } catch (e) { erEl('kelas-grid', e.message || 'Gagal memuat jadwal.'); }
+}
+
+function renderKelasGrid() {
+  const el = document.getElementById('kelas-grid');
+  if (!KELAS_LIST.length) { el.innerHTML = `<div class="empty">Tidak ditemukan kelas Hadits atas nama Anda di sheet JADWAL.</div>`; return; }
+  el.innerHTML = KELAS_LIST.map((k, i) => `<div class="picker-card" onclick="pilihKelas(${i})">
+      <div class="picker-title">Kelas ${k}</div><div class="picker-sub">Hadits</div></div>`).join('');
+  if (KELAS_LIST.length === 1) pilihKelas(0);
+}
+
+async function pilihKelas(i) {
+  KELAS_TERPILIH = KELAS_LIST[i];
+  document.getElementById('kelas-picker-card').style.display = 'none';
+  document.getElementById('santri-picker-card').style.display = 'block';
+  document.getElementById('kelas-terpilih-label').textContent = KELAS_TERPILIH;
+  document.getElementById('santri-list').innerHTML = '<div class="empty">Memuat siswa…</div>';
+  try {
+    const { cols, rows } = await fetchGViz(GID.SISWA, 'SISWA');
+    const iNIS = colIdx(cols, 'NIS'), iNAMA = colIdx(cols, 'NAMA'), iKELAS = colIdx(cols, 'KELAS'), iSTS = colIdx(cols, 'STATUS');
+    const nk = norm(KELAS_TERPILIH);
+    SANTRI_LIST = rows
+      .filter(r => norm(r[iKELAS >= 0 ? iKELAS : 0] || '') === nk)
+      .filter(r => { const st = norm(r[iSTS >= 0 ? iSTS : ''] || 'aktif'); return st === 'aktif' || st === ''; })
+      .map(r => ({ nis: r[iNIS >= 0 ? iNIS : 0] || '', nama: r[iNAMA >= 0 ? iNAMA : 1] || '—' }))
+      .sort((a, b) => a.nama.localeCompare(b.nama));
+    renderSantriList();
+  } catch (e) { erEl('santri-list', e.message || 'Gagal memuat siswa.'); }
+}
+
+function gantiKelas() {
+  document.getElementById('santri-picker-card').style.display = 'none';
+  document.getElementById('kelas-picker-card').style.display = 'block';
+}
+
+function renderSantriList() {
+  const el = document.getElementById('santri-list');
+  const q = norm(document.getElementById('search-santri').value);
+  const filtered = SANTRI_LIST.filter(s => !q || norm(s.nama).includes(q) || norm(s.nis).includes(q));
+  if (!filtered.length) { el.innerHTML = '<div class="empty">Tidak ada siswa yang cocok.</div>'; return; }
+  el.innerHTML = filtered.map(s => {
+    const ini = s.nama.split(' ').slice(0, 2).map(w => w[0] || '').join('').toUpperCase();
+    return `<div class="santri-row" onclick="pilihSantri('${s.nis}')">
+      <div class="s-avatar">${ini}</div>
+      <div><div class="s-nama">${s.nama}</div><div class="s-nis">NIS ${s.nis}</div></div>
+    </div>`;
+  }).join('');
+}
+
+async function pilihSantri(nis) {
+  SANTRI_TERPILIH = SANTRI_LIST.find(s => s.nis === nis);
+  document.getElementById('santri-picker-card').style.display = 'none';
+  document.getElementById('workspace').style.display = 'block';
+  document.getElementById('active-nama').textContent = SANTRI_TERPILIH.nama;
+  document.getElementById('active-meta').textContent = `NIS ${SANTRI_TERPILIH.nis} · Kelas ${KELAS_TERPILIH}`;
+  document.getElementById('ok-bar').style.display = 'none';
+  EDIT = {};
+  STATUS_FILTER = 'semua';
+
+  buildStatusFilter();
+
+  if (!HADIST_API_URL) { showWarn('HADIST_API_URL belum diisi — data belum bisa dimuat/disimpan.'); HADIST_DATA = {}; }
+  else {
+    try {
+      const res = await fetch(`${HADIST_API_URL}?nis=${encodeURIComponent(nis)}&kelas=${encodeURIComponent(KELAS_TERPILIH)}`);
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || 'Gagal memuat data hadist.');
+      HADIST_DATA = data.data || {};
+      KKM_AKTIF = (data.kkm !== undefined && data.kkm !== null) ? Number(data.kkm) : FALLBACK_LULUS;
+      document.getElementById('hadist-desc').textContent =
+        `Nilai ≥ ${KKM_AKTIF} = Sudah Hafal (KKM Hadist kelas ${KELAS_TERPILIH}). Di bawah ${KKM_AKTIF} = Mengulang, tinggal isi ulang nilainya kapan saja saat retes. Bisa ubah beberapa hadist sekaligus, lalu klik Simpan Perubahan di bawah.`;
+    } catch (e) {
+      showWarn('Gagal memuat data hadist: ' + (e.message || 'periksa koneksi'));
+      HADIST_DATA = {};
+    }
+  }
+
+  renderStats();
+  renderTable();
+}
+
+function gantiSantri() {
+  document.getElementById('workspace').style.display = 'none';
+  document.getElementById('santri-picker-card').style.display = 'block';
+}
+
+function buildStatusFilter() {
+  const el = document.getElementById('status-filter');
+  const opsi = [['semua', 'Semua (42)'], ['sudah', '✓ Sudah Hafal'], ['mengulang', '✗ Perlu Mengulang'], ['belum', '○ Belum Ada Nilai']];
+  el.innerHTML = opsi.map(([k, l]) => `<button class="sf-btn ${k === 'semua' ? 'active' : ''}" onclick="setStatusFilter('${k}', this)">${l}</button>`).join('');
+}
+function setStatusFilter(k, btn) {
+  STATUS_FILTER = k;
+  document.querySelectorAll('.sf-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTable();
+}
+
+function statusDariNilai(nilai) {
+  if (nilai === '' || nilai === undefined || nilai === null) return 'belum';
+  return Number(nilai) >= KKM_AKTIF ? 'sudah' : 'mengulang';
+}
+
+function renderStats() {
+  const counts = { belum: 0, mengulang: 0, sudah: 0 };
+  HADIST_LIST.forEach(h => {
+    const d = HADIST_DATA[h.no];
+    const st = statusDariNilai(d && d.nilai);
+    counts[st]++;
+  });
+  const progress = Math.round((counts.sudah / HADIST_LIST.length) * 100);
+  document.getElementById('stats-row').innerHTML = `
+    <div class="stat-mini sm-sudah"><div class="n">${counts.sudah}</div><div class="l">Sudah Hafal</div></div>
+    <div class="stat-mini sm-sedang"><div class="n">${counts.mengulang}</div><div class="l">Perlu Mengulang</div></div>
+    <div class="stat-mini sm-belum"><div class="n">${counts.belum}</div><div class="l">Belum Ada Nilai</div></div>
+    <div class="stat-mini sm-progress"><div class="n">${progress}%</div><div class="l">Progres Total</div></div>
+  `;
+}
+
+function renderTable() {
+  const tbody = document.getElementById('hadist-tbody');
+  let list = HADIST_LIST;
+  if (STATUS_FILTER !== 'semua') {
+    list = list.filter(h => {
+      const d = HADIST_DATA[h.no];
+      const e = EDIT[h.no] || {};
+      const nilai = e.nilai !== undefined ? e.nilai : (d && d.nilai) || '';
+      return statusDariNilai(nilai) === STATUS_FILTER;
+    });
+  }
+  if (!list.length) { tbody.innerHTML = `<tr><td colspan="5" class="empty">Tidak ada hadist di kategori ini.</td></tr>`; return; }
+
+  tbody.innerHTML = list.map(h => {
+    const no = h.no;
+    const d = HADIST_DATA[no] || {};
+    const e = EDIT[no] || {};
+    const nilai = e.nilai !== undefined ? e.nilai : (d.nilai || '');
+    const catatan = e.catatan !== undefined ? e.catatan : (d.catatan || '');
+    const hasil = statusDariNilai(nilai);
+    return `<tr data-no="${no}">
+      <td class="no-cell">${no}</td>
+      <td class="judul-cell"><span class="judul-link" onclick="bukaDetail(${no})"><span class="jl-icon">📖</span><span class="jl-text">${h.judul}</span></span></td>
+      <td><input type="number" min="0" max="100" value="${nilai}" oninput="onNilaiEdit(${no}, this)"></td>
+      <td class="hasil-cell"><div class="hasil-badge ${hasil}" id="badge-${no}">${HASIL_LABEL[hasil]}</div></td>
+      <td class="catatan-cell"><input type="text" value="${catatan}" oninput="onEdit(${no},'catatan',this.value)" placeholder="opsional"></td>
+    </tr>`;
+  }).join('');
+}
+
+function bukaDetail(no) {
+  const h = HADIST_LIST.find(x => x.no === no);
+  if (!h) return;
+  document.getElementById('m-judul').textContent = `${h.no}. ${h.judul}`;
+  document.getElementById('m-arab').textContent = h.arab;
+  document.getElementById('m-terjemah').textContent = h.terjemah;
+  document.getElementById('m-perawi').textContent = h.perawi;
+  document.getElementById('modal-backdrop').classList.add('open');
+}
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('modal-backdrop')) {
+    document.getElementById('modal-backdrop').classList.remove('open');
+  }
+}
+
+function onEdit(no, field, value) {
+  if (!EDIT[no]) EDIT[no] = {};
+  EDIT[no][field] = value;
+  const jumlah = Object.keys(EDIT).length;
+  document.getElementById('save-note').textContent = jumlah ? `${jumlah} hadist belum disimpan.` : 'Belum ada perubahan.';
+}
+
+function onNilaiEdit(no, input) {
+  onEdit(no, 'nilai', input.value);
+  const hasil = statusDariNilai(input.value);
+  const badge = document.getElementById('badge-' + no);
+  badge.className = 'hasil-badge ' + hasil;
+  badge.textContent = HASIL_LABEL[hasil];
+}
+
+async function simpanPerubahan() {
+  const nomorBerubah = Object.keys(EDIT);
+  if (!nomorBerubah.length) { alert('Belum ada perubahan untuk disimpan.'); return; }
+  if (!HADIST_API_URL) { alert('HADIST_API_URL belum diisi.'); return; }
+
+  const btn = document.getElementById('btn-simpan');
+  btn.disabled = true; btn.textContent = 'Menyimpan…';
+  try {
+    const updates = nomorBerubah.map(no => {
+      const d = HADIST_DATA[no] || {};
+      const e = EDIT[no];
+      const nilai = e.nilai !== undefined ? e.nilai : (d.nilai || '');
+      return {
+        hadist_ke: Number(no),
+        nilai: nilai,
+        status: statusDariNilai(nilai), // dihitung otomatis: belum | mengulang | sudah
+        catatan: e.catatan !== undefined ? e.catatan : (d.catatan || ''),
+      };
+    });
+    const res = await fetch(HADIST_API_URL, { method: 'POST', body: JSON.stringify({ nis: SANTRI_TERPILIH.nis, nama: SANTRI_TERPILIH.nama, kelas: KELAS_TERPILIH, updates }) });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || 'Gagal menyimpan.');
+
+    updates.forEach(u => { HADIST_DATA[u.hadist_ke] = { status: u.status, nilai: u.nilai, catatan: u.catatan }; });
+    EDIT = {};
+    document.getElementById('save-note').textContent = `Tersimpan pukul ${new Date().toLocaleTimeString('id-ID')}.`;
+    showOk(`${data.count} hadist berhasil disimpan.`);
+    renderStats(); renderTable();
+  } catch (e) {
+    showWarn('Gagal menyimpan: ' + (e.message || 'periksa koneksi.'));
+  } finally { btn.disabled = false; btn.textContent = 'Simpan Perubahan'; }
+}
+
+function setLoading(on) {
+  document.getElementById('rdot').classList.toggle('spin', on);
+  document.getElementById('rlabel').textContent = on ? 'Memuat data…' : 'Terhubung';
+}
+(async function init() { setLoading(true); await muatKelas(); setLoading(false); })();
+</script>
+</body>
+</html>

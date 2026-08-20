@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Input Tahfizh — Portal SD IT Abu Hurairah Sembalun</title>
+  <link rel="stylesheet" href="responsive.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; min-height: 100vh; display: flex; }
+
+    /* SIDEBAR */
+    .sidebar { width: 230px; min-height: 100vh; background: #1a4f8a; display: flex; flex-direction: column; flex-shrink: 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+    .sidebar-header { display: flex; flex-direction: column; align-items: center; padding: 28px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.12); gap: 10px; }
+    .sidebar-school { font-size: 12px; font-weight: 700; color: #fff; text-align: center; line-height: 1.4; text-transform: uppercase; }
+    .sidebar-school span { display: block; font-size: 10px; font-weight: 400; color: rgba(255,255,255,0.55); text-transform: none; margin-top: 2px; }
+    .guru-info { display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,0.12); }
+    .avatar { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
+    .guru-name { font-size: 13px; font-weight: 600; color: #fff; }
+    .guru-role { font-size: 11px; color: rgba(255,255,255,0.55); margin-top: 1px; }
+    .nav { padding: 12px 0; flex: 1; }
+    .nav-section-label { font-size: 10px; color: rgba(255,255,255,0.4); padding: 8px 18px 4px; letter-spacing: 0.06em; text-transform: uppercase; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 18px; cursor: pointer; font-size: 13px; color: rgba(255,255,255,0.7); border-left: 3px solid transparent; transition: all 0.13s; text-decoration: none; }
+    .nav-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .nav-item.active { background: rgba(255,255,255,0.13); color: #fff; border-left-color: #fff; font-weight: 600; }
+    .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.8; }
+    .nav-item.active svg { opacity: 1; }
+    .nav-item .soon { margin-left: auto; font-size: 9px; background: rgba(255,255,255,0.15); padding: 2px 6px; border-radius: 20px; font-weight: 600; }
+    .sidebar-footer { padding: 14px 18px; border-top: 1px solid rgba(255,255,255,0.12); }
+    .btn-logout { width: 100%; padding: 9px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: rgba(255,255,255,0.8); font-size: 12px; cursor: pointer; }
+    .btn-logout:hover { background: rgba(255,255,255,0.18); }
+
+    /* MAIN */
+    .main { flex: 1; padding: 28px 32px; overflow-y: auto; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+    .page-title { font-size: 20px; font-weight: 700; color: #1a1a2e; }
+    .page-date { font-size: 13px; color: #999; margin-top: 2px; }
+    .rdot { width: 7px; height: 7px; border-radius: 50%; background: #2d8653; flex-shrink: 0; display:inline-block; }
+    .rdot.spin { background: #f59e0b; animation: blink 0.8s infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+    .refresh-info { font-size: 11px; color: #aaa; display: flex; align-items: center; gap: 6px; }
+
+    #warn-bar { display:none; background:#fff3cd; border:1px solid #ffc107; border-radius:10px; padding:12px 16px; margin-bottom:20px; font-size:13px; color:#856404; line-height:1.6; }
+    #ok-bar   { display:none; background:#eafff3; border:1px solid #6ee7b7; border-radius:10px; padding:12px 16px; margin-bottom:20px; font-size:13px; color:#065f46; line-height:1.6; }
+    .empty { text-align:center; padding:24px; color:#bbb; font-size:13px; }
+    .card { background: #fff; border-radius: 14px; border: 1px solid #eee; padding: 20px 22px; margin-bottom: 20px; }
+    .card-title { font-size: 14px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+    .card-desc { font-size: 12px; color: #999; margin-bottom: 16px; }
+
+    .picker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: 12px; }
+    .picker-card { border: 1.5px solid #e5e5e5; border-radius: 12px; padding: 14px 16px; cursor: pointer; transition: all 0.15s; background:#fff; }
+    .picker-card:hover { border-color: #7c3aed; box-shadow: 0 4px 14px rgba(124,58,237,0.1); }
+    .picker-title { font-size: 14.5px; font-weight: 700; color: #1a1a2e; }
+    .picker-sub { font-size: 12px; color: #999; margin-top: 2px; }
+
+    .search-box { position: relative; margin-bottom: 14px; }
+    .search-box input { width: 100%; padding: 9px 12px 9px 32px; border: 1px solid #e0e0e0; border-radius: 9px; font-size: 13px; }
+    .search-box svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: #bbb; }
+
+    .santri-row { display:flex; align-items:center; gap:12px; padding:11px 6px; border-bottom:1px solid #f5f5f5; cursor:pointer; border-radius: 8px; }
+    .santri-row:hover { background: #faf8ff; }
+    .santri-row:last-child { border-bottom:none; }
+    .s-avatar { width:34px; height:34px; border-radius:50%; background:#f3f0ff; color:#7c3aed; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0; }
+    .s-nama { font-size:13px; font-weight:600; color:#1a1a2e; }
+    .s-nis  { font-size:11px; color:#999; }
+
+    .active-head { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:6px; }
+    .active-nama { font-size:17px; font-weight:700; color:#1a1a2e; }
+    .active-meta { font-size:12.5px; color:#999; margin-top:2px; }
+    .btn-ganti { font-size:12px; color:#7c3aed; background:#f3f0ff; border:none; border-radius:8px; padding:7px 12px; cursor:pointer; font-weight:600; flex-shrink:0; }
+
+    .form-row { display:flex; gap:14px; flex-wrap:wrap; align-items:flex-end; }
+    .form-group { display:flex; flex-direction:column; gap:5px; }
+    .form-group label { font-size:11.5px; color:#999; font-weight:600; }
+    .form-group input, .form-group select, .form-group textarea { padding:8px 10px; border:1px solid #e0e0e0; border-radius:8px; font-size:13px; font-family:inherit; }
+    .form-group textarea { min-height:60px; resize:vertical; }
+    .btn-simpan-kecil { background:#7c3aed; color:#fff; border:none; border-radius:8px; padding:9px 16px; font-size:13px; font-weight:700; cursor:pointer; }
+    .btn-simpan-kecil:hover { background:#6b2fd6; }
+    .btn-simpan-kecil:disabled { background:#bbb; cursor:not-allowed; }
+
+    .stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:6px; }
+    .stat-mini { border-radius:10px; padding:12px 14px; text-align:center; }
+    .stat-mini .n { font-size:20px; font-weight:700; }
+    .stat-mini .l { font-size:10.5px; margin-top:2px; }
+    .sm-belum { background:#f5f5f5; } .sm-belum .n,.sm-belum .l { color:#888; }
+    .sm-proses { background:#eef4fb; } .sm-proses .n,.sm-proses .l { color:#1a4f8a; }
+    .sm-murajaah { background:#fffbf0; } .sm-murajaah .n,.sm-murajaah .l { color:#92400e; }
+    .sm-selesai { background:#f0faf4; } .sm-selesai .n,.sm-selesai .l { color:#065f46; }
+
+    .juz-filter { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px; }
+    .juz-btn { font-size:11.5px; padding:6px 12px; border-radius:20px; border:1px solid #e0e0e0; background:#fff; cursor:pointer; color:#666; }
+    .juz-btn.active { background:#7c3aed; border-color:#7c3aed; color:#fff; font-weight:700; }
+
+    .tabel-wrap { overflow-x:auto; border:1px solid #eee; border-radius:10px; max-height: 480px; overflow-y: auto; }
+    table.surah-tbl { border-collapse:collapse; width:100%; min-width:640px; font-size:12.5px; }
+    table.surah-tbl th, table.surah-tbl td { border-bottom:1px solid #f0f0f0; padding:8px 10px; text-align:left; }
+    table.surah-tbl thead th { background:#f7f9fc; color:#555; font-weight:700; font-size:11px; position:sticky; top:0; z-index:1; }
+    table.surah-tbl td.nama-surah { font-weight:600; color:#1a1a2e; }
+    table.surah-tbl td.no-cell { color:#bbb; width: 30px; }
+    table.surah-tbl select { padding:5px 8px; border-radius:6px; border:1px solid #e0e0e0; font-size:12px; }
+    .badge-tasmi { font-size:10.5px; font-weight:600; padding:2px 8px; border-radius:20px; }
+    .bt-belum { background:#f5f5f5; color:#888; }
+    .bt-lulus { background:#d1fae5; color:#065f46; }
+    .bt-ulang { background:#fff5cc; color:#92400e; }
+
+    .save-bar { position:sticky; bottom:0; background:#fff; border-top:1px solid #eee; margin:16px -22px -20px; padding:14px 22px; display:flex; align-items:center; justify-content:space-between; border-radius:0 0 14px 14px; flex-wrap:wrap; gap:10px; }
+    .btn-simpan { background:#7c3aed; color:#fff; border:none; border-radius:10px; padding:12px 22px; font-size:14px; font-weight:700; cursor:pointer; }
+    .btn-simpan:hover { background:#6b2fd6; }
+    .btn-simpan:disabled { background:#bbb; cursor:not-allowed; }
+    .save-note { font-size:11.5px; color:#999; }
+
+    .tasmi-form-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:14px; }
+    .tasmi-form-grid .full { grid-column: 1 / -1; }
+    .hasil-badge { padding:9px 12px; border-radius:8px; border:1.5px solid #e0e0e0; background:#fafafa; font-size:13px; font-weight:700; text-align:center; color:#aaa; }
+    .hasil-badge.lulus { background:#d1fae5; border-color:#2d8653; color:#065f46; }
+    .hasil-badge.gagal { background:#fff5f5; border-color:#c53030; color:#c53030; }
+    .predikat-badge { padding:9px 12px; border-radius:8px; border:1.5px solid #e0e0e0; background:#fafafa; font-size:13px; font-weight:700; text-align:center; color:#aaa; }
+    .predikat-badge.pa { background:#e0f2fe; border-color:#0369a1; color:#075985; }
+    .predikat-badge.pb { background:#d1fae5; border-color:#2d8653; color:#065f46; }
+    .predikat-badge.pc { background:#fff5cc; border-color:#b45309; color:#92400e; }
+
+    .history-item { display:flex; gap:12px; padding:10px 0; border-bottom:1px solid #f5f5f5; align-items:flex-start; }
+    .history-item:last-child { border-bottom:none; }
+    .h-nilai { font-weight:700; font-size:13px; min-width:34px; }
+
+    .fr-progress-wrap { margin: 6px 0 18px; }
+    .fr-progress-bg { height: 14px; background:#f0f0f0; border-radius:99px; overflow:hidden; margin-bottom:8px; }
+    .fr-progress-fill { height:100%; border-radius:99px; background:linear-gradient(90deg,#7c3aed,#a78bfa); transition:width 0.4s ease; }
+    .fr-progress-label { font-size:12.5px; color:#666; display:flex; justify-content:space-between; }
+    .fr-progress-label b { color:#1a1a2e; }
+
+    @media (max-width: 900px) { .stats-row { grid-template-columns: repeat(2,1fr); } }
+  </style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div style="width:60px;height:60px;background:rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px">🕌</div>
+    <div class="sidebar-school">SD IT Abu Hurairah<br>Sembalun<span>Lombok Timur — NTB</span></div>
+  </div>
+  <div class="guru-info">
+    <div class="avatar" id="sb-inisial">—</div>
+    <div><div class="guru-name" id="sb-nama">Memuat…</div><div class="guru-role" id="sb-role">—</div></div>
+  </div>
+  <nav class="nav">
+    <div class="nav-section-label">Menu Utama</div>
+    <a class="nav-item" href="dashboard-guru.html">
+      <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.2" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="1" width="6" height="6" rx="1.2" stroke="currentColor" stroke-width="1.4"/><rect x="1" y="9" width="6" height="6" rx="1.2" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="9" width="6" height="6" rx="1.2" stroke="currentColor" stroke-width="1.4"/></svg>
+      Dashboard</a>
+    <a class="nav-item" href="absensi-guru.html">
+      <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.4"/><path d="M2 14c0-3 2.7-5 6-5s6 2 6 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Input Absensi</a>
+    <a class="nav-item" href="input-nilai.html" id="nav-nilai">
+      <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5 6h6M5 9h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Input Nilai</a>
+    <a class="nav-item" href="kelola-etalim.html">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M8 2L14 5v4c0 3-3 5-6 5S2 12 2 9V5l6-3z" stroke="currentColor" stroke-width="1.4"/></svg>
+      Kelola E-Ta'lim</a>
+    <a class="nav-item active" href="input-tahfizh.html" id="nav-tahfizh">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M3 2h7l3 3v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.4"/><path d="M10 2v4h4" stroke="currentColor" stroke-width="1.4"/><path d="M5 9h6M5 11.5h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Input Tahfizh</a>
+    <a class="nav-item" href="input-hadist.html" id="nav-hadist">
+      <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5 5.5h6M5 8h6M5 10.5h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Nilai Hadist</a>
+    <div class="nav-section-label" style="margin-top:8px">Info</div>
+    <a class="nav-item" href="jadwal-guru.html">
+      <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="11" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M1 7h14M5 1v4M11 1v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Jadwal Pelajaran</a>
+    <a class="nav-item" href="info-sekolah.html">
+      <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.4"/><path d="M8 7v5M8 5v.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      Info Sekolah</a>
+  </nav>
+  <div class="sidebar-footer"><button class="btn-logout" onclick="doLogout()">&#8592; Keluar</button></div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div><div class="page-title">Input Tahfizh</div><div class="page-date" id="today-date"></div></div>
+    <div class="refresh-info"><div class="rdot" id="rdot"></div><span id="rlabel">Menghubungkan…</span></div>
+  </div>
+
+  <div id="warn-bar">⚠️ <span id="warn-msg"></span></div>
+  <div id="ok-bar">✅ <span id="ok-msg"></span></div>
+
+  <div class="card" id="kelas-picker-card">
+    <div class="card-title">Pilih Kelas Tahfizh</div>
+    <div class="card-desc">Daftar kelas diambil dari jadwal mengajar Tahfizh Anda.</div>
+    <div class="picker-grid" id="kelas-grid"><div class="empty">Memuat jadwal…</div></div>
+  </div>
+
+  <div class="card" id="santri-picker-card" style="display:none">
+    <div class="active-head">
+      <div class="card-title" style="margin-bottom:0">Pilih Santri — Kelas <span id="kelas-terpilih-label"></span></div>
+      <button class="btn-ganti" onclick="gantiKelas()">↺ Ganti kelas</button>
+    </div>
+    <div class="search-box">
+      <svg viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.4"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      <input type="text" id="search-santri" placeholder="Cari nama santri…" oninput="renderSantriList()">
+    </div>
+    <div id="santri-list"><div class="empty">Memuat santri…</div></div>
+  </div>
+
+  <div id="workspace" style="display:none">
+    <div class="card">
+      <div class="active-head">
+        <div>
+          <div class="active-nama" id="active-nama">—</div>
+          <div class="active-meta" id="active-meta">—</div>
+        </div>
+        <button class="btn-ganti" onclick="gantiSantri()">↺ Ganti santri</button>
+      </div>
+      <div class="stats-row" id="stats-row"></div>
+    </div>
+
+    <!-- KHUSUS KELAS 1-2: Penilaian Fathurrahman (tes per halaman, auto-progress) -->
+    <div class="card" id="fathurrahman-card" style="display:none">
+      <div class="card-title">Penilaian Fathurrahman</div>
+      <div class="card-desc">Halaman 5 s.d. 84. Nilai ≥ 75 otomatis lanjut ke halaman berikutnya; di bawah 75 tetap di halaman yang sama.</div>
+
+      <div class="fr-progress-wrap">
+        <div class="fr-progress-bg"><div class="fr-progress-fill" id="fr-progress-fill" style="width:0%"></div></div>
+        <div class="fr-progress-label"><span>Sedang di halaman <b id="fr-progress-text">8</b> dari 84</span><span id="fr-progress-pct">0%</span></div>
+      </div>
+
+      <div class="tasmi-form-grid">
+        <div class="form-group"><label>Halaman yang Diuji</label>
+          <select id="fr-halaman"></select>
+        </div>
+        <div class="form-group"><label>Tanggal Tes</label><input type="date" id="fr-tanggal"></div>
+        <div class="form-group"><label>Nilai (0-100)</label><input type="number" id="fr-nilai" min="0" max="100" oninput="onFrNilaiChange()"></div>
+        <div class="form-group"><label>Hasil</label><div class="hasil-badge" id="fr-hasil-badge">—</div></div>
+        <div class="form-group"><label>Predikat</label><div class="predikat-badge" id="fr-predikat-badge">—</div></div>
+        <div class="form-group full"><label>Catatan (opsional)</label><textarea id="fr-catatan" placeholder="Misal: masih terbata-bata di mad thabi'i"></textarea></div>
+        <div class="full"><button class="btn-simpan-kecil" onclick="simpanFathurrahman()" id="btn-simpan-fr">Simpan Hasil Tes</button></div>
+      </div>
+
+      <div class="card-title" style="margin-top:22px;font-size:13px">Riwayat Tes Fathurrahman</div>
+      <div id="fr-history-list"><div class="empty">Belum ada riwayat.</div></div>
+    </div>
+
+    <!-- KHUSUS KELAS 3-6: Target Juz & Catatan -->
+    <div class="card" id="target-card" style="display:none">
+      <div class="card-title">Target &amp; Catatan Tahun Ini</div>
+      <div class="card-desc">Target juz akhir tahun dan catatan pembimbing — tampil di dashboard santri.</div>
+      <div class="form-row">
+        <div class="form-group"><label>Target Juz</label><input type="number" id="f-target-juz" min="1" max="30" style="width:90px"></div>
+        <div class="form-group" style="flex:1; min-width:240px"><label>Catatan Ustadz/Ustadzah</label><textarea id="f-catatan-ustadz" placeholder="Tulis catatan pembimbingan…"></textarea></div>
+        <button class="btn-simpan-kecil" onclick="simpanSummary()" id="btn-simpan-summary">Simpan</button>
+      </div>
+    </div>
+
+    <!-- KHUSUS KELAS 3-6: Tasmi' -->
+    <div class="card" id="tasmi-card" style="display:none">
+      <div class="card-title">Catat Sesi Tasmi' Baru</div>
+      <div class="card-desc">Nilai ≥ 75 = lulus (surah selesai tasmi'). Di bawah 75 = perlu tasmi' ulang. Otomatis jadi riwayat baru setiap disimpan.</div>
+      <div class="tasmi-form-grid">
+        <div class="form-group"><label>Juz</label>
+          <select id="t-juz" onchange="updateSurahOptions()"></select>
+        </div>
+        <div class="form-group"><label>Cakupan</label>
+          <select id="t-cakupan" onchange="updateSurahOptions()">
+            <option value="full">1 Juz Penuh</option>
+            <option value="half1">Separuh Awal</option>
+            <option value="half2">Separuh Akhir</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Surah</label>
+          <select id="t-surah"></select>
+        </div>
+        <div class="form-group"><label>Tanggal</label><input type="date" id="t-tanggal"></div>
+        <div class="form-group"><label>Sesi ke-</label><input type="number" id="t-sesi" min="1" value="1"></div>
+        <div class="form-group"><label>Nilai (0-100)</label><input type="number" id="t-nilai" min="0" max="100" oninput="onTasmiNilaiChange()"></div>
+        <div class="form-group"><label>Hasil</label><div class="hasil-badge" id="t-hasil-badge">—</div></div>
+        <div class="form-group"><label>Predikat</label><div class="predikat-badge" id="t-predikat-badge">—</div></div>
+        <div class="form-group full"><label>Catatan (opsional)</label><textarea id="t-catatan" placeholder="Misal: perbanyak murajaah di ayat 10-15"></textarea></div>
+        <div class="full"><button class="btn-simpan-kecil" onclick="simpanTasmi()" id="btn-simpan-tasmi">Simpan Sesi Tasmi'</button></div>
+      </div>
+    </div>
+
+    <!-- KHUSUS KELAS 3-6: Update Status Hafalan -->
+    <div class="card" id="hafalan-card" style="display:none">
+      <div class="card-title">Update Status Hafalan per Surah</div>
+      <div class="card-desc">Ubah status beberapa surah sekaligus, lalu klik Simpan Perubahan di bawah.</div>
+      <div class="juz-filter" id="juz-filter"></div>
+      <div class="tabel-wrap">
+        <table class="surah-tbl">
+          <thead><tr><th>#</th><th>Surah</th><th>Juz</th><th>Status Hafalan</th><th>Status Tasmi</th><th>Nilai Terakhir</th></tr></thead>
+          <tbody id="surah-tbody"></tbody>
+        </table>
+      </div>
+      <div class="save-bar">
+        <div class="save-note" id="save-note">Belum ada perubahan.</div>
+        <button class="btn-simpan" id="btn-simpan-status" onclick="simpanStatusHafalan()">Simpan Perubahan Status</button>
+      </div>
+    </div>
+
+    <!-- KHUSUS KELAS 3-6: Riwayat Tasmi' -->
+    <div class="card" id="history-card" style="display:none">
+      <div class="card-title">Riwayat Tasmi' Terbaru</div>
+      <div id="history-list"><div class="empty">Belum ada riwayat.</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SS_ID = '1IBSU9uISBaLwEydw-uzviHFCgFwLeywy6EzKqz3GQto';
+const GID = { SISWA: '0', JADWAL: '1914920371' };
+
+const TAHFIZH_API_URL = 'https://script.google.com/macros/s/AKfycbyk1RneRmV0aRKbHSxDyO_328HKzJY2inZqX3NK7aqhjQ5YBLitzxw91p0YICKBPrHl/exec';
+
+const HARI  = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+const BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+const SURAH_REF = [
+  [1,"Al-Fatihah",1],[2,"Al-Baqarah",1],[3,"Ali 'Imran",3],[4,"An-Nisa'",5],[5,"Al-Ma'idah",6],
+  [6,"Al-An'am",7],[7,"Al-A'raf",8],[8,"Al-Anfal",9],[9,"At-Taubah",10],[10,"Yunus",11],
+  [11,"Hud",11],[12,"Yusuf",12],[13,"Ar-Ra'd",13],[14,"Ibrahim",13],[15,"Al-Hijr",14],
+  [16,"An-Nahl",14],[17,"Al-Isra'",15],[18,"Al-Kahf",15],[19,"Maryam",16],[20,"Taha",16],
+  [21,"Al-Anbiya'",17],[22,"Al-Hajj",17],[23,"Al-Mu'minun",18],[24,"An-Nur",18],[25,"Al-Furqan",18],
+  [26,"Asy-Syu'ara'",19],[27,"An-Naml",19],[28,"Al-Qasas",20],[29,"Al-'Ankabut",20],[30,"Ar-Rum",21],
+  [31,"Luqman",21],[32,"As-Sajdah",21],[33,"Al-Ahzab",21],[34,"Saba'",22],[35,"Fatir",22],
+  [36,"Ya-Sin",22],[37,"As-Saffat",23],[38,"Sad",23],[39,"Az-Zumar",23],[40,"Ghafir",24],
+  [41,"Fussilat",24],[42,"Asy-Syura",25],[43,"Az-Zukhruf",25],[44,"Ad-Dukhan",25],[45,"Al-Jasiyah",25],
+  [46,"Al-Ahqaf",26],[47,"Muhammad",26],[48,"Al-Fath",26],[49,"Al-Hujurat",26],[50,"Qaf",26],
+  [51,"Az-Zariyat",27],[52,"At-Tur",27],[53,"An-Najm",27],[54,"Al-Qamar",27],[55,"Ar-Rahman",27],
+  [56,"Al-Waqi'ah",27],[57,"Al-Hadid",27],[58,"Al-Mujadilah",28],[59,"Al-Hasyr",28],[60,"Al-Mumtahanah",28],
+  [61,"As-Saff",28],[62,"Al-Jumu'ah",28],[63,"Al-Munafiqun",28],[64,"At-Tagabun",28],[65,"At-Talaq",28],
+  [66,"At-Tahrim",28],[67,"Al-Mulk",29],[68,"Al-Qalam",29],[69,"Al-Haqqah",29],[70,"Al-Ma'arij",29],
+  [71,"Nuh",29],[72,"Al-Jinn",29],[73,"Al-Muzammil",29],[74,"Al-Muddassir",29],[75,"Al-Qiyamah",29],
+  [76,"Al-Insan",29],[77,"Al-Mursalat",29],[78,"An-Naba'",30],[79,"An-Nazi'at",30],[80,"'Abasa",30],
+  [81,"At-Takwir",30],[82,"Al-Infitar",30],[83,"Al-Mutaffifin",30],[84,"Al-Insyiqaq",30],[85,"Al-Buruj",30],
+  [86,"At-Tariq",30],[87,"Al-A'la",30],[88,"Al-Ghasyiyah",30],[89,"Al-Fajr",30],[90,"Al-Balad",30],
+  [91,"Asy-Syams",30],[92,"Al-Lail",30],[93,"Ad-Duha",30],[94,"Asy-Syarh",30],[95,"At-Tin",30],
+  [96,"Al-'Alaq",30],[97,"Al-Qadr",30],[98,"Al-Bayyinah",30],[99,"Az-Zalzalah",30],[100,"Al-'Adiyat",30],
+  [101,"Al-Qari'ah",30],[102,"At-Takasur",30],[103,"Al-'Asr",30],[104,"Al-Humazah",30],[105,"Al-Fil",30],
+  [106,"Quraisy",30],[107,"Al-Ma'un",30],[108,"Al-Kausar",30],[109,"Al-Kafirun",30],[110,"An-Nasr",30],
+  [111,"Al-Masad",30],[112,"Al-Ikhlas",30],[113,"Al-Falaq",30],[114,"An-Nas",30],
+];
+const STATUS_LABEL = { belum:'Belum Mulai', proses:'Proses Hafal', murajaah:'Murajaah', selesai:'Hafal Penuh' };
+
+// Rentang halaman pembelajaran Fathurrahman (kelas 1-2)
+// Ambang kelulusan (dipakai Tasmi' & Fathurrahman) — nilai maks 100.
+const THRESHOLD_LULUS = 75;
+const FR_HAL_MIN = 5;
+const FR_HAL_MAX = 84;
+
+const sesiNip   = sessionStorage.getItem('nip');
+const sesiNama  = sessionStorage.getItem('nama');
+const sesiRole  = sessionStorage.getItem('role');
+const sesiMapel = sessionStorage.getItem('mapel') || '';
+// ─── Klasifikasi mapel guru → tampilkan menu sesuai yang diajar ───
+// MAPEL bisa berisi lebih dari satu (dipisah koma/"dan"/"&"/"/"), mis. "PJOK, Fikih" atau "Hadist, Bahasa Arab".
+function klasifikasiMapel(raw) {
+  var tokens = String(raw || '').split(/,|\/|&|\bdan\b/i).map(function (t) { return t.trim(); }).filter(Boolean);
+  var kat = { tahfizh: false, hadist: false, umum: false };
+  tokens.forEach(function (t) {
+    var tl = t.toLowerCase();
+    if (tl.indexOf('tahfizh') >= 0 || tl.indexOf('tahfiz') >= 0) kat.tahfizh = true;
+    else if (tl.indexOf('hadist') >= 0 || tl.indexOf('hadits') >= 0) kat.hadist = true;
+    else kat.umum = true;
+  });
+  return kat;
+}
+function toggleNav(id, show) { var el = document.getElementById(id); if (el) el.style.display = show ? 'flex' : 'none'; }
+var katMapel = klasifikasiMapel(sesiMapel);
+toggleNav('nav-nilai', katMapel.umum);
+toggleNav('nav-tahfizh', katMapel.tahfizh);
+toggleNav('nav-hadist', katMapel.hadist);
+toggleNav('quick-nilai', katMapel.umum);
+toggleNav('quick-tahfizh', katMapel.tahfizh);
+
+if (!sesiNip || !sesiNama || sesiRole !== 'guru') { window.location.href = 'index.html'; throw new Error('redirect'); }
+if (sesiMapel.toUpperCase() !== 'TAHFIZH') { window.location.href = 'dashboard-guru.html'; throw new Error('bukan guru tahfizh'); }
+function doLogout() { sessionStorage.clear(); window.location.href = 'index.html'; }
+
+function inisialGuru(nama) {
+  const base = nama.split(',')[0].trim();
+  const honorifics = ['USTADZAH','USTADZ','BAPAK','IBU','PAK','BU','DRS','DRA'];
+  let parts = base.split(/\s+/).filter(Boolean);
+  if (parts.length > 1 && honorifics.includes(parts[0].toUpperCase().replace(/\.$/, ''))) parts = parts.slice(1);
+  if (parts.length === 0) return '??';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+document.getElementById('sb-nama').textContent = sesiNama;
+document.getElementById('sb-role').textContent = 'Guru Tahfizh';
+document.getElementById('sb-inisial').textContent = inisialGuru(sesiNama);
+
+const now = new Date();
+document.getElementById('today-date').textContent = HARI[now.getDay()] + ', ' + now.getDate() + ' ' + BULAN[now.getMonth()] + ' ' + now.getFullYear();
+document.getElementById('t-tanggal').value = now.toISOString().slice(0, 10);
+
+async function fetchGViz(gid, label) {
+  const url = `https://docs.google.com/spreadsheets/d/${SS_ID}/gviz/tq?tqx=out:json&gid=${gid}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Gagal mengambil "${label}" (HTTP ${res.status})`);
+  const txt = await res.text();
+  const s = txt.indexOf('{'), e = txt.lastIndexOf('}');
+  if (s < 0) throw new Error(`Respons "${label}" tidak valid`);
+  const obj = JSON.parse(txt.slice(s, e + 1));
+  if (!obj.table) throw new Error(`Sheet "${label}" kosong atau tidak ada`);
+  const cols = obj.table.cols.map(c => (c.label || c.id || '').trim().toUpperCase().replace(/_/g, ' '));
+  const rows = (obj.table.rows || []).map(r => (r.c || []).map(cell => {
+    if (!cell || cell.v == null) return '';
+    return String(cell.f != null ? cell.f : cell.v).trim();
+  }));
+  return { cols, rows };
+}
+const norm = s => (s || '').toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
+function colIdx(cols, ...kws) { for (const kw of kws) { const i = cols.findIndex(c => c.includes(kw)); if (i >= 0) return i; } return -1; }
+function erEl(id, msg) { document.getElementById(id).innerHTML = `<div class="empty" style="color:#e53e3e">⚠️ ${msg}</div>`; }
+function showWarn(msg) { document.getElementById('warn-msg').textContent = msg; document.getElementById('warn-bar').style.display = 'block'; }
+function showOk(msg) { document.getElementById('ok-msg').textContent = msg; document.getElementById('ok-bar').style.display = 'block'; document.getElementById('warn-bar').style.display = 'none'; }
+
+let KELAS_LIST = [];
+let KELAS_TERPILIH = null;
+let SANTRI_LIST = [];
+let SANTRI_TERPILIH = null;
+let TAHFIZH_DATA = { detail: {}, summary: {}, history: [] };
+let STATUS_EDIT = {};
+let JUZ_FILTER = 0;
+let MODE = 'tasmi'; // 'fathurrahman' (kelas 1-2) | 'tasmi' (kelas 3-6)
+
+function detectMode(kelas) {
+  const m = String(kelas || '').match(/(\d+)/);
+  const angka = m ? parseInt(m[1], 10) : 0;
+  return angka >= 1 && angka <= 2 ? 'fathurrahman' : 'tasmi';
+}
+
+async function muatKelas() {
+  try {
+    const { cols, rows } = await fetchGViz(GID.JADWAL, 'JADWAL');
+    const iKELAS = colIdx(cols, 'KELAS'), iMAPEL = colIdx(cols, 'MATA PELAJARAN', 'MAPEL'), iNIPG = colIdx(cols, 'NIP GURU', 'NIP');
+    if (iNIPG < 0) { erEl('kelas-grid', 'Kolom "NIP GURU" tidak ditemukan di sheet JADWAL.'); return; }
+    const seen = new Set();
+    KELAS_LIST = [];
+    rows.forEach(r => {
+      if (String(r[iNIPG] || '').trim() !== String(sesiNip).trim()) return;
+      const mapel = norm(r[iMAPEL >= 0 ? iMAPEL : ''] || '');
+      if (mapel !== 'tahfizh') return;
+      const kelas = r[iKELAS >= 0 ? iKELAS : 0] || '';
+      if (!kelas || seen.has(kelas)) return;
+      seen.add(kelas);
+      KELAS_LIST.push(kelas);
+    });
+    renderKelasGrid();
+  } catch (e) { erEl('kelas-grid', e.message || 'Gagal memuat jadwal.'); }
+}
+
+function renderKelasGrid() {
+  const el = document.getElementById('kelas-grid');
+  if (!KELAS_LIST.length) { el.innerHTML = `<div class="empty">Tidak ditemukan kelas Tahfizh atas nama Anda di sheet JADWAL.</div>`; return; }
+  el.innerHTML = KELAS_LIST.map((k, i) => `<div class="picker-card" onclick="pilihKelas(${i})">
+      <div class="picker-title">Kelas ${k}</div><div class="picker-sub">Tahfizh</div></div>`).join('');
+  if (KELAS_LIST.length === 1) pilihKelas(0);
+}
+
+async function pilihKelas(i) {
+  KELAS_TERPILIH = KELAS_LIST[i];
+  document.getElementById('kelas-picker-card').style.display = 'none';
+  document.getElementById('santri-picker-card').style.display = 'block';
+  document.getElementById('kelas-terpilih-label').textContent = KELAS_TERPILIH;
+  document.getElementById('santri-list').innerHTML = '<div class="empty">Memuat santri…</div>';
+  try {
+    const { cols, rows } = await fetchGViz(GID.SISWA, 'SISWA');
+    const iNIS = colIdx(cols, 'NIS'), iNAMA = colIdx(cols, 'NAMA'), iKELAS = colIdx(cols, 'KELAS'), iSTS = colIdx(cols, 'STATUS');
+    const nk = norm(KELAS_TERPILIH);
+    SANTRI_LIST = rows
+      .filter(r => norm(r[iKELAS >= 0 ? iKELAS : 0] || '') === nk)
+      .filter(r => { const st = norm(r[iSTS >= 0 ? iSTS : ''] || 'aktif'); return st === 'aktif' || st === ''; })
+      .map(r => ({ nis: r[iNIS >= 0 ? iNIS : 0] || '', nama: r[iNAMA >= 0 ? iNAMA : 1] || '—' }))
+      .sort((a, b) => a.nama.localeCompare(b.nama));
+    renderSantriList();
+  } catch (e) { erEl('santri-list', e.message || 'Gagal memuat santri.'); }
+}
+
+function gantiKelas() {
+  document.getElementById('santri-picker-card').style.display = 'none';
+  document.getElementById('kelas-picker-card').style.display = 'block';
+}
+
+function renderSantriList() {
+  const el = document.getElementById('santri-list');
+  const q = norm(document.getElementById('search-santri').value);
+  const filtered = SANTRI_LIST.filter(s => !q || norm(s.nama).includes(q) || norm(s.nis).includes(q));
+  if (!filtered.length) { el.innerHTML = '<div class="empty">Tidak ada santri yang cocok.</div>'; return; }
+  el.innerHTML = filtered.map(s => {
+    const ini = s.nama.split(' ').slice(0, 2).map(w => w[0] || '').join('').toUpperCase();
+    return `<div class="santri-row" onclick="pilihSantri('${s.nis}')">
+      <div class="s-avatar">${ini}</div>
+      <div><div class="s-nama">${s.nama}</div><div class="s-nis">NIS ${s.nis}</div></div>
+    </div>`;
+  }).join('');
+}
+
+async function pilihSantri(nis) {
+  SANTRI_TERPILIH = SANTRI_LIST.find(s => s.nis === nis);
+  document.getElementById('santri-picker-card').style.display = 'none';
+  document.getElementById('workspace').style.display = 'block';
+  document.getElementById('active-nama').textContent = SANTRI_TERPILIH.nama;
+  document.getElementById('active-meta').textContent = `NIS ${SANTRI_TERPILIH.nis} · Kelas ${KELAS_TERPILIH}`;
+  document.getElementById('ok-bar').style.display = 'none';
+  STATUS_EDIT = {};
+
+  if (!TAHFIZH_API_URL) { showWarn('TAHFIZH_API_URL belum diisi — data belum bisa dimuat/disimpan.'); TAHFIZH_DATA = { detail: {}, summary: {}, history: [] }; }
+  else {
+    try {
+      const res = await fetch(`${TAHFIZH_API_URL}?nis=${encodeURIComponent(nis)}`);
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || 'Gagal memuat data tahfizh.');
+      TAHFIZH_DATA = data;
+    } catch (e) {
+      showWarn('Gagal memuat data tahfizh: ' + (e.message || 'periksa koneksi'));
+      TAHFIZH_DATA = { detail: {}, summary: {}, history: [] };
+    }
+  }
+
+  // MODE dari kelas (1-2 → fathurrahman), TAPI kalau santri sudah lulus halaman
+  // terakhir (84), otomatis dianggap selesai Fathurrahman dan lanjut ke Tasmi —
+  // walaupun kelasnya masih 1-2.
+  const kelasMode = detectMode(KELAS_TERPILIH);
+  const sudahSelesaiFr = !!TAHFIZH_DATA.fathurrahman_selesai;
+  MODE = (kelasMode === 'fathurrahman' && sudahSelesaiFr) ? 'tasmi' : kelasMode;
+  const showFr = MODE === 'fathurrahman';
+
+  document.getElementById('fathurrahman-card').style.display = showFr ? 'block' : 'none';
+  document.getElementById('target-card').style.display   = showFr ? 'none' : 'block';
+  document.getElementById('tasmi-card').style.display    = showFr ? 'none' : 'block';
+  document.getElementById('hafalan-card').style.display  = showFr ? 'none' : 'block';
+  document.getElementById('history-card').style.display  = showFr ? 'none' : 'block';
+  document.getElementById('stats-row').style.display     = showFr ? 'none' : 'grid';
+
+  if (!showFr) { buildJuzSelect(); buildJuzFilter(); }
+
+  if (kelasMode === 'fathurrahman' && sudahSelesaiFr) {
+    showOk('🎉 Santri ini sudah menyelesaikan seluruh halaman Fathurrahman — lanjut ke penilaian Tasmi.');
+  }
+
+  if (showFr) {
+    const halIni = Number(TAHFIZH_DATA.summary.halaman_fathurrahman) || FR_HAL_MIN;
+    buildHalamanSelect(halIni);
+    document.getElementById('fr-tanggal').value = now.toISOString().slice(0, 10);
+    document.getElementById('fr-nilai').value = '';
+    updateHasilBadge('fr-hasil-badge', '');
+    updatePredikatBadge('fr-predikat-badge', '');
+    renderFrProgress(halIni);
+    renderFrHistory();
+  } else {
+    document.getElementById('f-target-juz').value = TAHFIZH_DATA.summary.target_juz || '';
+    document.getElementById('f-catatan-ustadz').value = TAHFIZH_DATA.summary.catatan_ustadz || '';
+    document.getElementById('t-nilai').value = '';
+    updateHasilBadge('t-hasil-badge', '');
+    updatePredikatBadge('t-predikat-badge', '');
+    renderStats();
+    renderSurahTable();
+    renderHistory();
+  }
+}
+
+function updateHasilBadge(elId, nilai) {
+  const el = document.getElementById(elId);
+  if (nilai === '' || nilai === null || isNaN(nilai)) { el.className = 'hasil-badge'; el.textContent = '—'; return; }
+  const lulus = Number(nilai) >= THRESHOLD_LULUS;
+  el.className = 'hasil-badge ' + (lulus ? 'lulus' : 'gagal');
+  el.textContent = lulus ? '✓ Lulus' : '✗ Belum Lulus';
+}
+
+// Predikat: A (≥91.6), B (≥83.3 dan <91.6), C (≥75 dan <83.3). Di bawah 75 (belum lulus KKM) — tanpa predikat.
+function hitungPredikat(nilai) {
+  const n = Number(nilai);
+  if (n >= 91.6) return 'A';
+  if (n >= 83.3) return 'B';
+  if (n >= 75) return 'C';
+  return null;
+}
+function updatePredikatBadge(elId, nilai) {
+  const el = document.getElementById(elId);
+  if (nilai === '' || nilai === null || isNaN(nilai)) { el.className = 'predikat-badge'; el.textContent = '—'; return; }
+  const p = hitungPredikat(nilai);
+  if (!p) { el.className = 'predikat-badge'; el.textContent = '—'; return; }
+  el.className = 'predikat-badge p' + p.toLowerCase();
+  el.textContent = p;
+}
+
+function onFrNilaiChange() {
+  const v = document.getElementById('fr-nilai').value;
+  updateHasilBadge('fr-hasil-badge', v);
+  updatePredikatBadge('fr-predikat-badge', v);
+}
+function onTasmiNilaiChange() {
+  const v = document.getElementById('t-nilai').value;
+  updateHasilBadge('t-hasil-badge', v);
+  updatePredikatBadge('t-predikat-badge', v);
+}
+
+function buildHalamanSelect(halamanAktif) {
+  const sel = document.getElementById('fr-halaman');
+  let html = '';
+  for (let h = FR_HAL_MIN; h <= FR_HAL_MAX; h++) {
+    const label = h === halamanAktif ? `Halaman ${h} (aktif sekarang)` : `Halaman ${h}`;
+    html += `<option value="${h}" ${h === halamanAktif ? 'selected' : ''}>${label}</option>`;
+  }
+  sel.innerHTML = html;
+}
+
+function renderFrProgress(halaman) {
+  let h = Number(halaman) || FR_HAL_MIN;
+  if (h < FR_HAL_MIN) h = FR_HAL_MIN;
+  if (h > FR_HAL_MAX) h = FR_HAL_MAX;
+  const pct = Math.round(((h - FR_HAL_MIN) / (FR_HAL_MAX - FR_HAL_MIN)) * 100);
+  document.getElementById('fr-progress-fill').style.width = pct + '%';
+  document.getElementById('fr-progress-text').textContent = h;
+  document.getElementById('fr-progress-pct').textContent = pct + '%';
+}
+
+function renderFrHistory() {
+  const el = document.getElementById('fr-history-list');
+  const list = [...(TAHFIZH_DATA.fathurrahman_history || [])].slice(0, 8);
+  if (!list.length) { el.innerHTML = '<div class="empty">Belum ada riwayat tes.</div>'; return; }
+  el.innerHTML = list.map(h => {
+    const warna = h.status === 'lulus' ? '#2d8653' : '#c53030';
+    return `<div class="history-item">
+      <div class="h-nilai" style="color:${warna}">${h.nilai || '—'}</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600;color:#1a1a2e">Halaman ${h.halaman} <span style="font-weight:400;color:#999;font-size:11.5px">· ${h.status === 'lulus' ? 'Lulus' : 'Belum Lulus'}${h.predikat ? ' · ' + h.predikat : ''}</span></div>
+        <div style="font-size:11.5px;color:#999">${h.tanggal || ''}${h.catatan ? ' — ' + h.catatan : ''}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function simpanFathurrahman() {
+  if (!TAHFIZH_API_URL) { alert('TAHFIZH_API_URL belum diisi.'); return; }
+  const nilai = document.getElementById('fr-nilai').value;
+  if (nilai === '') { alert('Isi nilai tes terlebih dahulu.'); return; }
+  const halamanDiuji = Number(document.getElementById('fr-halaman').value);
+
+  const payload = {
+    action: 'catat_fathurrahman', nis: SANTRI_TERPILIH.nis,
+    halaman: halamanDiuji,
+    tanggal: document.getElementById('fr-tanggal').value,
+    nilai: nilai,
+    catatan: document.getElementById('fr-catatan').value,
+  };
+
+  const btn = document.getElementById('btn-simpan-fr');
+  btn.disabled = true; btn.textContent = 'Menyimpan…';
+  try {
+    const res = await fetch(TAHFIZH_API_URL, { method: 'POST', body: JSON.stringify(payload) });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || 'Gagal menyimpan.');
+
+    TAHFIZH_DATA.summary.halaman_fathurrahman = data.halaman_baru;
+    TAHFIZH_DATA.fathurrahman_history = TAHFIZH_DATA.fathurrahman_history || [];
+    TAHFIZH_DATA.fathurrahman_history.unshift({ halaman: halamanDiuji, tanggal: payload.tanggal, nilai, predikat: data.predikat, status: data.status, catatan: payload.catatan });
+    TAHFIZH_DATA.fathurrahman_selesai = !!data.fathurrahman_selesai;
+
+    document.getElementById('fr-nilai').value = '';
+    document.getElementById('fr-catatan').value = '';
+    updateHasilBadge('fr-hasil-badge', '');
+    updatePredikatBadge('fr-predikat-badge', '');
+    buildHalamanSelect(data.halaman_baru);
+    renderFrProgress(data.halaman_baru);
+    renderFrHistory();
+
+    if (data.fathurrahman_selesai) {
+      showOk('🎉 Selamat! Santri telah menyelesaikan seluruh halaman Fathurrahman — otomatis lanjut ke penilaian Tasmi.');
+      // Beralih otomatis ke tampilan Tasmi tanpa perlu pilih ulang santri.
+      MODE = 'tasmi';
+      document.getElementById('fathurrahman-card').style.display = 'none';
+      document.getElementById('target-card').style.display   = 'block';
+      document.getElementById('tasmi-card').style.display    = 'block';
+      document.getElementById('hafalan-card').style.display  = 'block';
+      document.getElementById('history-card').style.display  = 'block';
+      document.getElementById('stats-row').style.display     = 'grid';
+      buildJuzSelect(); buildJuzFilter();
+      document.getElementById('f-target-juz').value = TAHFIZH_DATA.summary.target_juz || '';
+      document.getElementById('f-catatan-ustadz').value = TAHFIZH_DATA.summary.catatan_ustadz || '';
+      document.getElementById('t-nilai').value = '';
+      updateHasilBadge('t-hasil-badge', '');
+      updatePredikatBadge('t-predikat-badge', '');
+      renderStats();
+      renderSurahTable();
+      renderHistory();
+    } else if (data.status === 'lulus') {
+      showOk(`Lulus halaman ${halamanDiuji}! Halaman aktif sekarang: ${data.halaman_baru}.`);
+    } else {
+      showOk(`Nilai tercatat. Belum lulus (< ${THRESHOLD_LULUS}) di halaman ${halamanDiuji} — silakan tes ulang kapan saja.`);
+    }
+  } catch (e) {
+    showWarn('Gagal menyimpan: ' + (e.message || 'periksa koneksi.'));
+  } finally { btn.disabled = false; btn.textContent = 'Simpan Hasil Tes'; }
+}
+
+function gantiSantri() {
+  document.getElementById('workspace').style.display = 'none';
+  document.getElementById('santri-picker-card').style.display = 'block';
+}
+
+function buildJuzSelect() {
+  const sel = document.getElementById('t-juz');
+  let html = '';
+  for (let j = 1; j <= 30; j++) html += `<option value="${j}">Juz ${j}</option>`;
+  sel.innerHTML = html;
+  updateSurahOptions();
+}
+
+// Bagi surah dalam 1 juz jadi 2 "separuh" berdasarkan JUMLAH SURAH (bukan ayat/halaman
+// mushaf) — pendekatan sederhana karena sistem ini melacak progres per-surah, bukan per-ayat.
+function updateSurahOptions() {
+  const juz = Number(document.getElementById('t-juz').value) || 1;
+  const cakupan = document.getElementById('t-cakupan').value;
+  const surahJuz = SURAH_REF.filter(s => s[2] === juz);
+
+  let list = surahJuz;
+  if (cakupan === 'half1') list = surahJuz.slice(0, Math.ceil(surahJuz.length / 2));
+  else if (cakupan === 'half2') list = surahJuz.slice(Math.ceil(surahJuz.length / 2));
+
+  const sel = document.getElementById('t-surah');
+  if (!list.length) { sel.innerHTML = '<option value="">— tidak ada surah —</option>'; return; }
+  sel.innerHTML = list.map(s => `<option value="${s[0]}">${s[0]}. ${s[1]}</option>`).join('');
+}
+
+function buildJuzFilter() {
+  const el = document.getElementById('juz-filter');
+  let html = `<button class="juz-btn active" onclick="setJuzFilter(0,this)">Semua</button>`;
+  for (let j = 1; j <= 30; j++) html += `<button class="juz-btn" onclick="setJuzFilter(${j},this)">Juz ${j}</button>`;
+  el.innerHTML = html;
+}
+function setJuzFilter(j, btn) {
+  JUZ_FILTER = j;
+  document.querySelectorAll('.juz-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderSurahTable();
+}
+
+function renderStats() {
+  const counts = { belum: 0, proses: 0, murajaah: 0, selesai: 0 };
+  SURAH_REF.forEach(s => {
+    const d = TAHFIZH_DATA.detail[s[0]];
+    const st = (d && d.status_hafalan) || 'belum';
+    counts[st] = (counts[st] || 0) + 1;
+  });
+  document.getElementById('stats-row').innerHTML = `
+    <div class="stat-mini sm-belum"><div class="n">${counts.belum}</div><div class="l">Belum Mulai</div></div>
+    <div class="stat-mini sm-proses"><div class="n">${counts.proses}</div><div class="l">Proses Hafal</div></div>
+    <div class="stat-mini sm-murajaah"><div class="n">${counts.murajaah}</div><div class="l">Murajaah</div></div>
+    <div class="stat-mini sm-selesai"><div class="n">${counts.selesai}</div><div class="l">Hafal Penuh</div></div>
+  `;
+}
+
+function renderSurahTable() {
+  const tbody = document.getElementById('surah-tbody');
+  const list = JUZ_FILTER === 0 ? SURAH_REF : SURAH_REF.filter(s => s[2] === JUZ_FILTER);
+  tbody.innerHTML = list.map(s => {
+    const no = s[0];
+    const d = TAHFIZH_DATA.detail[no] || {};
+    const statusNow = STATUS_EDIT.hasOwnProperty(no) ? STATUS_EDIT[no] : (d.status_hafalan || 'belum');
+    const tasmi = d.status_tasmi || 'belum';
+    const tasmiClass = tasmi === 'lulus' ? 'bt-lulus' : (tasmi === 'ulang' ? 'bt-ulang' : 'bt-belum');
+    const tasmiLabel = tasmi === 'lulus' ? 'Lulus' : (tasmi === 'ulang' ? 'Ulang' : 'Belum');
+    return `<tr data-no="${no}">
+      <td class="no-cell">${no}</td>
+      <td class="nama-surah">${s[1]}</td>
+      <td>${s[2]}</td>
+      <td><select onchange="onStatusChange(${no}, this.value)">
+        ${Object.entries(STATUS_LABEL).map(([k, v]) => `<option value="${k}" ${statusNow === k ? 'selected' : ''}>${v}</option>`).join('')}
+      </select></td>
+      <td><span class="badge-tasmi ${tasmiClass}">${tasmiLabel}</span></td>
+      <td>${d.nilai_tasmi_terakhir || '—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function onStatusChange(no, val) {
+  const asli = (TAHFIZH_DATA.detail[no] && TAHFIZH_DATA.detail[no].status_hafalan) || 'belum';
+  if (val === asli) delete STATUS_EDIT[no]; else STATUS_EDIT[no] = val;
+  const jumlah = Object.keys(STATUS_EDIT).length;
+  document.getElementById('save-note').textContent = jumlah ? `${jumlah} surah belum disimpan.` : 'Belum ada perubahan.';
+}
+
+async function simpanStatusHafalan() {
+  const jumlah = Object.keys(STATUS_EDIT).length;
+  if (!jumlah) { alert('Belum ada perubahan status untuk disimpan.'); return; }
+  if (!TAHFIZH_API_URL) { alert('TAHFIZH_API_URL belum diisi.'); return; }
+  const btn = document.getElementById('btn-simpan-status');
+  btn.disabled = true; btn.textContent = 'Menyimpan…';
+  try {
+    const updates = Object.entries(STATUS_EDIT).map(([no_surah, status_hafalan]) => ({ no_surah: Number(no_surah), status_hafalan }));
+    const res = await fetch(TAHFIZH_API_URL, { method: 'POST', body: JSON.stringify({ action: 'update_status', nis: SANTRI_TERPILIH.nis, updates }) });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || 'Gagal menyimpan.');
+    updates.forEach(u => { TAHFIZH_DATA.detail[u.no_surah] = Object.assign(TAHFIZH_DATA.detail[u.no_surah] || {}, { status_hafalan: u.status_hafalan }); });
+    STATUS_EDIT = {};
+    document.getElementById('save-note').textContent = `Tersimpan pukul ${new Date().toLocaleTimeString('id-ID')}.`;
+    showOk(`${data.count} status hafalan berhasil disimpan.`);
+    renderStats(); renderSurahTable();
+  } catch (e) {
+    showWarn('Gagal menyimpan status: ' + (e.message || 'periksa koneksi.'));
+  } finally { btn.disabled = false; btn.textContent = 'Simpan Perubahan Status'; }
+}
+
+async function simpanTasmi() {
+  if (!TAHFIZH_API_URL) { alert('TAHFIZH_API_URL belum diisi.'); return; }
+  const noSurah = Number(document.getElementById('t-surah').value);
+  const nilai = document.getElementById('t-nilai').value;
+  if (nilai === '') { alert('Isi nilai tasmi terlebih dahulu.'); return; }
+  const status = Number(nilai) >= THRESHOLD_LULUS ? 'lulus' : 'tidak lulus';
+
+  const payload = {
+    action: 'catat_tasmi', nis: SANTRI_TERPILIH.nis, no_surah: noSurah,
+    tanggal: document.getElementById('t-tanggal').value,
+    sesi: document.getElementById('t-sesi').value,
+    nilai: nilai, status: status,
+    catatan: document.getElementById('t-catatan').value,
+    guru: sesiNama,
+  };
+
+  const btn = document.getElementById('btn-simpan-tasmi');
+  btn.disabled = true; btn.textContent = 'Menyimpan…';
+  try {
+    const res = await fetch(TAHFIZH_API_URL, { method: 'POST', body: JSON.stringify(payload) });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || 'Gagal menyimpan.');
+    showOk(status === 'lulus' ? 'Lulus tasmi! Status hafalan otomatis jadi Hafal Penuh.' : `Belum lulus (< ${THRESHOLD_LULUS}) — status hafalan otomatis jadi Murajaah.`);
+
+    const surahRef = SURAH_REF.find(s => s[0] === noSurah);
+    TAHFIZH_DATA.detail[noSurah] = Object.assign(TAHFIZH_DATA.detail[noSurah] || { juz: surahRef[2], nama: surahRef[1] }, {
+      status_hafalan: status === 'lulus' ? 'selesai' : 'murajaah',
+      status_tasmi: status === 'lulus' ? 'lulus' : 'ulang', nilai_tasmi_terakhir: nilai,
+    });
+    TAHFIZH_DATA.history.unshift({ no_surah: noSurah, tanggal: payload.tanggal, sesi: payload.sesi, nilai, status, catatan: payload.catatan });
+
+    document.getElementById('t-nilai').value = ''; document.getElementById('t-catatan').value = '';
+    updateHasilBadge('t-hasil-badge', '');
+    renderStats(); renderSurahTable(); renderHistory();
+  } catch (e) {
+    showWarn('Gagal menyimpan sesi tasmi: ' + (e.message || 'periksa koneksi.'));
+  } finally { btn.disabled = false; btn.textContent = "Simpan Sesi Tasmi'"; }
+}
+
+async function simpanSummary() {
+  if (!TAHFIZH_API_URL) { alert('TAHFIZH_API_URL belum diisi.'); return; }
+  const payload = {
+    action: 'update_summary', nis: SANTRI_TERPILIH.nis,
+    target_juz: document.getElementById('f-target-juz').value,
+    halaman_fathurrahman: TAHFIZH_DATA.summary.halaman_fathurrahman || '',
+    catatan_ustadz: document.getElementById('f-catatan-ustadz').value,
+  };
+  const btn = document.getElementById('btn-simpan-summary');
+  btn.disabled = true; btn.textContent = 'Menyimpan…';
+  try {
+    const res = await fetch(TAHFIZH_API_URL, { method: 'POST', body: JSON.stringify(payload) });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || 'Gagal menyimpan.');
+    showOk('Target & catatan berhasil disimpan.');
+  } catch (e) {
+    showWarn('Gagal menyimpan: ' + (e.message || 'periksa koneksi.'));
+  } finally { btn.disabled = false; btn.textContent = 'Simpan'; }
+}
+
+function renderHistory() {
+  const el = document.getElementById('history-list');
+  const list = [...TAHFIZH_DATA.history].slice(0, 8);
+  if (!list.length) { el.innerHTML = '<div class="empty">Belum ada riwayat tasmi untuk santri ini.</div>'; return; }
+  el.innerHTML = list.map(h => {
+    const s = SURAH_REF.find(x => x[0] === Number(h.no_surah));
+    const nama = s ? s[1] : ('Surah ' + h.no_surah);
+    const warna = h.status === 'lulus' ? '#2d8653' : '#c53030';
+    return `<div class="history-item">
+      <div class="h-nilai" style="color:${warna}">${h.nilai || '—'}</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600;color:#1a1a2e">${nama} <span style="font-weight:400;color:#999;font-size:11.5px">· Sesi ${h.sesi || '-'}${h.predikat ? ' · ' + h.predikat : ''}</span></div>
+        <div style="font-size:11.5px;color:#999">${h.tanggal || ''} · ${h.status === 'lulus' ? 'Lulus' : 'Tidak Lulus'}${h.catatan ? ' — ' + h.catatan : ''}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function setLoading(on) {
+  document.getElementById('rdot').classList.toggle('spin', on);
+  document.getElementById('rlabel').textContent = on ? 'Memuat data…' : 'Terhubung';
+}
+(async function init() { setLoading(true); await muatKelas(); setLoading(false); })();
+</script>
+</body>
+</html>

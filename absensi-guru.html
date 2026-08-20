@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Input Absensi — Portal SD IT Abu Hurairah Sembalun</title>
+  <link rel="stylesheet" href="responsive.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; min-height: 100vh; display: flex; }
+
+    /* SIDEBAR (identik dengan dashboard-guru.html) */
+    .sidebar { width: 230px; min-height: 100vh; background: #1a4f8a; display: flex; flex-direction: column; flex-shrink: 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+    .sidebar-header { display: flex; flex-direction: column; align-items: center; padding: 28px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.12); gap: 10px; }
+    .sidebar-school { font-size: 12px; font-weight: 700; color: #fff; text-align: center; line-height: 1.4; text-transform: uppercase; }
+    .sidebar-school span { display: block; font-size: 10px; font-weight: 400; color: rgba(255,255,255,0.55); text-transform: none; margin-top: 2px; }
+    .guru-info { display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,0.12); }
+    .avatar { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
+    .guru-name { font-size: 13px; font-weight: 600; color: #fff; }
+    .guru-role { font-size: 11px; color: rgba(255,255,255,0.55); margin-top: 1px; }
+    .nav { padding: 12px 0; flex: 1; }
+    .nav-section-label { font-size: 10px; color: rgba(255,255,255,0.4); padding: 8px 18px 4px; letter-spacing: 0.06em; text-transform: uppercase; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 18px; cursor: pointer; font-size: 13px; color: rgba(255,255,255,0.7); border-left: 3px solid transparent; transition: all 0.13s; text-decoration: none; }
+    .nav-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .nav-item.active { background: rgba(255,255,255,0.13); color: #fff; border-left-color: #fff; font-weight: 600; }
+    .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.8; }
+    .nav-item.active svg { opacity: 1; }
+    .nav-item .soon { margin-left: auto; font-size: 9px; background: rgba(255,255,255,0.15); padding: 2px 6px; border-radius: 20px; font-weight: 600; }
+    .sidebar-footer { padding: 14px 18px; border-top: 1px solid rgba(255,255,255,0.12); }
+    .btn-logout { width: 100%; padding: 9px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: rgba(255,255,255,0.8); font-size: 12px; cursor: pointer; }
+    .btn-logout:hover { background: rgba(255,255,255,0.18); }
+
+    /* MAIN */
+    .main { flex: 1; padding: 28px 32px; overflow-y: auto; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+    .page-title { font-size: 20px; font-weight: 700; color: #1a1a2e; }
+    .page-date { font-size: 13px; color: #999; margin-top: 2px; }
+    .rdot { width: 7px; height: 7px; border-radius: 50%; background: #2d8653; flex-shrink: 0; display:inline-block; }
+    .rdot.spin { background: #f59e0b; animation: blink 0.8s infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+    .refresh-info { font-size: 11px; color: #aaa; display: flex; align-items: center; gap: 6px; }
+
+    #warn-bar { display:none; background:#fff3cd; border:1px solid #ffc107; border-radius:10px; padding:12px 16px; margin-bottom:20px; font-size:13px; color:#856404; line-height:1.6; }
+    #ok-bar   { display:none; background:#eafff3; border:1px solid #6ee7b7; border-radius:10px; padding:12px 16px; margin-bottom:20px; font-size:13px; color:#065f46; line-height:1.6; }
+    .empty { text-align:center; padding:24px; color:#bbb; font-size:13px; }
+    .card { background: #fff; border-radius: 14px; border: 1px solid #eee; padding: 20px 22px; margin-bottom: 20px; }
+
+    /* SESI PICKER */
+    .sesi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap: 12px; }
+    .sesi-card { border: 1.5px solid #e5e5e5; border-radius: 12px; padding: 14px 16px; cursor: pointer; transition: all 0.15s; background:#fff; }
+    .sesi-card:hover { border-color: #1a4f8a; box-shadow: 0 4px 14px rgba(26,79,138,0.1); }
+    .sesi-card.active { border-color: #1a4f8a; background: #eef4fb; }
+    .sesi-kelas { font-size: 15px; font-weight: 700; color: #1a1a2e; }
+    .sesi-mapel { font-size: 12.5px; color: #1a4f8a; font-weight: 600; margin-top: 2px; }
+    .sesi-waktu { font-size: 11.5px; color: #999; margin-top: 4px; }
+    .sesi-badge-done { display:inline-block; margin-top:6px; font-size:10px; background:#d1fae5; color:#065f46; padding:2px 8px; border-radius:20px; font-weight:600; }
+
+    /* SESI AKTIF HEADER */
+    .active-head { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:16px; }
+    .active-kelas { font-size:17px; font-weight:700; color:#1a1a2e; }
+    .active-meta  { font-size:12.5px; color:#999; margin-top:2px; }
+    .btn-ganti { font-size:12px; color:#1a4f8a; background:#eef4fb; border:none; border-radius:8px; padding:7px 12px; cursor:pointer; font-weight:600; }
+
+    .toolbar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; flex-wrap:wrap; }
+    .search-box { flex:1; min-width:180px; position:relative; }
+    .search-box input { width:100%; padding:9px 12px 9px 32px; border:1px solid #e0e0e0; border-radius:9px; font-size:13px; }
+    .search-box svg { position:absolute; left:10px; top:50%; transform:translateY(-50%); width:14px; height:14px; color:#bbb; }
+    .bulk-btn { font-size:12px; background:#f0faf4; color:#2d8653; border:1px solid #6ee7b7; border-radius:8px; padding:8px 12px; cursor:pointer; font-weight:600; white-space:nowrap; }
+    .bulk-btn:hover { background:#d1fae5; }
+
+    /* SUMMARY CHIPS */
+    .sum-row { display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
+    .sum-chip { flex:1; min-width:100px; border-radius:10px; padding:10px 14px; text-align:center; }
+    .sum-chip .n { font-size:19px; font-weight:700; }
+    .sum-chip .l { font-size:11px; margin-top:2px; }
+    .sum-hadir { background:#f0faf4; } .sum-hadir .n,.sum-hadir .l{color:#065f46;}
+    .sum-izin  { background:#eef4fb; } .sum-izin .n,.sum-izin .l{color:#1a4f8a;}
+    .sum-sakit { background:#fffbf0; } .sum-sakit .n,.sum-sakit .l{color:#92400e;}
+    .sum-alpha { background:#fff5f5; } .sum-alpha .n,.sum-alpha .l{color:#c53030;}
+    .sum-belum { background:#f5f5f5; } .sum-belum .n,.sum-belum .l{color:#999;}
+
+    /* SISWA LIST */
+    .siswa-row { display:flex; align-items:center; gap:12px; padding:11px 4px; border-bottom:1px solid #f5f5f5; }
+    .siswa-row:last-child { border-bottom:none; }
+    .s-avatar { width:34px; height:34px; border-radius:50%; background:#eef4fb; color:#1a4f8a; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0; }
+    .s-info { flex:1; min-width:0; }
+    .s-nama { font-size:13px; font-weight:600; color:#1a1a2e; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .s-nis  { font-size:11px; color:#999; }
+    .status-group { display:flex; gap:6px; flex-shrink:0; }
+    .status-btn { font-size:11.5px; font-weight:600; padding:7px 10px; border-radius:8px; border:1.5px solid #e5e5e5; background:#fff; cursor:pointer; color:#777; min-width:44px; min-height:32px; }
+    .status-btn.h.on { background:#2d8653; border-color:#2d8653; color:#fff; }
+    .status-btn.i.on { background:#1a4f8a; border-color:#1a4f8a; color:#fff; }
+    .status-btn.s.on { background:#b45309; border-color:#b45309; color:#fff; }
+    .status-btn.a.on { background:#c53030; border-color:#c53030; color:#fff; }
+
+    .save-bar { position:sticky; bottom:0; background:#fff; border-top:1px solid #eee; margin:20px -22px -20px; padding:16px 22px; display:flex; align-items:center; justify-content:space-between; border-radius:0 0 14px 14px; flex-wrap:wrap; gap:10px; }
+    .btn-simpan { background:#1a4f8a; color:#fff; border:none; border-radius:10px; padding:12px 22px; font-size:14px; font-weight:700; cursor:pointer; }
+    .btn-simpan:hover { background:#153f6f; }
+    .btn-simpan:disabled { background:#bbb; cursor:not-allowed; }
+    .save-note { font-size:11.5px; color:#999; }
+
+    @media (max-width: 700px) {
+      .status-btn { min-width:38px; font-size:10.5px; padding:7px 6px; }
+      .save-bar { flex-direction:column; align-items:stretch; }
+      .btn-simpan { width:100%; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div style="width:60px;height:60px;background:rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px">🕌</div>
+    <div class="sidebar-school">SD IT Abu Hurairah<br>Sembalun<span>Lombok Timur — NTB</span></div>
+  </div>
+  <div class="guru-info">
+    <div class="avatar" id="sb-inisial">—</div>
+    <div>
+      <div class="guru-name" id="sb-nama">Memuat…</div>
+      <div class="guru-role" id="sb-role">—</div>
+    </div>
+  </div>
+  <nav class="nav">
+    <div class="nav-section-label">Menu Utama</div>
+    <a class="nav-item" href="dashboard-guru.html">
+      <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.2" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="1" width="6" height="6" rx="1.2" stroke="currentColor" stroke-width="1.4"/><rect x="1" y="9" width="6" height="6" rx="1.2" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="9" width="6" height="6" rx="1.2" stroke="currentColor" stroke-width="1.4"/></svg>
+      Dashboard</a>
+    <a class="nav-item active" href="absensi-guru.html">
+      <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.4"/><path d="M2 14c0-3 2.7-5 6-5s6 2 6 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Input Absensi</a>
+    <a class="nav-item" href="input-nilai.html" id="nav-nilai">
+      <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5 6h6M5 9h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Input Nilai</a>
+    <a class="nav-item" href="kelola-etalim.html">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M8 2L14 5v4c0 3-3 5-6 5S2 12 2 9V5l6-3z" stroke="currentColor" stroke-width="1.4"/></svg>
+      Kelola E-Ta'lim</a>
+    <a class="nav-item" href="input-tahfizh.html" id="nav-tahfizh">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M3 2h7l3 3v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.4"/><path d="M10 2v4h4" stroke="currentColor" stroke-width="1.4"/><path d="M5 9h6M5 11.5h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Input Tahfizh</a>
+    <a class="nav-item" href="input-hadist.html" id="nav-hadist">
+      <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5 5.5h6M5 8h6M5 10.5h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Nilai Hadist</a>
+    <div class="nav-section-label" style="margin-top:8px">Info</div>
+    <a class="nav-item" href="jadwal-guru.html">
+      <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="11" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M1 7h14M5 1v4M11 1v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Jadwal Pelajaran</a>
+    <a class="nav-item" href="info-sekolah.html">
+      <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.4"/><path d="M8 7v5M8 5v.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      Info Sekolah</a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="btn-logout" onclick="doLogout()">&#8592; Keluar</button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div class="page-title">Input Absensi</div>
+      <div class="page-date" id="today-date"></div>
+    </div>
+    <div class="refresh-info"><div class="rdot" id="rdot"></div><span id="rlabel">Menghubungkan…</span></div>
+  </div>
+
+  <div id="warn-bar">⚠️ <span id="warn-msg"></span></div>
+  <div id="ok-bar">✅ <span id="ok-msg"></span></div>
+
+  <!-- STEP 1: pilih sesi mengajar hari ini -->
+  <div class="card" id="sesi-picker-card">
+    <div style="font-size:14px;font-weight:700;color:#1a1a2e;margin-bottom:4px" id="sesi-picker-title">Sesi Mengajar Hari Ini</div>
+    <div style="font-size:12px;color:#999;margin-bottom:16px">Pilih kelas &amp; jam yang ingin Anda absen, sesuai jadwal mengajar Anda hari ini.</div>
+    <div class="sesi-grid" id="sesi-grid"><div class="empty">Memuat jadwal…</div></div>
+  </div>
+
+  <!-- STEP 2: form absensi -->
+  <div class="card" id="absen-card" style="display:none">
+    <div class="active-head">
+      <div>
+        <div class="active-kelas" id="active-kelas">—</div>
+        <div class="active-meta" id="active-meta">—</div>
+      </div>
+      <button class="btn-ganti" onclick="gantiSesi()">↺ Ganti sesi</button>
+    </div>
+
+    <div class="sum-row" id="sum-row"></div>
+
+    <div class="toolbar">
+      <div class="search-box">
+        <svg viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.4"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        <input type="text" id="search-siswa" placeholder="Cari nama siswa…" oninput="renderSiswaList()">
+      </div>
+      <button class="bulk-btn" onclick="tandaiSemuaHadir()">✓ Tandai semua Hadir</button>
+    </div>
+
+    <div id="siswa-list"><div class="empty">Memuat siswa…</div></div>
+
+    <div class="save-bar">
+      <div class="save-note" id="save-note">Belum disimpan.</div>
+      <button class="btn-simpan" id="btn-simpan" onclick="simpanAbsensi()">Simpan Absensi</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  KONFIGURASI SPREADSHEET
+// ═══════════════════════════════════════════════════════════════
+const SS_ID = '1IBSU9uISBaLwEydw-uzviHFCgFwLeywy6EzKqz3GQto';
+const GID = {
+  SISWA   : '0',
+  JADWAL  : '1914920371',
+  ABSENSI : '817735918',
+};
+
+// URL Web App Google Apps Script untuk MENYIMPAN absensi.
+// WAJIB diisi setelah Anda deploy script "Code.gs" (lihat panduan terpisah).
+// Selama masih kosong, tombol Simpan akan menampilkan instruksi setup.
+const ABSENSI_API_URL = 'https://script.google.com/macros/s/AKfycbx3e8LqLZhcD7VNpDRkxJ8DGztdVvU-EvmPsGyboD2335GrbAdQZlQLLYsWxh3j7SRK/exec';
+
+const HARI  = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+const BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+// ─── Sesi login guru ───────────────────────────────────────────
+const sesiNip   = sessionStorage.getItem('nip');
+const sesiNama  = sessionStorage.getItem('nama');
+const sesiRole  = sessionStorage.getItem('role');
+const sesiWali  = sessionStorage.getItem('wali_kelas') || '';
+const sesiMapel = sessionStorage.getItem('mapel') || '';
+// ─── Klasifikasi mapel guru → tampilkan menu sesuai yang diajar ───
+// MAPEL bisa berisi lebih dari satu (dipisah koma/"dan"/"&"/"/"), mis. "PJOK, Fikih" atau "Hadist, Bahasa Arab".
+function klasifikasiMapel(raw) {
+  var tokens = String(raw || '').split(/,|\/|&|\bdan\b/i).map(function (t) { return t.trim(); }).filter(Boolean);
+  var kat = { tahfizh: false, hadist: false, umum: false };
+  tokens.forEach(function (t) {
+    var tl = t.toLowerCase();
+    if (tl.indexOf('tahfizh') >= 0 || tl.indexOf('tahfiz') >= 0) kat.tahfizh = true;
+    else if (tl.indexOf('hadist') >= 0 || tl.indexOf('hadits') >= 0) kat.hadist = true;
+    else kat.umum = true;
+  });
+  return kat;
+}
+function toggleNav(id, show) { var el = document.getElementById(id); if (el) el.style.display = show ? 'flex' : 'none'; }
+var katMapel = klasifikasiMapel(sesiMapel);
+toggleNav('nav-nilai', katMapel.umum);
+toggleNav('nav-tahfizh', katMapel.tahfizh);
+toggleNav('nav-hadist', katMapel.hadist);
+toggleNav('quick-nilai', katMapel.umum);
+toggleNav('quick-tahfizh', katMapel.tahfizh);
+
+
+if (!sesiNip || !sesiNama || sesiRole !== 'guru') {
+  window.location.href = 'index.html';
+  throw new Error('Sesi guru tidak ditemukan, redirect ke login.');
+}
+
+function doLogout() { sessionStorage.clear(); window.location.href = 'index.html'; }
+
+function inisialGuru(nama) {
+  const base = nama.split(',')[0].trim();
+  const honorifics = ['USTADZAH','USTADZ','BAPAK','IBU','PAK','BU','DRS','DRA'];
+  let parts = base.split(/\s+/).filter(Boolean);
+  if (parts.length > 1 && honorifics.includes(parts[0].toUpperCase().replace(/\.$/, ''))) parts = parts.slice(1);
+  if (parts.length === 0) return '??';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+function labelJabatan() {
+  const m = sesiMapel.toUpperCase();
+  if (m === 'GURU KELAS' && sesiWali) return `Wali Kelas ${sesiWali}`;
+  if (m === 'GURU KELAS') return 'Guru Kelas';
+  if (m === 'STAFF ADMINISTRASI') return 'Staff Administrasi';
+  if (m === 'KEPALA SEKOLAH') return 'Kepala Sekolah';
+  if (m) return `Guru ${m.charAt(0) + m.slice(1).toLowerCase()}`;
+  return 'Guru';
+}
+document.getElementById('sb-nama').textContent = sesiNama;
+document.getElementById('sb-role').textContent = labelJabatan();
+document.getElementById('sb-inisial').textContent = inisialGuru(sesiNama);
+
+// ─── Fetch helper (GViz, CORS-safe, read-only) ─────────────────
+async function fetchGViz(gid, label) {
+  const url = `https://docs.google.com/spreadsheets/d/${SS_ID}/gviz/tq?tqx=out:json&gid=${gid}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Gagal mengambil "${label}" (HTTP ${res.status})`);
+  const txt = await res.text();
+  const s = txt.indexOf('{'), e = txt.lastIndexOf('}');
+  if (s < 0) throw new Error(`Respons "${label}" tidak valid`);
+  const obj = JSON.parse(txt.slice(s, e + 1));
+  if (!obj.table) throw new Error(`Sheet "${label}" kosong atau tidak ada`);
+  const cols = obj.table.cols.map(c => (c.label || c.id || '').trim().toUpperCase().replace(/_/g, ' '));
+  const rows = (obj.table.rows || []).map(r =>
+    (r.c || []).map(cell => {
+      if (!cell || cell.v == null) return '';
+      return String(cell.f != null ? cell.f : cell.v).trim();
+    })
+  );
+  return { cols, rows };
+}
+const norm = s => (s || '').toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
+function colIdx(cols, ...kws) { for (const kw of kws) { const i = cols.findIndex(c => c.includes(kw)); if (i >= 0) return i; } return -1; }
+function erEl(id, msg) { const el = document.getElementById(id); if (el) el.innerHTML = `<div class="empty" style="color:#e53e3e">⚠️ ${msg}</div>`; }
+function showWarn(msg) { document.getElementById('warn-msg').textContent = msg; document.getElementById('warn-bar').style.display = 'block'; }
+function showOk(msg) { document.getElementById('ok-msg').textContent = msg; document.getElementById('ok-bar').style.display = 'block'; }
+
+// ─── State global ────────────────────────────────────────────
+const now = new Date();
+const todayStr = HARI[now.getDay()];
+const tanggalISO = now.toISOString().slice(0, 10); // YYYY-MM-DD, dipakai sebagai kunci absensi harian
+document.getElementById('today-date').textContent = todayStr + ', ' + now.getDate() + ' ' + BULAN[now.getMonth()] + ' ' + now.getFullYear();
+
+let SESI_HARI_INI = [];   // daftar sesi mengajar guru ini hari ini (dari JADWAL)
+let SESI_TERPILIH = null; // sesi yang sedang diabsen
+let SISWA_LIST = [];      // daftar siswa di kelas terpilih: {nis, nama}
+let STATUS_MAP = {};      // nis -> 'H'|'I'|'S'|'A'
+let SUDAH_ADA_DATA = false; // true kalau absensi utk sesi ini hari ini sudah pernah disimpan
+
+// ═══════════════════════════════════════════════════════════════
+// STEP 1 — cari sesi mengajar guru ini, hari ini, dari sheet JADWAL
+// (dicocokkan lewat kolom NIP GURU — presisi, tidak tergantung ejaan nama)
+// ═══════════════════════════════════════════════════════════════
+async function muatSesiHariIni() {
+  try {
+    const { cols, rows } = await fetchGViz(GID.JADWAL, 'JADWAL');
+    const iKELAS = colIdx(cols, 'KELAS');
+    const iHARI  = colIdx(cols, 'HARI');
+    const iJAMKE = colIdx(cols, 'JAM KE');
+    const iWAKTU = colIdx(cols, 'WAKTU', 'JAM');
+    const iMAPEL = colIdx(cols, 'MATA PELAJARAN', 'MAPEL');
+    const iNIPG  = colIdx(cols, 'NIP GURU', 'NIP');
+
+    if (iNIPG < 0) { erEl2('sesi-grid', 'Kolom "NIP GURU" tidak ditemukan di sheet JADWAL.'); return; }
+
+    SESI_HARI_INI = rows
+      .filter(r => norm(r[iHARI] || '') === norm(todayStr) && String(r[iNIPG] || '').trim() === String(sesiNip).trim())
+      .map(r => ({
+        kelas: r[iKELAS >= 0 ? iKELAS : 0] || '',
+        jam_ke: r[iJAMKE >= 0 ? iJAMKE : ''] || '',
+        waktu: r[iWAKTU >= 0 ? iWAKTU : ''] || '',
+        mapel: r[iMAPEL >= 0 ? iMAPEL : ''] || '—',
+      }))
+      .filter(s => s.kelas && s.mapel.toLowerCase() !== 'istirahat');
+
+    renderSesiGrid();
+  } catch (e) {
+    erEl2('sesi-grid', e.message || 'Gagal memuat jadwal.');
+  }
+}
+
+function erEl2(id, msg) { document.getElementById(id).innerHTML = `<div class="empty" style="color:#e53e3e">⚠️ ${msg}</div>`; }
+
+async function renderSesiGrid() {
+  const el = document.getElementById('sesi-grid');
+  if (!SESI_HARI_INI.length) {
+    el.innerHTML = `<div class="empty">Tidak ada jadwal mengajar hari ${todayStr} atas nama Anda.<br>Pastikan kolom NIP GURU di sheet JADWAL sudah diisi sesuai NIP Anda.</div>`;
+    return;
+  }
+
+  // Cek sesi mana yang absensinya sudah pernah diisi hari ini
+  let sudahAbsen = {};
+  try {
+    const { cols, rows } = await fetchGViz(GID.ABSENSI, 'ABSENSI');
+    const iT = colIdx(cols, 'TANGGAL'), iK = colIdx(cols, 'KELAS'), iJ = colIdx(cols, 'JAM KE');
+    rows.forEach(r => {
+      if (iT >= 0 && String(r[iT]).slice(0, 10) === tanggalISO) {
+        sudahAbsen[norm(r[iK >= 0 ? iK : 0] || '') + '|' + norm(r[iJ >= 0 ? iJ : ''])] = true;
+      }
+    });
+  } catch (e) { /* ABSENSI mungkin masih kosong / belum ada, itu wajar untuk data pertama kali */ }
+
+  el.innerHTML = SESI_HARI_INI.map((s, i) => {
+    const done = sudahAbsen[norm(s.kelas) + '|' + norm(s.jam_ke)];
+    return `<div class="sesi-card" onclick="pilihSesi(${i})">
+      <div class="sesi-kelas">Kelas ${s.kelas}</div>
+      <div class="sesi-mapel">${s.mapel}</div>
+      <div class="sesi-waktu">Jam ke-${s.jam_ke || '—'} · ${s.waktu || ''}</div>
+      ${done ? '<div class="sesi-badge-done">✓ Sudah diabsen</div>' : ''}
+    </div>`;
+  }).join('');
+
+  // Auto-pilih kalau cuma ada 1 sesi hari ini
+  if (SESI_HARI_INI.length === 1) pilihSesi(0);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// STEP 2 — pilih sesi → muat siswa kelas tsb dari sheet SISWA
+// ═══════════════════════════════════════════════════════════════
+async function pilihSesi(i) {
+  SESI_TERPILIH = SESI_HARI_INI[i];
+  document.getElementById('sesi-picker-card').style.display = 'none';
+  document.getElementById('absen-card').style.display = 'block';
+  document.getElementById('active-kelas').textContent = `Kelas ${SESI_TERPILIH.kelas} — ${SESI_TERPILIH.mapel}`;
+  document.getElementById('active-meta').textContent = `Jam ke-${SESI_TERPILIH.jam_ke || '—'} · ${SESI_TERPILIH.waktu || ''} · ${todayStr}, ${tanggalISO}`;
+  document.getElementById('siswa-list').innerHTML = '<div class="empty">Memuat siswa…</div>';
+  document.getElementById('ok-bar').style.display = 'none';
+
+  try {
+    const { cols, rows } = await fetchGViz(GID.SISWA, 'SISWA');
+    const iNIS = colIdx(cols, 'NIS'), iNAMA = colIdx(cols, 'NAMA'), iKELAS = colIdx(cols, 'KELAS'), iSTS = colIdx(cols, 'STATUS');
+    const normKelas = norm(SESI_TERPILIH.kelas);
+
+    SISWA_LIST = rows
+      .filter(r => norm(r[iKELAS >= 0 ? iKELAS : 0] || '') === normKelas)
+      .filter(r => { const st = norm(r[iSTS >= 0 ? iSTS : ''] || 'aktif'); return st === 'aktif' || st === ''; })
+      .map(r => ({ nis: r[iNIS >= 0 ? iNIS : 0] || '', nama: r[iNAMA >= 0 ? iNAMA : 1] || '—' }))
+      .sort((a, b) => a.nama.localeCompare(b.nama));
+
+    STATUS_MAP = {};
+    SUDAH_ADA_DATA = false;
+    await muatAbsensiTersimpan(); // prefill kalau sudah pernah diisi hari ini
+
+    renderSiswaList();
+  } catch (e) {
+    erEl2('siswa-list', e.message || 'Gagal memuat data siswa.');
+  }
+}
+
+// Ambil status absensi yang sudah tersimpan (kalau ada) untuk sesi ini hari ini, jadi guru bisa mengoreksi
+async function muatAbsensiTersimpan() {
+  try {
+    const { cols, rows } = await fetchGViz(GID.ABSENSI, 'ABSENSI');
+    const iT = colIdx(cols, 'TANGGAL'), iK = colIdx(cols, 'KELAS'), iJ = colIdx(cols, 'JAM KE'),
+          iN = colIdx(cols, 'NIS'), iS = colIdx(cols, 'STATUS');
+    rows.forEach(r => {
+      if (iT < 0 || String(r[iT]).slice(0, 10) !== tanggalISO) return;
+      if (norm(r[iK >= 0 ? iK : 0] || '') !== norm(SESI_TERPILIH.kelas)) return;
+      if (norm(r[iJ >= 0 ? iJ : ''] || '') !== norm(SESI_TERPILIH.jam_ke)) return;
+      STATUS_MAP[r[iN >= 0 ? iN : 0]] = (r[iS >= 0 ? iS : ''] || '').charAt(0).toUpperCase();
+      SUDAH_ADA_DATA = true;
+    });
+  } catch (e) { /* belum ada data absensi sama sekali — normal untuk pemakaian pertama */ }
+}
+
+function gantiSesi() {
+  document.getElementById('absen-card').style.display = 'none';
+  document.getElementById('sesi-picker-card').style.display = 'block';
+  renderSesiGrid();
+}
+
+// ─── Render daftar siswa + tombol status ────────────────────────
+function renderSiswaList() {
+  const el = document.getElementById('siswa-list');
+  const q = norm(document.getElementById('search-siswa').value);
+  const filtered = SISWA_LIST.filter(s => !q || norm(s.nama).includes(q) || norm(s.nis).includes(q));
+
+  if (!filtered.length) {
+    el.innerHTML = SISWA_LIST.length
+      ? '<div class="empty">Tidak ada siswa yang cocok dengan pencarian.</div>'
+      : `<div class="empty">Belum ada siswa aktif terdaftar di kelas ${SESI_TERPILIH.kelas}.</div>`;
+  } else {
+    el.innerHTML = filtered.map(s => {
+      const ini = s.nama.split(' ').slice(0, 2).map(w => w[0] || '').join('').toUpperCase();
+      const st = STATUS_MAP[s.nis] || '';
+      return `<div class="siswa-row">
+        <div class="s-avatar">${ini}</div>
+        <div class="s-info"><div class="s-nama">${s.nama}</div><div class="s-nis">NIS ${s.nis}</div></div>
+        <div class="status-group">
+          <button class="status-btn h ${st === 'H' ? 'on' : ''}" onclick="setStatus('${s.nis}','H')">Hadir</button>
+          <button class="status-btn i ${st === 'I' ? 'on' : ''}" onclick="setStatus('${s.nis}','I')">Izin</button>
+          <button class="status-btn s ${st === 'S' ? 'on' : ''}" onclick="setStatus('${s.nis}','S')">Sakit</button>
+          <button class="status-btn a ${st === 'A' ? 'on' : ''}" onclick="setStatus('${s.nis}','A')">Alpha</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  renderSummary();
+}
+
+function setStatus(nis, status) {
+  STATUS_MAP[nis] = STATUS_MAP[nis] === status ? '' : status; // klik lagi = batalkan
+  renderSiswaList();
+}
+
+function tandaiSemuaHadir() {
+  SISWA_LIST.forEach(s => { STATUS_MAP[s.nis] = 'H'; });
+  renderSiswaList();
+}
+
+function renderSummary() {
+  const total = SISWA_LIST.length;
+  const count = { H: 0, I: 0, S: 0, A: 0 };
+  SISWA_LIST.forEach(s => { const st = STATUS_MAP[s.nis]; if (st) count[st]++; });
+  const belum = total - count.H - count.I - count.S - count.A;
+
+  document.getElementById('sum-row').innerHTML = `
+    <div class="sum-chip sum-hadir"><div class="n">${count.H}</div><div class="l">Hadir</div></div>
+    <div class="sum-chip sum-izin"><div class="n">${count.I}</div><div class="l">Izin</div></div>
+    <div class="sum-chip sum-sakit"><div class="n">${count.S}</div><div class="l">Sakit</div></div>
+    <div class="sum-chip sum-alpha"><div class="n">${count.A}</div><div class="l">Alpha</div></div>
+    <div class="sum-chip sum-belum"><div class="n">${belum}</div><div class="l">Belum ditandai</div></div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// STEP 3 — simpan ke sheet ABSENSI lewat Apps Script Web App
+// ═══════════════════════════════════════════════════════════════
+async function simpanAbsensi() {
+  if (!ABSENSI_API_URL) {
+    alert('Fitur simpan belum aktif.\n\nMinta developer portal untuk deploy "Apps Script" penyimpan absensi terlebih dahulu, lalu isi ABSENSI_API_URL di kode halaman ini.');
+    return;
+  }
+
+  const belumLengkap = SISWA_LIST.some(s => !STATUS_MAP[s.nis]);
+  if (belumLengkap && !confirm('Masih ada siswa yang belum ditandai statusnya. Simpan sebagian dulu?')) return;
+
+  const btn = document.getElementById('btn-simpan');
+  btn.disabled = true; btn.textContent = 'Menyimpan…';
+
+  const payload = {
+    tanggal: tanggalISO,
+    hari: todayStr,
+    kelas: SESI_TERPILIH.kelas,
+    jam_ke: SESI_TERPILIH.jam_ke,
+    mapel: SESI_TERPILIH.mapel,
+    guru: sesiNama,
+    nip_guru: sesiNip,
+    siswa: SISWA_LIST.filter(s => STATUS_MAP[s.nis]).map(s => ({ nis: s.nis, nama: s.nama, status: STATUS_MAP[s.nis] })),
+  };
+
+  try {
+    const res = await fetch(ABSENSI_API_URL, { method: 'POST', body: JSON.stringify(payload) });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || 'Gagal menyimpan.');
+    document.getElementById('save-note').textContent = `Tersimpan pukul ${new Date().toLocaleTimeString('id-ID')}.`;
+    showOk(`Absensi Kelas ${SESI_TERPILIH.kelas} (${SESI_TERPILIH.mapel}) berhasil disimpan — ${payload.siswa.length} siswa tercatat.`);
+  } catch (e) {
+    showWarn('Gagal menyimpan absensi: ' + (e.message || 'periksa koneksi internet.'));
+  } finally {
+    btn.disabled = false; btn.textContent = 'Simpan Absensi';
+  }
+}
+
+// ─── Init ─────────────────────────────────────────────────────
+function setLoading(on) {
+  document.getElementById('rdot').classList.toggle('spin', on);
+  document.getElementById('rlabel').textContent = on ? 'Memuat data…' : 'Terhubung';
+}
+(async function init() {
+  setLoading(true);
+  await muatSesiHariIni();
+  setLoading(false);
+})();
+</script>
+</body>
+</html>

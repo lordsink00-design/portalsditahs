@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Rekap Absensi Siswa — Portal SD IT Abu Hurairah Sembalun</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #f0f2f5;
+    min-height: 100vh;
+    display: flex;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 230px; min-height: 100vh; background: #1a4f8a;
+    display: flex; flex-direction: column; flex-shrink: 0;
+    position: sticky; top: 0; height: 100vh;
+  }
+  .sidebar-header {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 28px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.12); gap: 10px;
+  }
+  .sidebar-logo { width: 56px; height: 56px; object-fit: contain; }
+  .sidebar-school {
+    font-size: 12px; font-weight: 700; color: #fff;
+    text-align: center; line-height: 1.4; text-transform: uppercase;
+  }
+  .sidebar-school span { display: block; font-size: 10px; font-weight: 400; color: rgba(255,255,255,0.55); text-transform: none; margin-top: 2px; }
+
+  .user-info { display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,0.12); }
+  .avatar {
+    width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0;
+  }
+  .user-name { font-size: 13px; font-weight: 600; color: #fff; }
+  .user-role {
+    display: inline-block; margin-top: 3px; font-size: 9.5px; font-weight: 700;
+    color: #fff; background: #0d9488; border-radius: 4px; padding: 2px 7px; letter-spacing: 0.03em;
+  }
+
+  .nav { padding: 12px 0; flex: 1; overflow-y: auto; }
+  .nav-section-label { font-size: 10px; color: rgba(255,255,255,0.4); padding: 8px 18px 4px; letter-spacing: 0.06em; text-transform: uppercase; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px; padding: 9px 18px; cursor: pointer;
+    font-size: 13px; color: rgba(255,255,255,0.7); border-left: 3px solid transparent;
+    transition: all 0.13s; text-decoration: none;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .nav-item.active { background: rgba(255,255,255,0.13); color: #fff; border-left-color: #14b8a6; font-weight: 600; }
+  .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.8; }
+  .nav-item.active svg { opacity: 1; }
+
+  .sidebar-footer { padding: 14px 18px; border-top: 1px solid rgba(255,255,255,0.12); }
+  .btn-logout {
+    width: 100%; padding: 9px; background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2); border-radius: 8px;
+    color: rgba(255,255,255,0.8); font-size: 12px; cursor: pointer; transition: background 0.13s;
+  }
+  .btn-logout:hover { background: rgba(255,255,255,0.18); }
+
+  /* ── MAIN ── */
+  .main { flex: 1; padding: 28px 32px; overflow-y: auto; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; flex-wrap: wrap; gap: 12px; }
+  .page-title { font-size: 20px; font-weight: 700; color: #1a1a2e; }
+  .page-sub { font-size: 13px; color: #999; margin-top: 2px; }
+
+  .btn-primary {
+    padding: 11px 20px; background: #0d9488; color: #fff; border: none; border-radius: 10px;
+    font-size: 13px; font-weight: 700; cursor: pointer; transition: background 0.15s; white-space: nowrap;
+  }
+  .btn-primary:hover { background: #0b7c72; }
+  .btn-outline {
+    padding: 11px 20px; background: #fff; color: #0d9488; border: 1.5px solid #0d9488; border-radius: 10px;
+    font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap;
+  }
+  .btn-outline:hover { background: #f0fbfa; }
+
+  .toast {
+    position: fixed; top: 20px; right: 20px; z-index: 999;
+    padding: 12px 18px; border-radius: 10px; font-size: 13px; font-weight: 600;
+    color: #fff; box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    transform: translateY(-12px); opacity: 0; transition: all 0.25s; pointer-events: none;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.ok { background: #2d8653; }
+  .toast.err { background: #c53030; }
+
+  /* ── KOP LAPORAN (khusus tampilan cetak/arsip) ── */
+  .print-masthead { display: none; }
+  .print-masthead .pm-sekolah { font-size: 12px; font-weight: 700; color: #1a4f8a; }
+  .print-masthead .pm-judul { font-size: 17px; font-weight: 700; color: #1a1a2e; margin-top: 2px; }
+  .print-masthead .pm-periode { font-size: 13px; color: #333; margin-top: 4px; font-weight: 600; }
+  .print-masthead .pm-tanggal-cetak { font-size: 11px; color: #999; margin-top: 2px; }
+
+  /* ── CARD ── */
+  .card { background: #fff; border-radius: 14px; border: 1px solid #eee; margin-bottom: 20px; overflow: hidden; }
+  .card-header { padding: 16px 20px; border-bottom: 1px solid #f5f5f5; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+  .card-title { font-size: 14px; font-weight: 700; color: #1a1a2e; }
+  .card-subtitle { font-size: 12px; color: #aaa; margin-top: 2px; }
+  .card-body { padding: 18px 20px; }
+
+  /* ── FILTER BAR ── */
+  .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+  .filter-group { min-width: 140px; }
+  .filter-group label { display: block; font-size: 11px; font-weight: 600; color: #666; margin-bottom: 6px; }
+  .filter-group input, .filter-group select {
+    width: 100%; padding: 10px 12px; border: 1.5px solid #d8e0ea; border-radius: 8px;
+    font-size: 13px; outline: none; transition: border 0.15s; background: #fff;
+  }
+  .filter-group input:focus, .filter-group select:focus { border-color: #0d9488; }
+
+  .ringkasan { display: flex; gap: 14px; margin: 14px 0 4px; flex-wrap: wrap; }
+  .ringkasan-chip { font-size: 12px; padding: 6px 12px; border-radius: 20px; font-weight: 600; }
+  .chip-total { background: #eef4fb; color: #1a4f8a; }
+  .chip-rata { background: #f0faf4; color: #2d8653; }
+  .chip-rendah { background: #fff1f1; color: #e53e3e; }
+
+  /* ── TABLE ── */
+  .table-wrap { max-height: 560px; overflow-y: auto; }
+  table.rekap-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .rekap-table th {
+    padding: 9px 12px; text-align: left; font-size: 10px; font-weight: 700; color: #999;
+    letter-spacing: 0.04em; text-transform: uppercase; border-bottom: 1px solid #eee;
+    background: #f8f9fb; position: sticky; top: 0;
+  }
+  .rekap-table th.num, .rekap-table td.num { text-align: center; }
+  .rekap-table td { padding: 9px 12px; border-bottom: 1px solid #f5f5f5; color: #333; }
+  .rekap-table tr:hover td { background: #fafafa; }
+  .rekap-table tr.row-rendah td { background: #fff9f9; }
+
+  .persen-badge { font-weight: 700; padding: 3px 9px; border-radius: 20px; font-size: 11px; display: inline-block; }
+  .persen-tinggi { background: #f0faf4; color: #2d8653; }
+  .persen-sedang { background: #fffbeb; color: #b45309; }
+  .persen-rendah { background: #fff1f1; color: #e53e3e; }
+
+  .icon-btn {
+    background: none; border: none; cursor: pointer; padding: 4px 8px; border-radius: 6px;
+    font-size: 11px; color: #0d9488; font-weight: 600;
+  }
+  .icon-btn:hover { background: #e6faf7; }
+
+  .loading-mini, .empty-state { text-align: center; padding: 30px 20px; color: #aaa; font-size: 13px; }
+
+  /* ── MODAL DETAIL ── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(20,30,45,0.45);
+    align-items: center; justify-content: center; z-index: 200; padding: 20px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    background: #fff; border-radius: 16px; width: 100%; max-width: 480px;
+    max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+  }
+  .modal-header { padding: 18px 22px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
+  .modal-title { font-size: 15px; font-weight: 700; color: #1a1a2e; }
+  .modal-sub { font-size: 12px; color: #999; margin-top: 2px; }
+  .modal-close { background: none; border: none; font-size: 20px; color: #999; cursor: pointer; line-height: 1; }
+  .modal-body { padding: 12px 22px 20px; }
+
+  .detail-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 0; border-bottom: 1px solid #f5f5f5; font-size: 12.5px;
+  }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-tgl { font-weight: 600; color: #1a1a2e; }
+  .detail-mapel { font-size: 11px; color: #999; }
+
+  /* Print */
+  @media print {
+    @page { margin: 16mm; }
+    .sidebar, .topbar .btn-primary, .filter-bar, .icon-btn, .toast { display: none !important; }
+    .main { padding: 0; overflow: visible !important; height: auto !important; }
+    .card { border: none; box-shadow: none; }
+    .table-wrap { max-height: none !important; overflow: visible !important; }
+    .rekap-table thead th { position: static; }
+    .print-masthead { display: block !important; padding: 0 0 14px; border-bottom: 2px solid #1a4f8a; margin-bottom: 16px; }
+    body { background: #fff; display: block !important; }
+  }
+
+  @media (max-width: 700px) {
+    .filter-bar { flex-direction: column; align-items: stretch; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── SIDEBAR ── -->
+<div class="sidebar">
+  <div class="sidebar-header">
+    <img class="sidebar-logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Abu_Hurairah.svg/200px-Abu_Hurairah.svg.png" onerror="this.style.display='none'" alt="Logo" />
+    <div class="sidebar-school">SD IT Abu Hurairah<br>Sembalun<span>Lombok Timur, NTB</span></div>
+  </div>
+
+  <div class="user-info">
+    <div class="avatar" id="sidebar-avatar">—</div>
+    <div>
+      <div class="user-name" id="sidebar-nama">Memuat...</div>
+      <div class="user-role">STAFF TU · ADMINISTRASI</div>
+    </div>
+  </div>
+
+  <nav class="nav">
+    <div class="nav-section-label">Menu Administrasi</div>
+    <a class="nav-item" href="kelola-siswa-administrasi.html">
+      <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="2.6" stroke="currentColor" stroke-width="1.4"/><path d="M2.5 14c0-3 2.5-5 5.5-5s5.5 2 5.5 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Kelola Data Siswa
+    </a>
+    <a class="nav-item" href="kelola-guru-administrasi.html">
+      <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.4" stroke="currentColor" stroke-width="1.4"/><path d="M2 6.5h12M5.5 3v10" stroke="currentColor" stroke-width="1.2"/></svg>
+      Kelola Data Guru &amp; Pegawai
+    </a>
+    <a class="nav-item active" href="rekap-absensi-administrasi.html">
+      <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="1.4" stroke="currentColor" stroke-width="1.4"/><path d="M5 6h6M5 9h6M5 12h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Rekap Absensi Siswa
+    </a>
+    <a class="nav-item" href="rekap-nilai-administrasi.html">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M3 13V8M8 13V3M13 13V6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      Rekap Nilai Murni
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <button class="btn-logout" onclick="doLogout()">⇠ &nbsp;Keluar</button>
+  </div>
+</div>
+
+<!-- ── MAIN ── -->
+<div class="main">
+
+  <div class="toast" id="toast"></div>
+
+  <div class="topbar">
+    <div>
+      <div class="page-title">Rekap Absensi Siswa</div>
+      <div class="page-sub">Laporan kehadiran siswa bulanan, lintas kelas.</div>
+    </div>
+    <button class="btn-outline" onclick="window.print()">🖨 Cetak Laporan</button>
+  </div>
+
+  <!-- Filter & Tabel -->
+  <div class="card">
+    <div class="print-masthead" id="print-masthead">
+      <div class="pm-sekolah">SD IT Abu Hurairah Sembalun — Lombok Timur, NTB</div>
+      <div class="pm-judul">Rekap Absensi Siswa</div>
+      <div class="pm-periode" id="pm-periode">—</div>
+      <div class="pm-tanggal-cetak" id="pm-tanggal-cetak"></div>
+    </div>
+    <div class="card-header">
+      <div>
+        <div class="card-title">📊 Rekap Kehadiran Bulanan</div>
+        <div class="card-subtitle">Pilih bulan, tahun, dan kelas (opsional), lalu tampilkan rekap.</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="filter-bar">
+        <div class="filter-group">
+          <label>Bulan</label>
+          <select id="f-bulan"></select>
+        </div>
+        <div class="filter-group">
+          <label>Tahun</label>
+          <input type="number" id="f-tahun" style="width:100px" />
+        </div>
+        <div class="filter-group">
+          <label>Kelas (opsional)</label>
+          <select id="f-kelas"><option value="">Semua Kelas</option></select>
+        </div>
+        <button class="btn-primary" onclick="muatRekap()">Tampilkan Rekap</button>
+      </div>
+
+      <div class="ringkasan" id="ringkasan"></div>
+
+      <div class="table-wrap">
+        <table class="rekap-table">
+          <thead>
+            <tr>
+              <th>NIS</th><th>Nama</th><th>Kelas</th>
+              <th class="num">Hadir</th><th class="num">Sakit</th><th class="num">Izin</th><th class="num">Alpa</th>
+              <th class="num">Total Hari</th><th class="num">% Hadir</th><th style="text-align:right">Detail</th>
+            </tr>
+          </thead>
+          <tbody id="rekap-tbody"><tr><td colspan="10" class="loading-mini">Pilih bulan &amp; tahun, lalu klik "Tampilkan Rekap".</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── MODAL DETAIL HARIAN ── -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modal-title">Detail Kehadiran</div>
+        <div class="modal-sub" id="modal-sub">—</div>
+      </div>
+      <button class="modal-close" onclick="tutupModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body">
+      <div class="loading-mini">Memuat...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   KONFIGURASI — GANTI URL INI setelah deploy Code-Administrasi-Absensi.gs
+   (backend TERPISAH dari modul Administrasi lainnya)
+══════════════════════════════════════════════════════════ */
+const ADMINISTRASI_ABSENSI_API_URL = 'https://script.google.com/macros/s/AKfycbwLkLJMiGgatLoqWA8cBoYhd9gEUmZRoj8p6tAxD093VLiSKTVrKAQO4A39UQREaKLs/exec';
+
+const NAMA_BULAN = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+/* ── Sesi login ── */
+function getProfilAdministrasi() {
+  const raw = sessionStorage.getItem('profil');
+  if (!raw) return null;
+  try {
+    const p = JSON.parse(raw);
+    const mapel = String(p.mapel || '').trim().toUpperCase();
+    if (p.role === 'guru' && mapel === 'STAFF ADMINISTRASI') return p;
+  } catch(e) {}
+  return null;
+}
+
+function doLogout() { sessionStorage.clear(); window.location.href = 'index.html'; }
+
+function showToast(msg, ok=true) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + (ok?'ok':'err');
+  setTimeout(()=>{ t.className = 'toast ' + (ok?'ok':'err'); }, 2800);
+}
+
+/* ── API helpers ── */
+async function apiGet(params) {
+  const qs = new URLSearchParams({ ...params, _: Date.now() }).toString();
+  const res = await fetch(`${ADMINISTRASI_ABSENSI_API_URL}?${qs}`, { cache: 'no-store' });
+  const json = await res.json();
+  if (!json.ok) throw new Error(json.error || 'Gagal mengambil data.');
+  return json.data;
+}
+
+/* ── Filter awal ── */
+function initFilter() {
+  const now = new Date();
+  const selBulan = document.getElementById('f-bulan');
+  for (let i=1;i<=12;i++) selBulan.innerHTML += `<option value="${i}" ${i===now.getMonth()+1?'selected':''}>${NAMA_BULAN[i]}</option>`;
+  document.getElementById('f-tahun').value = now.getFullYear();
+}
+
+async function muatKelasFilter() {
+  const ref = await apiGet({ action:'referensi' });
+  const sel = document.getElementById('f-kelas');
+  ref.kelas.forEach(k => sel.innerHTML += `<option value="${k}">${k}</option>`);
+}
+
+/* ── Muat rekap ── */
+async function muatRekap() {
+  const bulan = document.getElementById('f-bulan').value;
+  const tahun = document.getElementById('f-tahun').value;
+  const kelas = document.getElementById('f-kelas').value;
+  const tbody = document.getElementById('rekap-tbody');
+  tbody.innerHTML = '<tr><td colspan="10" class="loading-mini">Memuat rekap...</td></tr>';
+  document.getElementById('ringkasan').innerHTML = '';
+
+  try {
+    const data = await apiGet({ action:'rekap_bulan', bulan, tahun, kelas });
+    isiKopLaporan(bulan, tahun, kelas);
+    renderRingkasan(data, kelas);
+    renderTabel(data);
+  } catch(err) {
+    tbody.innerHTML = `<tr><td colspan="10" class="loading-mini">Gagal memuat: ${err.message}</td></tr>`;
+  }
+}
+
+function isiKopLaporan(bulan, tahun, kelas) {
+  const kelasTeks = kelas ? `Kelas ${kelas}` : 'Semua Kelas';
+  document.getElementById('pm-periode').textContent = `Periode: ${NAMA_BULAN[bulan]} ${tahun} — ${kelasTeks}`;
+  const sekarang = new Date();
+  const tglCetak = `${sekarang.getDate()} ${NAMA_BULAN[sekarang.getMonth()+1]} ${sekarang.getFullYear()}, ${sekarang.getHours().toString().padStart(2,'0')}:${sekarang.getMinutes().toString().padStart(2,'0')}`;
+  document.getElementById('pm-tanggal-cetak').textContent = `Dicetak pada: ${tglCetak}`;
+}
+
+function renderRingkasan(data, kelasFilter) {
+  const el = document.getElementById('ringkasan');
+  if (!data.data.length) { el.innerHTML = ''; return; }
+  const rataRata = data.data.reduce((a,b)=>a+b.persenHadir,0) / data.data.length;
+  const rendah = data.data.filter(d => d.persenHadir < 75).length;
+  const kelasTeks = kelasFilter ? `Kelas ${kelasFilter}` : 'Semua Kelas';
+  el.innerHTML = `
+    <span class="ringkasan-chip chip-total">${data.data.length} siswa — ${NAMA_BULAN[data.bulan]} ${data.tahun} — ${kelasTeks}</span>
+    <span class="ringkasan-chip chip-rata">Rata-rata kehadiran: ${rataRata.toFixed(1)}%</span>
+    ${rendah>0 ? `<span class="ringkasan-chip chip-rendah">⚠ ${rendah} siswa kehadiran &lt;75%</span>` : ''}
+  `;
+}
+
+function badgePersen(p) {
+  const cls = p>=90 ? 'persen-tinggi' : (p>=75 ? 'persen-sedang' : 'persen-rendah');
+  return `<span class="persen-badge ${cls}">${p}%</span>`;
+}
+
+function renderTabel(data) {
+  const tbody = document.getElementById('rekap-tbody');
+  if (!data.data.length) { tbody.innerHTML = '<tr><td colspan="10" class="empty-state">Tidak ada data absensi untuk periode ini.</td></tr>'; return; }
+
+  tbody.innerHTML = data.data.map(d => {
+    const rowClass = d.persenHadir < 75 ? 'row-rendah' : '';
+    return `<tr class="${rowClass}">
+      <td>${d.nis}</td>
+      <td><strong>${d.nama}</strong></td>
+      <td>${d.kelas}</td>
+      <td class="num">${d.hadir}</td>
+      <td class="num">${d.sakit}</td>
+      <td class="num">${d.izin}</td>
+      <td class="num">${d.alpa}</td>
+      <td class="num">${d.totalHari}</td>
+      <td class="num">${badgePersen(d.persenHadir)}</td>
+      <td style="text-align:right"><button class="icon-btn" onclick="bukaDetail('${d.nis}','${d.nama.replace(/'/g,"\\'")}')">Lihat Harian</button></td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── Modal detail harian ── */
+async function bukaDetail(nis, nama) {
+  const bulan = document.getElementById('f-bulan').value;
+  const tahun = document.getElementById('f-tahun').value;
+  document.getElementById('modal-title').textContent = `Detail Kehadiran — ${nama}`;
+  document.getElementById('modal-sub').textContent = `NIS ${nis} — ${NAMA_BULAN[bulan]} ${tahun}`;
+  document.getElementById('modal-body').innerHTML = '<div class="loading-mini">Memuat...</div>';
+  document.getElementById('modal-overlay').classList.add('show');
+
+  try {
+    const data = await apiGet({ action:'detail_siswa', nis, bulan, tahun });
+    if (!data.harian.length) {
+      document.getElementById('modal-body').innerHTML = '<div class="empty-state">Tidak ada data absensi di bulan ini.</div>';
+      return;
+    }
+    const ikon = { HADIR:'✓', SAKIT:'🤒', IZIN:'📝', ALPA:'✗' };
+    const warna = { HADIR:'#2d8653', SAKIT:'#b45309', IZIN:'#1a4f8a', ALPA:'#e53e3e' };
+    document.getElementById('modal-body').innerHTML = data.harian.map(h => `
+      <div class="detail-row">
+        <div>
+          <div class="detail-tgl">Tanggal ${h.hari}</div>
+          <div class="detail-mapel">${h.mapel || '-'}</div>
+        </div>
+        <div style="color:${warna[h.status]||'#666'};font-weight:700">${ikon[h.status]||'•'} ${h.status}</div>
+      </div>
+    `).join('');
+  } catch(err) {
+    document.getElementById('modal-body').innerHTML = `<div class="empty-state">Gagal memuat: ${err.message}</div>`;
+  }
+}
+
+function tutupModal() {
+  document.getElementById('modal-overlay').classList.remove('show');
+}
+
+/* ── Init ── */
+async function init() {
+  const profil = getProfilAdministrasi();
+  if (!profil) { window.location.href = 'index.html'; return; }
+  document.getElementById('sidebar-nama').textContent = profil.nama || '—';
+  document.getElementById('sidebar-avatar').textContent = (profil.nama||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+
+  initFilter();
+  await muatKelasFilter();
+}
+init();
+</script>
+
+</body>
+</html>

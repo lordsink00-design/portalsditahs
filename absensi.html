@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Absensi — Portal SD IT Abu Hurairah Sembalun</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy:   #0f2a4a;
+      --blue:   #1a4f8a;
+      --sky:    #3b82c4;
+      --gold:   #c9972a;
+      --green:  #1e6b44;
+      --red:    #b91c1c;
+      --amber:  #b45309;
+      --purple: #7c3aed;
+      --bg:     #f4f6fa;
+      --card:   #ffffff;
+      --border: #e4e9f2;
+      --text:   #0f1c2e;
+      --muted:  #6b7a92;
+      --sidebar-w: 240px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ─── SIDEBAR ─────────────────────────── */
+    .sidebar {
+      width: var(--sidebar-w);
+      min-height: 100vh;
+      background: var(--navy);
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+
+    .sidebar-brand {
+      padding: 28px 20px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-emblem {
+      width: 60px; height: 60px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, var(--blue), #2563a8);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px;
+      box-shadow: 0 4px 20px rgba(26,79,138,0.5);
+    }
+
+    .brand-name {
+      font-size: 11.5px; font-weight: 800;
+      color: #fff; text-align: center; line-height: 1.45;
+      letter-spacing: 0.02em; text-transform: uppercase;
+    }
+
+    .brand-name span {
+      display: block;
+      font-size: 9.5px; font-weight: 400;
+      color: rgba(255,255,255,0.4);
+      text-transform: none; margin-top: 3px; letter-spacing: 0;
+    }
+
+    .sidebar-user {
+      display: flex; align-items: center; gap: 10px;
+      padding: 14px 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--sky), var(--blue));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 800; color: #fff; flex-shrink: 0;
+    }
+
+    .user-name  { font-size: 12.5px; font-weight: 700; color: #fff; }
+    .user-class { font-size: 10.5px; color: rgba(255,255,255,0.45); margin-top: 1px; }
+
+    nav { padding: 14px 0; flex: 1; }
+
+    .nav-label {
+      font-size: 9.5px; font-weight: 700;
+      color: rgba(255,255,255,0.3);
+      padding: 10px 18px 4px;
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 18px; font-size: 12.5px;
+      color: rgba(255,255,255,0.6);
+      border-left: 3px solid transparent;
+      cursor: pointer; text-decoration: none;
+      transition: all 0.15s ease;
+    }
+
+    .nav-item:hover { background: rgba(255,255,255,0.07); color: #fff; }
+
+    .nav-item.active {
+      background: rgba(255,255,255,0.1);
+      color: #fff; font-weight: 700;
+      border-left-color: var(--gold);
+    }
+
+    .nav-item svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+    .sidebar-foot {
+      padding: 14px 16px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .btn-logout {
+      width: 100%; padding: 9px 14px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px; color: rgba(255,255,255,0.65);
+      font-size: 12px; font-family: inherit;
+      cursor: pointer; transition: all 0.15s;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+
+    .btn-logout:hover { background: rgba(255,255,255,0.13); color: #fff; }
+
+    /* ─── MAIN ─────────────────────────────── */
+    .main { flex: 1; padding: 30px 36px; overflow-y: auto; }
+
+    .ornament-bar {
+      height: 4px;
+      background: linear-gradient(90deg, var(--navy), var(--gold), var(--navy));
+      border-radius: 2px; margin-bottom: 28px;
+    }
+
+    /* ─── TOPBAR ────────────────────────────── */
+    .topbar {
+      display: flex; align-items: flex-start;
+      justify-content: space-between; margin-bottom: 24px;
+    }
+
+    .page-title {
+      font-size: 22px; font-weight: 800; color: var(--navy);
+      letter-spacing: -0.3px;
+    }
+
+    .page-sub { font-size: 12.5px; color: var(--muted); margin-top: 3px; }
+
+    .notif-btn {
+      width: 40px; height: 40px;
+      border-radius: 12px; background: var(--card);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; position: relative;
+      transition: box-shadow 0.15s;
+    }
+
+    .notif-btn:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+
+    .notif-dot {
+      width: 8px; height: 8px; background: var(--red);
+      border-radius: 50%; position: absolute;
+      top: 7px; right: 7px; border: 2px solid var(--card);
+    }
+
+    /* ─── STAT CARDS ────────────────────────── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 18px 20px;
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      animation: fadeUp 0.3s ease both;
+    }
+
+    .stat-card:nth-child(2) { animation-delay: 0.06s; }
+    .stat-card:nth-child(3) { animation-delay: 0.12s; }
+    .stat-card:nth-child(4) { animation-delay: 0.18s; }
+
+    .stat-icon {
+      width: 38px; height: 38px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .stat-icon svg { width: 18px; height: 18px; }
+    .stat-icon.green  { background: #f0fdf4; color: var(--green); }
+    .stat-icon.red    { background: #fef2f2; color: var(--red); }
+    .stat-icon.amber  { background: #fffbeb; color: var(--amber); }
+    .stat-icon.blue   { background: #eff6ff; color: var(--blue); }
+
+    .stat-value { font-size: 28px; font-weight: 800; line-height: 1; }
+    .stat-label { font-size: 11.5px; color: var(--muted); font-weight: 500; }
+
+    /* ─── TABS ──────────────────────────────── */
+    .tabs {
+      display: flex; gap: 6px; margin-bottom: 24px; flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .tab {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 18px; border-radius: 12px; font-size: 12.5px;
+      font-weight: 600; border: 1.5px solid var(--border);
+      background: var(--card); color: var(--muted);
+      cursor: pointer; transition: all 0.15s; font-family: inherit;
+    }
+
+    .tab:hover { border-color: var(--sky); color: var(--sky); }
+
+    .tab.active {
+      background: var(--navy); border-color: var(--navy);
+      color: #fff; box-shadow: 0 4px 14px rgba(15,42,74,0.25);
+    }
+
+    .month-select {
+      margin-left: auto;
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-size: 12.5px; font-weight: 600;
+      border: 1.5px solid var(--border);
+      background: var(--card); color: var(--text);
+      cursor: pointer; outline: none;
+      font-family: inherit;
+      transition: border-color 0.15s;
+    }
+
+    .month-select:focus { border-color: var(--sky); }
+
+    /* ─── LAYOUT ─────────────────────────────── */
+    .layout { display: grid; grid-template-columns: 1fr 300px; gap: 20px; }
+
+    /* ─── CARD ───────────────────────────────── */
+    .card {
+      background: var(--card); border-radius: 18px;
+      border: 1px solid var(--border);
+      padding: 22px 24px; margin-bottom: 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      animation: fadeUp 0.3s ease both;
+    }
+
+    .card:last-child { margin-bottom: 0; }
+    .card:nth-child(2) { animation-delay: 0.06s; }
+
+    .card-head {
+      display: flex; align-items: center;
+      justify-content: space-between; margin-bottom: 18px;
+    }
+
+    .card-title {
+      font-size: 14px; font-weight: 800; color: var(--navy);
+      letter-spacing: -0.1px;
+    }
+
+    .card-badge {
+      font-size: 10.5px; color: var(--muted);
+      background: var(--bg); padding: 3px 10px;
+      border-radius: 20px; font-weight: 600;
+    }
+
+    /* ─── CALENDAR ───────────────────────────── */
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+      margin-bottom: 14px;
+    }
+
+    .cal-day-label {
+      text-align: center;
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--muted);
+      padding-bottom: 6px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .cal-cell {
+      aspect-ratio: 1;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: default;
+      transition: transform 0.1s;
+    }
+
+    .cal-cell:not(.empty):hover { transform: scale(1.08); }
+
+    .cal-cell.empty  { background: transparent; }
+    .cal-cell.hadir  { background: #f0fdf4; color: var(--green); }
+    .cal-cell.izin   { background: #fffbeb; color: var(--amber); }
+    .cal-cell.sakit  { background: #fef2f2; color: var(--red); }
+    .cal-cell.alpha  { background: #f5f3ff; color: var(--purple); }
+    .cal-cell.libur  { background: #f1f5f9; color: #94a3b8; }
+    .cal-cell.today  {
+      outline: 2.5px solid var(--blue);
+      outline-offset: -2px;
+      font-weight: 800;
+    }
+
+    /* ─── LEGEND ─────────────────────────────── */
+    .legend {
+      display: flex; gap: 14px; flex-wrap: wrap; margin-top: 6px;
+    }
+
+    .legend-item {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 11px; color: var(--muted); font-weight: 600;
+    }
+
+    .legend-dot {
+      width: 10px; height: 10px; border-radius: 4px;
+    }
+
+    /* ─── TABLE ──────────────────────────────── */
+    .abs-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+
+    .abs-table thead tr { background: var(--bg); }
+
+    .abs-table th {
+      text-align: left;
+      padding: 10px 14px;
+      font-size: 10.5px;
+      font-weight: 800;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .abs-table td {
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      vertical-align: middle;
+    }
+
+    .abs-table tr:last-child td { border-bottom: none; }
+    .abs-table tbody tr:hover td { background: #f8fafd; }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 10.5px;
+      font-weight: 700;
+    }
+
+    .badge-hadir  { background: #f0fdf4; color: var(--green); }
+    .badge-izin   { background: #fffbeb; color: var(--amber); }
+    .badge-sakit  { background: #fef2f2; color: var(--red); }
+    .badge-alpha  { background: #f5f3ff; color: var(--purple); }
+    .badge-libur  { background: #f1f5f9; color: #94a3b8; }
+
+    /* ─── PROGRESS BAR ───────────────────────── */
+    .bar-wrap {
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    .bar-bg {
+      flex: 1; height: 7px;
+      background: var(--bg);
+      border-radius: 99px; overflow: hidden;
+    }
+
+    .bar-fill { height: 100%; border-radius: 99px; }
+    .bar-lbl  { font-size: 11px; font-weight: 800; width: 34px; text-align: right; }
+
+    /* ─── SUMMARY CARD ───────────────────────── */
+    .summary-row {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 10px 0; border-bottom: 1px solid var(--border);
+    }
+
+    .summary-row:last-child { border-bottom: none; }
+
+    .summary-label {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 12.5px; font-weight: 700;
+    }
+
+    .summary-dot {
+      width: 9px; height: 9px; border-radius: 50%;
+    }
+
+    .summary-val { font-size: 13px; font-weight: 800; color: var(--navy); }
+
+    /* ─── NOTE BOX ───────────────────────────── */
+    .note-box {
+      border-radius: 12px;
+      padding: 13px 15px;
+      margin-bottom: 12px;
+    }
+
+    .note-box-title {
+      font-size: 12px; font-weight: 800; margin-bottom: 5px;
+    }
+
+    .note-box-body { font-size: 12px; color: #555; line-height: 1.7; }
+
+    /* ─── INFO LIST ──────────────────────────── */
+    .info-item {
+      display: flex; align-items: flex-start; gap: 8px;
+      padding: 8px 0; border-bottom: 1px solid var(--border);
+      font-size: 12px; color: #555; line-height: 1.6;
+    }
+
+    .info-item:last-child { border-bottom: none; }
+    .info-item strong { color: var(--navy); }
+
+    /* ─── ANIMATION ──────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── RESPONSIVE ─────────────────────────── */
+    @media (max-width: 1024px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 960px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .main { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════ SIDEBAR ══════════ -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-emblem">🕌</div>
+    <div class="brand-name">
+      SD IT Abu Hurairah<br>Sembalun
+      <span>Lombok Timur &mdash; NTB</span>
+    </div>
+  </div>
+
+  <div class="sidebar-user">
+    <div class="avatar">AR</div>
+    <div>
+      <div class="user-name">Andi Rahmat</div>
+      <div class="user-class">Kelas 5A &nbsp;·&nbsp; Siswa</div>
+    </div>
+  </div>
+
+  <nav>
+    <div class="nav-label">Menu Utama</div>
+
+    <a class="nav-item" href="dashboard.html">
+      <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.2" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="1" width="6" height="6" rx="1.2" stroke="currentColor" stroke-width="1.4"/><rect x="1" y="9" width="6" height="6" rx="1.2" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="9" width="6" height="6" rx="1.2" stroke="currentColor" stroke-width="1.4"/></svg>
+      Dashboard
+    </a>
+    <a class="nav-item" href="nilai-rapor.html">
+      <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5 6h6M5 9h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Nilai &amp; Raport
+    </a>
+    <a class="nav-item" href="pembayaran-spp.html">
+      <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="4" width="14" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M1 7h14M4 10.5h3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Pembayaran SPP
+    </a>
+    <a class="nav-item" href="e-learning.html">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M8 2L14 5v4c0 3-3 5-6 5S2 12 2 9V5l6-3z" stroke="currentColor" stroke-width="1.4"/></svg>
+      E-Learning
+    </a>
+    <a class="nav-item" href="tahfizh.html">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M3 2h7l3 3v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.4"/><path d="M10 2v4h4" stroke="currentColor" stroke-width="1.4"/><path d="M5 9h6M5 11.5h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Tahfizh
+    </a>
+
+    <div class="nav-label" style="margin-top:8px">Info</div>
+
+    <a class="nav-item" href="jadwal-pelajaran.html">
+      <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="11" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M1 7h14M5 1v4M11 1v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Jadwal Pelajaran
+    </a>
+    <a class="nav-item active" href="absensi.html">
+      <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.4"/><path d="M2 14c0-3 2.7-5 6-5s6 2 6 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Absensi
+    </a>
+    <a class="nav-item" href="info-sekolah.html">
+      <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.4"/><path d="M8 7v5M8 5v.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      Info Sekolah
+    </a>
+  </nav>
+
+  <div class="sidebar-foot">
+    <button class="btn-logout" onclick="window.location.href='index.html'">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M6 2H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3M10 5l3 3-3 3M13 8H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Keluar
+    </button>
+  </div>
+</aside>
+
+<!-- ══════════ MAIN ══════════ -->
+<main class="main">
+
+  <div class="ornament-bar"></div>
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div>
+      <div class="page-title">Absensi</div>
+      <div class="page-sub" id="today-date">Rekap Kehadiran — Tahun Ajaran 2025/2026</div>
+    </div>
+    <div class="notif-btn" title="Notifikasi">
+      <svg width="17" height="17" viewBox="0 0 16 16" fill="none"><path d="M8 2a5 5 0 0 1 5 5v2l1 2H2l1-2V7a5 5 0 0 1 5-5z" stroke="#555" stroke-width="1.4"/><path d="M6.5 13a1.5 1.5 0 0 0 3 0" stroke="#555" stroke-width="1.4"/></svg>
+      <div class="notif-dot"></div>
+    </div>
+  </div>
+
+  <!-- STAT CARDS -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon green">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M2 9l4 4 8-8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="stat-value" style="color:var(--green)">88</div>
+      <div class="stat-label">Hari Hadir</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon amber">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M8 3v5l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.4"/></svg>
+      </div>
+      <div class="stat-value" style="color:var(--amber)">4</div>
+      <div class="stat-label">Hari Izin</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon red">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </div>
+      <div class="stat-value" style="color:var(--red)">3</div>
+      <div class="stat-label">Hari Sakit</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon blue">
+        <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.4"/><path d="M8 5v4M8 11v.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </div>
+      <div class="stat-value" style="color:var(--blue)">92%</div>
+      <div class="stat-label">Persentase Hadir</div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="setTab(this,'bulan')">📅 Per Bulan</button>
+    <button class="tab" onclick="setTab(this,'semester')">📊 Per Semester</button>
+    <button class="tab" onclick="setTab(this,'detail')">📋 Riwayat Detail</button>
+    <select class="month-select" id="bulan-select" onchange="renderCalendar(this.value)">
+      <option value="0">Januari 2026</option>
+      <option value="1">Februari 2026</option>
+      <option value="2">Maret 2026</option>
+      <option value="3">April 2026</option>
+      <option value="4" selected>Mei 2026</option>
+    </select>
+  </div>
+
+  <div class="layout">
+
+    <!-- ═══ KIRI ═══ -->
+    <div>
+
+      <!-- Tab: Per Bulan -->
+      <div id="tab-bulan">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title" id="cal-title">Kalender Kehadiran — Mei 2026</div>
+          </div>
+
+          <div class="cal-grid">
+            <div class="cal-day-label">Min</div>
+            <div class="cal-day-label">Sen</div>
+            <div class="cal-day-label">Sel</div>
+            <div class="cal-day-label">Rab</div>
+            <div class="cal-day-label">Kam</div>
+            <div class="cal-day-label">Jum</div>
+            <div class="cal-day-label">Sab</div>
+          </div>
+
+          <div class="cal-grid" id="cal-cells"></div>
+
+          <div class="legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#bbf7d0"></div>Hadir</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#fde68a"></div>Izin</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#fecaca"></div>Sakit</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#ddd6fe"></div>Alpha</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#e2e8f0"></div>Libur</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Per Semester -->
+      <div id="tab-semester" style="display:none">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Rekapitulasi Semester Genap 2025/2026</div>
+          </div>
+          <table class="abs-table">
+            <thead>
+              <tr>
+                <th>Bulan</th>
+                <th>Efektif</th>
+                <th>Hadir</th>
+                <th>Izin</th>
+                <th>Sakit</th>
+                <th>Alpha</th>
+                <th>% Hadir</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Januari 2026</td><td>20</td><td>20</td><td>0</td><td>0</td><td>0</td>
+                <td><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:100%;background:var(--green)"></div></div><span class="bar-lbl" style="color:var(--green)">100%</span></div></td>
+              </tr>
+              <tr>
+                <td>Februari 2026</td><td>19</td><td>18</td><td>1</td><td>0</td><td>0</td>
+                <td><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:95%;background:var(--green)"></div></div><span class="bar-lbl" style="color:var(--green)">95%</span></div></td>
+              </tr>
+              <tr>
+                <td>Maret 2026</td><td>21</td><td>19</td><td>1</td><td>1</td><td>0</td>
+                <td><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:90%;background:var(--green)"></div></div><span class="bar-lbl" style="color:var(--green)">90%</span></div></td>
+              </tr>
+              <tr>
+                <td>April 2026</td><td>18</td><td>16</td><td>2</td><td>0</td><td>0</td>
+                <td><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:89%;background:var(--blue)"></div></div><span class="bar-lbl" style="color:var(--blue)">89%</span></div></td>
+              </tr>
+              <tr>
+                <td>Mei 2026</td><td>10</td><td>8</td><td>0</td><td>2</td><td>0</td>
+                <td><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:80%;background:var(--amber)"></div></div><span class="bar-lbl" style="color:var(--amber)">80%</span></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab: Riwayat Detail -->
+      <div id="tab-detail" style="display:none">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Riwayat Kehadiran Harian</div>
+            <span class="card-badge">April–Mei 2026</span>
+          </div>
+          <table class="abs-table">
+            <thead>
+              <tr>
+                <th>Tanggal</th>
+                <th>Hari</th>
+                <th>Masuk</th>
+                <th>Keluar</th>
+                <th>Status</th>
+                <th>Keterangan</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>28 Apr 2026</td><td>Selasa</td><td>06.58</td><td>13.05</td><td><span class="badge badge-hadir">Hadir</span></td><td style="color:var(--muted)">—</td></tr>
+              <tr><td>27 Apr 2026</td><td>Senin</td><td>07.02</td><td>12.55</td><td><span class="badge badge-hadir">Hadir</span></td><td style="color:var(--muted)">—</td></tr>
+              <tr><td>26 Apr 2026</td><td>Minggu</td><td>—</td><td>—</td><td><span class="badge badge-libur">Libur</span></td><td style="color:var(--muted)">Hari Minggu</td></tr>
+              <tr><td>25 Apr 2026</td><td>Sabtu</td><td>—</td><td>—</td><td><span class="badge badge-libur">Libur</span></td><td style="color:var(--muted)">Hari Sabtu</td></tr>
+              <tr><td>24 Apr 2026</td><td>Jumat</td><td>07.00</td><td>11.30</td><td><span class="badge badge-hadir">Hadir</span></td><td style="color:var(--muted)">—</td></tr>
+              <tr><td>23 Apr 2026</td><td>Kamis</td><td>—</td><td>—</td><td><span class="badge badge-sakit">Sakit</span></td><td style="color:var(--muted)">Demam, surat dokter</td></tr>
+              <tr><td>22 Apr 2026</td><td>Rabu</td><td>—</td><td>—</td><td><span class="badge badge-sakit">Sakit</span></td><td style="color:var(--muted)">Demam, surat dokter</td></tr>
+              <tr><td>21 Apr 2026</td><td>Selasa</td><td>07.10</td><td>13.00</td><td><span class="badge badge-hadir">Hadir</span></td><td style="color:var(--muted)">—</td></tr>
+              <tr><td>20 Apr 2026</td><td>Senin</td><td>07.05</td><td>13.05</td><td><span class="badge badge-hadir">Hadir</span></td><td style="color:var(--muted)">—</td></tr>
+              <tr><td>17 Apr 2026</td><td>Jumat</td><td>—</td><td>—</td><td><span class="badge badge-izin">Izin</span></td><td style="color:var(--muted)">Keluarga berobat</td></tr>
+              <tr><td>16 Apr 2026</td><td>Kamis</td><td>07.00</td><td>13.00</td><td><span class="badge badge-hadir">Hadir</span></td><td style="color:var(--muted)">—</td></tr>
+              <tr><td>15 Apr 2026</td><td>Rabu</td><td>06.55</td><td>13.00</td><td><span class="badge badge-hadir">Hadir</span></td><td style="color:var(--muted)">—</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═══ KANAN ═══ -->
+    <div>
+
+      <!-- Ringkasan Bulan -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Ringkasan Bulan Ini</div>
+          <span class="card-badge">Mei 2026</span>
+        </div>
+
+        <div class="summary-row">
+          <div class="summary-label">
+            <div class="summary-dot" style="background:var(--green)"></div>
+            <span style="color:var(--green)">Hadir</span>
+          </div>
+          <div class="summary-val">8 hari</div>
+        </div>
+        <div style="padding:6px 0">
+          <div class="bar-bg"><div class="bar-fill" style="width:80%;background:var(--green)"></div></div>
+        </div>
+
+        <div class="summary-row" style="margin-top:4px">
+          <div class="summary-label">
+            <div class="summary-dot" style="background:var(--amber)"></div>
+            <span style="color:var(--amber)">Izin</span>
+          </div>
+          <div class="summary-val">0 hari</div>
+        </div>
+        <div style="padding:6px 0">
+          <div class="bar-bg"><div class="bar-fill" style="width:0%;background:var(--amber)"></div></div>
+        </div>
+
+        <div class="summary-row" style="margin-top:4px">
+          <div class="summary-label">
+            <div class="summary-dot" style="background:var(--red)"></div>
+            <span style="color:var(--red)">Sakit</span>
+          </div>
+          <div class="summary-val">2 hari</div>
+        </div>
+        <div style="padding:6px 0">
+          <div class="bar-bg"><div class="bar-fill" style="width:20%;background:var(--red)"></div></div>
+        </div>
+
+        <div class="summary-row" style="margin-top:4px">
+          <div class="summary-label">
+            <div class="summary-dot" style="background:var(--purple)"></div>
+            <span style="color:var(--purple)">Alpha</span>
+          </div>
+          <div class="summary-val">0 hari</div>
+        </div>
+        <div style="padding:6px 0">
+          <div class="bar-bg"><div class="bar-fill" style="width:0%;background:var(--purple)"></div></div>
+        </div>
+
+        <div style="background:#f0fdf4;border-radius:12px;padding:13px 15px;margin-top:16px;display:flex;align-items:center;gap:12px">
+          <div style="font-size:24px">✅</div>
+          <div>
+            <div style="font-size:14px;font-weight:800;color:var(--green)">80% kehadiran</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">dari 10 hari efektif berjalan</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Catatan Wali Kelas -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">📝 Catatan Wali Kelas</div>
+        </div>
+
+        <div class="note-box" style="background:#fffbeb;border:1px solid #fcd34d">
+          <div class="note-box-title" style="color:#92400e">⚠️ Perhatian</div>
+          <div class="note-box-body">Andi sakit 2 hari pada minggu ke-4 April. Harap membawa surat keterangan dokter jika sakit lebih dari 2 hari berturut-turut.</div>
+        </div>
+
+        <div style="font-size:11.5px;color:var(--muted);text-align:right">
+          Disampaikan oleh: <strong style="color:var(--navy)">Bu Rini (Wali Kelas 5A)</strong>
+        </div>
+      </div>
+
+      <!-- Ketentuan Kehadiran -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">ℹ️ Ketentuan Kehadiran</div>
+        </div>
+
+        <div class="info-item">
+          <span>📌</span>
+          <span>Jam masuk: <strong>07.00 WIB</strong></span>
+        </div>
+        <div class="info-item">
+          <span>📌</span>
+          <span>Jam pulang: <strong>13.00 WIB</strong> (Jum'at: 11.30 WIB)</span>
+        </div>
+        <div class="info-item">
+          <span>📌</span>
+          <span>Minimal kehadiran: <strong>75%</strong> per semester</span>
+        </div>
+        <div class="info-item">
+          <span>📌</span>
+          <span>Tidak hadir &gt;3 hari wajib surat keterangan</span>
+        </div>
+        <div class="info-item">
+          <span>📌</span>
+          <span>Izin mendadak hubungi wali kelas via WhatsApp sekolah</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<script>
+  // ── Tanggal ──
+  const DAYS   = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+  const MONTHS = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  const now = new Date();
+  document.getElementById('today-date').textContent =
+    DAYS[now.getDay()] + ', ' + now.getDate() + ' ' + MONTHS[now.getMonth()] + ' ' + now.getFullYear() + ' — TA 2025/2026';
+
+  // ── Tab switching ──
+  function setTab(btn, id) {
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    ['bulan','semester','detail'].forEach(t => {
+      document.getElementById('tab-' + t).style.display = t === id ? 'block' : 'none';
+    });
+    document.getElementById('bulan-select').style.display = id === 'bulan' ? 'block' : 'none';
+  }
+
+  // ── Data kehadiran ──
+  const absData = {
+    0: { start:4, data:[null,'H','H','H','H',null,null,'H','H','H','H','H',null,null,'H','H','H','H','H',null,null,'H','H','H','H','H',null,null,'H','H','H'] },
+    1: { start:0, data:[null,'H','H','H','H','H',null,null,'H','H','H','H','I',null,null,'H','H','H','H','H',null,null,'H','H','H','H','H',null] },
+    2: { start:0, data:[null,'H','H','H','H','H',null,null,'H','H','H','H','H',null,null,'H','S','H','H','H',null,null,'H','H','H','H','I',null,null,'H','H'] },
+    3: { start:3, data:[null,null,null,'H','H','H',null,null,'H','H','H','H','H',null,null,'H','I','H','H','H',null,null,'S','S','H','H','H',null,null,'H'] },
+    4: { start:5, data:[null,null,null,null,null,'H',null,null,'H','H','H','H','H',null,null,'H','H','H','H','H',null,null,'H','H','H','H','H',null,null,'H','H'] }
+  };
+
+  const monthNames = ['Januari','Februari','Maret','April','Mei'];
+
+  function renderCalendar(idx) {
+    idx = parseInt(idx);
+    const month = absData[idx];
+    const grid  = document.getElementById('cal-cells');
+    document.getElementById('cal-title').textContent = 'Kalender Kehadiran — ' + monthNames[idx] + ' 2026';
+    grid.innerHTML = '';
+
+    for (let i = 0; i < month.start; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'cal-cell empty';
+      grid.appendChild(cell);
+    }
+
+    month.data.forEach((status, i) => {
+      const cell = document.createElement('div');
+      const day  = i + 1;
+      cell.textContent = day;
+
+      const map = { null:'libur', H:'hadir', I:'izin', S:'sakit', A:'alpha' };
+      cell.className = 'cal-cell ' + (map[status] || 'libur');
+
+      if (idx === 4 && day === 29) cell.classList.add('today');
+      grid.appendChild(cell);
+    });
+  }
+
+  renderCalendar(4);
+</script>
+</body>
+</html>

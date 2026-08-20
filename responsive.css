@@ -1,0 +1,357 @@
+/* ============================================================
+   responsive.css — Portal Sekolah
+   Sisipkan file ini di semua halaman HTML Anda:
+   <link rel="stylesheet" href="responsive.css">
+   ============================================================ */
+
+/* ── 1. RESET & BOX MODEL ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* ── 2. VIEWPORT META (pastikan ada di semua HTML!) ──
+   Tambahkan ini di dalam <head> setiap file HTML:
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+*/
+
+/* ── 3. BASE RESPONSIVE BODY ── */
+body {
+  min-width: 0;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* ── 4. GAMBAR & MEDIA FLUID ── */
+img, video, iframe, embed, object {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ── 5. TABEL RESPONSIVE ── */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  overflow-x: auto;
+  display: block;       /* supaya bisa scroll horizontal di HP */
+  -webkit-overflow-scrolling: touch;
+}
+
+thead, tbody, tfoot {
+  display: table;
+  width: 100%;
+}
+
+th, td {
+  padding: 8px 12px;
+  white-space: nowrap;  /* cegah teks tabel hancur di HP */
+}
+
+/* ── 6. WRAPPER / CONTAINER UTAMA ── */
+.container,
+.wrapper,
+.content,
+.main-content,
+#content,
+#main,
+.page-wrapper {
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+/* ── 7. SIDEBAR + KONTEN: ubah jadi kolom di HP ── */
+.sidebar,
+.side-nav,
+.sidenav,
+#sidebar,
+.left-panel,
+.right-panel {
+  width: 100%;
+}
+
+/* Layout 2-kolom umum → tumpuk di HP */
+.row,
+.flex-row,
+.grid-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.col, [class*="col-"] {
+  flex: 1 1 100%;
+  min-width: 0;
+}
+
+/* ── 8. NAVIGASI / MENU ── */
+
+/* Sembunyikan nav horizontal di layar kecil */
+@media (max-width: 768px) {
+  nav ul,
+  .nav-menu,
+  .navbar-menu,
+  .menu-horizontal {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+  }
+
+  nav ul li,
+  .nav-menu li {
+    width: 100%;
+  }
+
+  nav ul li a,
+  .nav-menu li a {
+    display: block;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+  }
+
+  /* Hamburger toggle helper (tambah class .open via JS) */
+  .nav-collapse {
+    display: none;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+  .nav-collapse.open {
+    display: block;
+  }
+
+  /* Tombol hamburger (tambahkan elemen ini di HTML jika belum ada) */
+  .hamburger-btn {
+    display: flex !important;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 8px;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .hamburger-btn span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: currentColor;
+    border-radius: 2px;
+    transition: transform 0.2s;
+  }
+}
+
+@media (min-width: 769px) {
+  .hamburger-btn {
+    display: none !important;
+  }
+}
+
+/* ── 9. KARTU / CARD GRID ── */
+.card-grid,
+.cards,
+.grid-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
+  gap: 16px;
+}
+
+.card {
+  width: 100%;
+  min-width: 0;
+}
+
+/* ── 10. FORM & INPUT ── */
+input,
+select,
+textarea,
+button {
+  max-width: 100%;
+  width: 100%;
+  font-size: 16px; /* cegah auto-zoom di iOS */
+}
+
+button,
+.btn,
+[class*="btn-"] {
+  width: auto;
+  min-width: 44px;    /* touch target minimum */
+  min-height: 44px;
+  padding: 10px 18px;
+  cursor: pointer;
+}
+
+/* ── 11. MODAL / POPUP ── */
+.modal,
+.popup,
+.dialog {
+  max-width: min(90vw, 600px);
+  width: 100%;
+  margin: auto;
+  padding: 16px;
+}
+
+.modal-overlay,
+.popup-overlay {
+  padding: 16px;
+  align-items: flex-start;
+  overflow-y: auto;
+}
+
+/* ── 12. TYPOGRAPHY RESPONSIVE ── */
+h1 { font-size: clamp(1.4rem, 5vw, 2.5rem); }
+h2 { font-size: clamp(1.2rem, 4vw, 2rem); }
+h3 { font-size: clamp(1rem, 3vw, 1.5rem); }
+p, li, td, th { font-size: clamp(0.875rem, 2.5vw, 1rem); }
+
+/* ── 13. BREAKPOINTS UTAMA ── */
+
+/* ── Tablet (768px ke bawah) ── */
+@media (max-width: 768px) {
+
+  /* Sidebar jadi top-bar */
+  .sidebar,
+  .side-nav,
+  #sidebar {
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: unset !important;
+    overflow: visible !important;
+  }
+
+  /* Main content full width */
+  .main-content,
+  .content-area,
+  #main-content {
+    margin-left: 0 !important;
+    width: 100% !important;
+    padding: 12px !important;
+  }
+
+  /* Tabel: aktifkan scroll */
+  .table-wrapper,
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+  }
+
+  /* Sembunyikan kolom tidak penting di HP */
+  .hide-mobile {
+    display: none !important;
+  }
+
+  /* Layout 2-kolom → 1 kolom */
+  .col-md-6,
+  .col-md-4,
+  .col-md-3,
+  .col-sm-6 {
+    flex: 1 1 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Padding lebih kecil */
+  .section, section {
+    padding: 20px 12px !important;
+  }
+
+  /* Header */
+  header,
+  .header,
+  #header {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px !important;
+  }
+
+  /* Dashboard stat cards → 2 kolom */
+  .stat-card,
+  .info-card,
+  .summary-card {
+    flex: 1 1 calc(50% - 8px) !important;
+    min-width: 140px;
+  }
+}
+
+/* ── Mobile kecil (480px ke bawah) ── */
+@media (max-width: 480px) {
+
+  /* Stat cards → 1 kolom */
+  .stat-card,
+  .info-card,
+  .summary-card {
+    flex: 1 1 100% !important;
+  }
+
+  /* Tombol full-width */
+  .btn-group {
+    flex-direction: column;
+    width: 100%;
+  }
+  .btn-group .btn,
+  .btn-group button {
+    width: 100%;
+  }
+
+  /* Font lebih kecil di HP mungil */
+  body { font-size: 14px; }
+
+  /* Tabel: label data di kiri (card mode) */
+  /* Aktifkan dengan menambah class .table-card di <table> */
+  table.table-card,
+  table.table-card thead,
+  table.table-card tbody,
+  table.table-card th,
+  table.table-card td,
+  table.table-card tr {
+    display: block;
+  }
+  table.table-card thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+  table.table-card tr {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    padding: 8px;
+  }
+  table.table-card td {
+    border: none;
+    padding: 6px 8px;
+    white-space: normal;
+    display: flex;
+    justify-content: space-between;
+  }
+  table.table-card td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    margin-right: 8px;
+    white-space: nowrap;
+  }
+}
+
+/* ── 14. PRINT ── */
+@media print {
+  .sidebar, .hamburger-btn, nav { display: none !important; }
+  body { font-size: 12pt; }
+}
+
+/* ── 15. UTILITY CLASSES ── */
+.hide-mobile  { }                         /* lihat @media di atas */
+.show-mobile  { display: none; }
+.text-center-mobile { }
+.overflow-x   { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+@media (max-width: 768px) {
+  .show-mobile         { display: block !important; }
+  .text-center-mobile  { text-align: center !important; }
+  .p-mobile-0          { padding: 0 !important; }
+  .mt-mobile-8         { margin-top: 8px !important; }
+  .full-width-mobile   { width: 100% !important; }
+}

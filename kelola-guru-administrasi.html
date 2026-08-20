@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Kelola Data Guru & Pegawai — Portal SD IT Abu Hurairah Sembalun</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #f0f2f5;
+    min-height: 100vh;
+    display: flex;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 230px; min-height: 100vh; background: #1a4f8a;
+    display: flex; flex-direction: column; flex-shrink: 0;
+    position: sticky; top: 0; height: 100vh;
+  }
+  .sidebar-header {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 28px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.12); gap: 10px;
+  }
+  .sidebar-logo { width: 56px; height: 56px; object-fit: contain; }
+  .sidebar-school {
+    font-size: 12px; font-weight: 700; color: #fff;
+    text-align: center; line-height: 1.4; text-transform: uppercase;
+  }
+  .sidebar-school span { display: block; font-size: 10px; font-weight: 400; color: rgba(255,255,255,0.55); text-transform: none; margin-top: 2px; }
+
+  .user-info { display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,0.12); }
+  .avatar {
+    width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0;
+  }
+  .user-name { font-size: 13px; font-weight: 600; color: #fff; }
+  .user-role {
+    display: inline-block; margin-top: 3px; font-size: 9.5px; font-weight: 700;
+    color: #fff; background: #0d9488; border-radius: 4px; padding: 2px 7px; letter-spacing: 0.03em;
+  }
+
+  .nav { padding: 12px 0; flex: 1; overflow-y: auto; }
+  .nav-section-label { font-size: 10px; color: rgba(255,255,255,0.4); padding: 8px 18px 4px; letter-spacing: 0.06em; text-transform: uppercase; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px; padding: 9px 18px; cursor: pointer;
+    font-size: 13px; color: rgba(255,255,255,0.7); border-left: 3px solid transparent;
+    transition: all 0.13s; text-decoration: none;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .nav-item.active { background: rgba(255,255,255,0.13); color: #fff; border-left-color: #14b8a6; font-weight: 600; }
+  .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.8; }
+  .nav-item.active svg { opacity: 1; }
+
+  .sidebar-footer { padding: 14px 18px; border-top: 1px solid rgba(255,255,255,0.12); }
+  .btn-logout {
+    width: 100%; padding: 9px; background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2); border-radius: 8px;
+    color: rgba(255,255,255,0.8); font-size: 12px; cursor: pointer; transition: background 0.13s;
+  }
+  .btn-logout:hover { background: rgba(255,255,255,0.18); }
+
+  /* ── MAIN ── */
+  .main { flex: 1; padding: 28px 32px; overflow-y: auto; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; flex-wrap: wrap; gap: 12px; }
+  .page-title { font-size: 20px; font-weight: 700; color: #1a1a2e; }
+  .page-sub { font-size: 13px; color: #999; margin-top: 2px; }
+
+  .btn-primary {
+    padding: 11px 20px; background: #0d9488; color: #fff; border: none; border-radius: 10px;
+    font-size: 13px; font-weight: 700; cursor: pointer; transition: background 0.15s; white-space: nowrap;
+  }
+  .btn-primary:hover { background: #0b7c72; }
+
+  .toast {
+    position: fixed; top: 20px; right: 20px; z-index: 999;
+    padding: 12px 18px; border-radius: 10px; font-size: 13px; font-weight: 600;
+    color: #fff; box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    transform: translateY(-12px); opacity: 0; transition: all 0.25s; pointer-events: none;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.ok { background: #2d8653; }
+  .toast.err { background: #c53030; }
+
+  /* ── CARD ── */
+  .card { background: #fff; border-radius: 14px; border: 1px solid #eee; margin-bottom: 20px; overflow: hidden; }
+  .card-header { padding: 16px 20px; border-bottom: 1px solid #f5f5f5; }
+  .card-title { font-size: 14px; font-weight: 700; color: #1a1a2e; }
+  .card-subtitle { font-size: 12px; color: #aaa; margin-top: 2px; }
+  .card-body { padding: 18px 20px; }
+
+  /* ── FILTER BAR ── */
+  .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+  .filter-group { min-width: 160px; flex: 1; }
+  .filter-group.grow { flex: 2; min-width: 220px; }
+  .filter-group label { display: block; font-size: 11px; font-weight: 600; color: #666; margin-bottom: 6px; }
+  .filter-group input, .filter-group select {
+    width: 100%; padding: 10px 12px; border: 1.5px solid #d8e0ea; border-radius: 8px;
+    font-size: 13px; outline: none; transition: border 0.15s; background: #fff;
+  }
+  .filter-group input:focus, .filter-group select:focus { border-color: #0d9488; }
+
+  .ringkasan { display: flex; gap: 14px; margin: 14px 0 4px; flex-wrap: wrap; }
+  .ringkasan-chip { font-size: 12px; padding: 6px 12px; border-radius: 20px; font-weight: 600; }
+  .chip-total { background: #eef4fb; color: #1a4f8a; }
+  .chip-aktif { background: #f0faf4; color: #2d8653; }
+  .chip-nonaktif { background: #fff1f1; color: #e53e3e; }
+
+  /* ── TABLE ── */
+  .table-wrap { max-height: 520px; overflow-y: auto; }
+  table.data-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .data-table th {
+    padding: 9px 14px; text-align: left; font-size: 10px; font-weight: 700; color: #999;
+    letter-spacing: 0.04em; text-transform: uppercase; border-bottom: 1px solid #eee;
+    background: #f8f9fb; position: sticky; top: 0;
+  }
+  .data-table td { padding: 10px 14px; border-bottom: 1px solid #f5f5f5; color: #333; }
+  .data-table tr:hover td { background: #fafafa; }
+  .data-table tr.row-nonaktif td { color: #aaa; }
+
+  .badge { font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 20px; display: inline-block; }
+  .badge-aktif { background: #f0faf4; color: #2d8653; }
+  .badge-nonaktif { background: #fff1f1; color: #e53e3e; }
+  .badge-mapel { font-size: 10px; font-weight: 600; color: #1a4f8a; background: #eef4fb; border-radius: 4px; padding: 2px 7px; }
+  .badge-staff { font-size: 10px; font-weight: 700; color: #7a4a00; background: #fbbf24; border-radius: 4px; padding: 2px 7px; }
+
+  .icon-btn {
+    background: none; border: none; cursor: pointer; padding: 4px 8px; border-radius: 6px;
+    font-size: 11px; color: #0d9488; font-weight: 600;
+  }
+  .icon-btn:hover { background: #e6faf7; }
+  .icon-btn.danger { color: #c53030; }
+  .icon-btn.danger:hover { background: #fff0f0; }
+  .icon-btn.muted { color: #888; }
+  .icon-btn.muted:hover { background: #f0f0f0; }
+
+  .loading-mini, .empty-state { text-align: center; padding: 30px 20px; color: #aaa; font-size: 13px; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(20,30,45,0.45);
+    align-items: center; justify-content: center; z-index: 200; padding: 20px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    background: #fff; border-radius: 16px; width: 100%; max-width: 520px;
+    max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+  }
+  .modal-header { padding: 18px 22px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
+  .modal-title { font-size: 15px; font-weight: 700; color: #1a1a2e; }
+  .modal-close { background: none; border: none; font-size: 20px; color: #999; cursor: pointer; line-height: 1; }
+  .modal-body { padding: 20px 22px; }
+  .modal-footer { padding: 16px 22px; border-top: 1px solid #f0f0f0; display: flex; justify-content: flex-end; gap: 10px; }
+
+  .form-group { margin-bottom: 14px; }
+  .form-group label { display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 6px; }
+  .form-group input, .form-group select {
+    width: 100%; padding: 10px 12px; border: 1.5px solid #d8e0ea; border-radius: 8px;
+    font-size: 13px; outline: none; transition: border 0.15s; background: #fff;
+  }
+  .form-group input:focus, .form-group select:focus { border-color: #0d9488; }
+  .form-group input:disabled { background: #f5f5f5; color: #999; }
+  .form-hint { font-size: 11px; color: #999; margin-top: 5px; }
+  .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .btn-modal-cancel {
+    padding: 10px 18px; background: #f2f2f2; color: #555; border: none; border-radius: 8px;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  .btn-modal-cancel:hover { background: #e6e6e6; }
+  .btn-modal-save {
+    padding: 10px 20px; background: #0d9488; color: #fff; border: none; border-radius: 8px;
+    font-size: 13px; font-weight: 700; cursor: pointer;
+  }
+  .btn-modal-save:hover { background: #0b7c72; }
+  .btn-modal-save:disabled { background: #a9d4cf; cursor: not-allowed; }
+
+  .info-box {
+    background: #f0fbfa; border: 1px solid #b8ece5; border-radius: 8px; padding: 10px 12px;
+    font-size: 12px; color: #0b6b62; margin-top: 12px; display: none;
+  }
+  .info-box.show { display: block; }
+
+  @media (max-width: 700px) {
+    .form-row-2 { grid-template-columns: 1fr; }
+    .filter-bar { flex-direction: column; align-items: stretch; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── SIDEBAR ── -->
+<div class="sidebar">
+  <div class="sidebar-header">
+    <img class="sidebar-logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Abu_Hurairah.svg/200px-Abu_Hurairah.svg.png" onerror="this.style.display='none'" alt="Logo" />
+    <div class="sidebar-school">SD IT Abu Hurairah<br>Sembalun<span>Lombok Timur, NTB</span></div>
+  </div>
+
+  <div class="user-info">
+    <div class="avatar" id="sidebar-avatar">—</div>
+    <div>
+      <div class="user-name" id="sidebar-nama">Memuat...</div>
+      <div class="user-role">STAFF TU · ADMINISTRASI</div>
+    </div>
+  </div>
+
+  <nav class="nav">
+    <div class="nav-section-label">Menu Administrasi</div>
+    <a class="nav-item" href="kelola-siswa-administrasi.html">
+      <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="2.6" stroke="currentColor" stroke-width="1.4"/><path d="M2.5 14c0-3 2.5-5 5.5-5s5.5 2 5.5 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Kelola Data Siswa
+    </a>
+    <a class="nav-item active" href="kelola-guru-administrasi.html">
+      <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.4" stroke="currentColor" stroke-width="1.4"/><path d="M2 6.5h12M5.5 3v10" stroke="currentColor" stroke-width="1.2"/></svg>
+      Kelola Data Guru &amp; Pegawai
+    </a>
+    <a class="nav-item" href="rekap-absensi-administrasi.html">
+      <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="1.4" stroke="currentColor" stroke-width="1.4"/><path d="M5 6h6M5 9h6M5 12h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Rekap Absensi Siswa
+    </a>
+    <a class="nav-item" href="rekap-nilai-administrasi.html">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M3 13V8M8 13V3M13 13V6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      Rekap Nilai Murni
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <button class="btn-logout" onclick="doLogout()">⇠ &nbsp;Keluar</button>
+  </div>
+</div>
+
+<!-- ── MAIN ── -->
+<div class="main">
+
+  <div class="toast" id="toast"></div>
+
+  <div class="topbar">
+    <div>
+      <div class="page-title">Kelola Data Guru &amp; Pegawai</div>
+      <div class="page-sub">Tambah, edit, dan kelola status guru maupun staff TU.</div>
+    </div>
+    <button class="btn-primary" onclick="bukaModalTambah()">+ Tambah Guru/Pegawai Baru</button>
+  </div>
+
+  <!-- Filter & Tabel -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">📋 Daftar Guru &amp; Pegawai</div>
+      <div class="card-subtitle">Cari, filter, dan kelola data guru/pegawai di sini.</div>
+    </div>
+    <div class="card-body">
+      <div class="filter-bar">
+        <div class="filter-group grow">
+          <label>Cari NIP / Nama</label>
+          <input type="text" id="f-search" placeholder="Ketik NIP atau nama..." />
+        </div>
+        <div class="filter-group">
+          <label>Mapel / Peran</label>
+          <select id="f-mapel"><option value="">Semua</option></select>
+        </div>
+        <div class="filter-group">
+          <label>Status</label>
+          <select id="f-status">
+            <option value="">Semua Status</option>
+            <option value="aktif" selected>Aktif</option>
+            <option value="nonaktif">Nonaktif</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="ringkasan" id="ringkasan"></div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>NIP</th><th>Nama</th><th>Wali Kelas</th><th>Mapel / Peran</th><th>Status</th><th style="text-align:right">Aksi</th></tr>
+          </thead>
+          <tbody id="data-tbody"><tr><td colspan="6" class="loading-mini">Memuat data...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── MODAL TAMBAH/EDIT GURU ── -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Tambah Guru/Pegawai Baru</div>
+      <button class="modal-close" onclick="tutupModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>NIP</label>
+        <input type="text" id="m-nip" placeholder="mis. 1021" />
+        <div class="form-hint" id="nip-hint">NIP tidak bisa diubah setelah dibuat.</div>
+      </div>
+      <div class="form-group">
+        <label>Nama Lengkap</label>
+        <input type="text" id="m-nama" placeholder="Nama guru/pegawai" />
+      </div>
+      <div class="form-row-2">
+        <div class="form-group">
+          <label>Mapel / Peran</label>
+          <input list="daftar-mapel" id="m-mapel" placeholder="mis. GURU KELAS, TAHFIZH, STAFF BENDAHARA" />
+          <datalist id="daftar-mapel"></datalist>
+          <div class="form-hint">Isi bebas — pilih dari saran atau ketik sendiri.</div>
+        </div>
+        <div class="form-group">
+          <label>Wali Kelas (opsional)</label>
+          <input type="text" id="m-wali-kelas" placeholder="mis. 2 PUTRA" />
+        </div>
+      </div>
+      <div class="form-group" id="password-group">
+        <label>Password (opsional)</label>
+        <input type="text" id="m-password" placeholder="Kosongkan untuk otomatis: NIP + 'guru'" />
+        <div class="form-hint">Kalau dikosongkan, password otomatis jadi <strong id="password-preview">NIPguru</strong></div>
+      </div>
+
+      <div class="info-box" id="modal-info"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-cancel" onclick="tutupModal()">Batal</button>
+      <button class="btn-modal-save" id="btn-modal-save" onclick="simpanGuru()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   KONFIGURASI — GANTI URL INI setelah deploy Code-Administrasi-Guru.gs
+   (backend TERPISAH dari kelola-siswa-administrasi.html)
+══════════════════════════════════════════════════════════ */
+const ADMINISTRASI_GURU_API_URL = 'https://script.google.com/macros/s/AKfycby47txtdrylOqg4W5Qot-zU5ZvV1QnZ5IYYPL6LZHhSW_-SMDoi7iFO9bYTp4KAgyVg/exec';
+
+let modeEdit = false;
+let nipSedangDiedit = null;
+let referensi = { mapel: [] };
+
+/* ── Sesi login ── */
+function getProfilAdministrasi() {
+  const raw = sessionStorage.getItem('profil');
+  if (!raw) return null;
+  try {
+    const p = JSON.parse(raw);
+    const mapel = String(p.mapel || '').trim().toUpperCase();
+    if (p.role === 'guru' && mapel === 'STAFF ADMINISTRASI') return p;
+  } catch(e) {}
+  return null;
+}
+
+function doLogout() { sessionStorage.clear(); window.location.href = 'index.html'; }
+
+function showToast(msg, ok=true) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + (ok?'ok':'err');
+  setTimeout(()=>{ t.className = 'toast ' + (ok?'ok':'err'); }, 2800);
+}
+
+/* ── API helpers ── */
+async function apiGet(params) {
+  const qs = new URLSearchParams({ ...params, _: Date.now() }).toString();
+  const res = await fetch(`${ADMINISTRASI_GURU_API_URL}?${qs}`, { cache: 'no-store' });
+  const json = await res.json();
+  if (!json.ok) throw new Error(json.error || 'Gagal mengambil data.');
+  return json.data;
+}
+async function apiPost(payload) {
+  const res = await fetch(ADMINISTRASI_GURU_API_URL, { method:'POST', body: JSON.stringify(payload) });
+  const json = await res.json();
+  if (!json.ok) throw new Error(json.error || 'Gagal menyimpan data.');
+  return json;
+}
+
+/* ── Muat referensi (daftar mapel/peran untuk saran & filter) ── */
+async function muatReferensi() {
+  referensi = await apiGet({ action:'referensi' });
+  document.getElementById('daftar-mapel').innerHTML = referensi.mapel.map(m => `<option value="${m}">`).join('');
+
+  const optFilter = ['<option value="">Semua</option>'].concat(referensi.mapel.map(m => `<option value="${m}">${m}</option>`));
+  document.getElementById('f-mapel').innerHTML = optFilter.join('');
+}
+
+/* ── Muat & render tabel ── */
+let searchTimer = null;
+function jadwalkanMuatUlang() {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(muatDaftar, 300);
+}
+document.getElementById('f-search').addEventListener('input', jadwalkanMuatUlang);
+document.getElementById('f-mapel').addEventListener('change', muatDaftar);
+document.getElementById('f-status').addEventListener('change', muatDaftar);
+
+async function muatDaftar() {
+  const tbody = document.getElementById('data-tbody');
+  tbody.innerHTML = '<tr><td colspan="6" class="loading-mini">Memuat data...</td></tr>';
+  document.getElementById('ringkasan').innerHTML = '';
+
+  const q = document.getElementById('f-search').value.trim();
+  const mapel = document.getElementById('f-mapel').value;
+  const status = document.getElementById('f-status').value;
+
+  try {
+    const data = await apiGet({ action:'list_guru', q, mapel, status });
+    renderRingkasan(data);
+    renderTabel(data);
+  } catch(err) {
+    tbody.innerHTML = `<tr><td colspan="6" class="loading-mini">Gagal memuat: ${err.message}</td></tr>`;
+  }
+}
+
+function renderRingkasan(data) {
+  const aktif = data.filter(g => g.status.toLowerCase()==='aktif').length;
+  const nonaktif = data.filter(g => g.status.toLowerCase()!=='aktif').length;
+  document.getElementById('ringkasan').innerHTML = `
+    <span class="ringkasan-chip chip-total">Total: ${data.length}</span>
+    <span class="ringkasan-chip chip-aktif">✓ ${aktif} Aktif</span>
+    <span class="ringkasan-chip chip-nonaktif">✗ ${nonaktif} Nonaktif</span>`;
+}
+
+const PERAN_STAFF = ['STAFF BENDAHARA', 'STAFF ADMINISTRASI', 'KEPALA SEKOLAH'];
+
+function renderTabel(data) {
+  const tbody = document.getElementById('data-tbody');
+  if (!data.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Tidak ada data yang cocok dengan filter ini.</td></tr>'; return; }
+
+  tbody.innerHTML = data.map(g => {
+    const isAktif = g.status.toLowerCase() === 'aktif';
+    const rowClass = isAktif ? '' : 'row-nonaktif';
+    const badge = isAktif ? '<span class="badge badge-aktif">✓ Aktif</span>' : '<span class="badge badge-nonaktif">✗ Nonaktif</span>';
+    const isStaff = PERAN_STAFF.includes((g.mapel||'').toUpperCase());
+    const mapelBadge = g.mapel ? `<span class="${isStaff?'badge-staff':'badge-mapel'}">${g.mapel}</span>` : '<span style="color:#ccc">—</span>';
+    const toggleLabel = isAktif ? 'Nonaktifkan' : 'Aktifkan';
+    const toggleClass = isAktif ? 'danger' : '';
+    return `<tr class="${rowClass}">
+      <td>${g.nip}</td>
+      <td><strong>${g.nama}</strong></td>
+      <td>${g.waliKelas || '<span style="color:#ccc">—</span>'}</td>
+      <td>${mapelBadge}</td>
+      <td>${badge}</td>
+      <td style="text-align:right;white-space:nowrap">
+        <button class="icon-btn" onclick="bukaModalEdit('${g.nip}')">Edit</button>
+        <button class="icon-btn muted" onclick="resetPasswordGuru('${g.nip}','${g.nama.replace(/'/g,"\\'")}')">Reset Password</button>
+        <button class="icon-btn ${toggleClass}" onclick="toggleStatus('${g.nip}','${g.status}','${g.nama.replace(/'/g,"\\'")}')">${toggleLabel}</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── Modal Tambah/Edit ── */
+function bukaModalTambah() {
+  modeEdit = false; nipSedangDiedit = null;
+  document.getElementById('modal-title').textContent = 'Tambah Guru/Pegawai Baru';
+  document.getElementById('m-nip').value = '';
+  document.getElementById('m-nip').disabled = false;
+  document.getElementById('nip-hint').textContent = 'Pastikan NIP belum pernah dipakai guru/pegawai lain.';
+  document.getElementById('m-nama').value = '';
+  document.getElementById('m-mapel').value = '';
+  document.getElementById('m-wali-kelas').value = '';
+  document.getElementById('m-password').value = '';
+  document.getElementById('password-group').style.display = 'block';
+  document.getElementById('modal-info').className = 'info-box';
+  document.getElementById('btn-modal-save').textContent = 'Simpan';
+  updatePasswordPreview();
+  document.getElementById('modal-overlay').classList.add('show');
+}
+
+async function bukaModalEdit(nip) {
+  try {
+    const g = await apiGet({ action:'satu_guru', nip });
+    modeEdit = true; nipSedangDiedit = g.nip;
+    document.getElementById('modal-title').textContent = `Edit Data — ${g.nama}`;
+    document.getElementById('m-nip').value = g.nip;
+    document.getElementById('m-nip').disabled = true;
+    document.getElementById('nip-hint').textContent = 'NIP tidak bisa diubah.';
+    document.getElementById('m-nama').value = g.nama;
+    document.getElementById('m-mapel').value = g.mapel || '';
+    document.getElementById('m-wali-kelas').value = g.waliKelas || '';
+    document.getElementById('password-group').style.display = 'none';
+    document.getElementById('modal-info').className = 'info-box';
+    document.getElementById('btn-modal-save').textContent = 'Simpan Perubahan';
+    document.getElementById('modal-overlay').classList.add('show');
+  } catch(err) {
+    showToast(err.message, false);
+  }
+}
+
+function tutupModal() {
+  document.getElementById('modal-overlay').classList.remove('show');
+}
+
+document.getElementById('m-nip').addEventListener('input', updatePasswordPreview);
+function updatePasswordPreview() {
+  const nip = document.getElementById('m-nip').value.trim();
+  document.getElementById('password-preview').textContent = (nip || 'NIP') + 'guru';
+}
+
+async function simpanGuru() {
+  const nip = document.getElementById('m-nip').value.trim();
+  const nama = document.getElementById('m-nama').value.trim();
+  const mapel = document.getElementById('m-mapel').value.trim();
+  const waliKelas = document.getElementById('m-wali-kelas').value.trim();
+  const password = document.getElementById('m-password').value.trim();
+
+  if (!nip || !nama || !mapel) { showToast('NIP, Nama, dan Mapel/Peran wajib diisi.', false); return; }
+
+  const profil = getProfilAdministrasi();
+  const btn = document.getElementById('btn-modal-save');
+  btn.disabled = true; btn.textContent = 'Menyimpan...';
+
+  try {
+    if (modeEdit) {
+      await apiPost({ action:'edit_guru', nip: nipSedangDiedit, nama, mapel, waliKelas, petugas: profil ? profil.nama : '' });
+      showToast('Data berhasil diperbarui.');
+    } else {
+      const hasil = await apiPost({ action:'tambah_guru', nip, nama, mapel, waliKelas, password, petugas: profil ? profil.nama : '' });
+      showToast(`Guru/pegawai baru ditambahkan. Password: ${hasil.password}`);
+    }
+    tutupModal();
+    muatDaftar();
+  } catch(err) {
+    document.getElementById('modal-info').className = 'info-box show';
+    document.getElementById('modal-info').textContent = '⚠ ' + err.message;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = modeEdit ? 'Simpan Perubahan' : 'Simpan';
+  }
+}
+
+/* ── Reset password & toggle status ── */
+async function resetPasswordGuru(nip, nama) {
+  if (!confirm(`Reset password ${nama} (NIP ${nip}) ke default (NIP+guru)?`)) return;
+  try {
+    const hasil = await apiPost({ action:'reset_password_guru', nip });
+    showToast(`Password ${nama} direset jadi: ${hasil.password}`);
+  } catch(err) { showToast(err.message, false); }
+}
+
+async function toggleStatus(nip, statusSekarang, nama) {
+  const jadiAktif = statusSekarang.toLowerCase() !== 'aktif';
+  const statusBaru = jadiAktif ? 'aktif' : 'nonaktif';
+  const pesan = jadiAktif
+    ? `Aktifkan kembali ${nama} (NIP ${nip})?`
+    : `Nonaktifkan ${nama} (NIP ${nip})? Yang bersangkutan tidak bisa login lagi, tapi datanya tetap tersimpan.`;
+  if (!confirm(pesan)) return;
+  try {
+    await apiPost({ action:'ubah_status_guru', nip, status: statusBaru });
+    showToast(`Status ${nama} diubah jadi ${statusBaru}.`);
+    muatDaftar();
+  } catch(err) { showToast(err.message, false); }
+}
+
+/* ── Init ── */
+async function init() {
+  const profil = getProfilAdministrasi();
+  if (!profil) { window.location.href = 'index.html'; return; }
+  document.getElementById('sidebar-nama').textContent = profil.nama || '—';
+  document.getElementById('sidebar-avatar').textContent = (profil.nama||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+
+  await muatReferensi();
+  muatDaftar();
+}
+init();
+</script>
+
+</body>
+</html>

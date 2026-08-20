@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Rekap Nilai Murni — Portal SD IT Abu Hurairah Sembalun</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #f0f2f5;
+    min-height: 100vh;
+    display: flex;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 230px; min-height: 100vh; background: #1a4f8a;
+    display: flex; flex-direction: column; flex-shrink: 0;
+    position: sticky; top: 0; height: 100vh;
+  }
+  .sidebar-header {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 28px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.12); gap: 10px;
+  }
+  .sidebar-logo { width: 56px; height: 56px; object-fit: contain; }
+  .sidebar-school {
+    font-size: 12px; font-weight: 700; color: #fff;
+    text-align: center; line-height: 1.4; text-transform: uppercase;
+  }
+  .sidebar-school span { display: block; font-size: 10px; font-weight: 400; color: rgba(255,255,255,0.55); text-transform: none; margin-top: 2px; }
+
+  .user-info { display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,0.12); }
+  .avatar {
+    width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0;
+  }
+  .user-name { font-size: 13px; font-weight: 600; color: #fff; }
+  .user-role {
+    display: inline-block; margin-top: 3px; font-size: 9.5px; font-weight: 700;
+    color: #fff; background: #0d9488; border-radius: 4px; padding: 2px 7px; letter-spacing: 0.03em;
+  }
+
+  .nav { padding: 12px 0; flex: 1; overflow-y: auto; }
+  .nav-section-label { font-size: 10px; color: rgba(255,255,255,0.4); padding: 8px 18px 4px; letter-spacing: 0.06em; text-transform: uppercase; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px; padding: 9px 18px; cursor: pointer;
+    font-size: 13px; color: rgba(255,255,255,0.7); border-left: 3px solid transparent;
+    transition: all 0.13s; text-decoration: none;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .nav-item.active { background: rgba(255,255,255,0.13); color: #fff; border-left-color: #14b8a6; font-weight: 600; }
+  .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.8; }
+  .nav-item.active svg { opacity: 1; }
+
+  .sidebar-footer { padding: 14px 18px; border-top: 1px solid rgba(255,255,255,0.12); }
+  .btn-logout {
+    width: 100%; padding: 9px; background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2); border-radius: 8px;
+    color: rgba(255,255,255,0.8); font-size: 12px; cursor: pointer; transition: background 0.13s;
+  }
+  .btn-logout:hover { background: rgba(255,255,255,0.18); }
+
+  /* ── MAIN ── */
+  .main { flex: 1; padding: 28px 32px; overflow-y: auto; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; flex-wrap: wrap; gap: 12px; }
+  .page-title { font-size: 20px; font-weight: 700; color: #1a1a2e; }
+  .page-sub { font-size: 13px; color: #999; margin-top: 2px; }
+
+  .btn-primary {
+    padding: 11px 20px; background: #0d9488; color: #fff; border: none; border-radius: 10px;
+    font-size: 13px; font-weight: 700; cursor: pointer; transition: background 0.15s; white-space: nowrap;
+  }
+  .btn-primary:hover { background: #0b7c72; }
+  .btn-outline {
+    padding: 11px 20px; background: #fff; color: #0d9488; border: 1.5px solid #0d9488; border-radius: 10px;
+    font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap;
+  }
+  .btn-outline:hover { background: #f0fbfa; }
+
+  .toast {
+    position: fixed; top: 20px; right: 20px; z-index: 999;
+    padding: 12px 18px; border-radius: 10px; font-size: 13px; font-weight: 600;
+    color: #fff; box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    transform: translateY(-12px); opacity: 0; transition: all 0.25s; pointer-events: none;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.ok { background: #2d8653; }
+  .toast.err { background: #c53030; }
+
+  /* ── KOP LAPORAN (khusus tampilan cetak/arsip) ── */
+  .print-masthead { display: none; }
+  .print-masthead .pm-sekolah { font-size: 12px; font-weight: 700; color: #1a4f8a; }
+  .print-masthead .pm-judul { font-size: 17px; font-weight: 700; color: #1a1a2e; margin-top: 2px; }
+  .print-masthead .pm-periode { font-size: 13px; color: #333; margin-top: 4px; font-weight: 600; }
+  .print-masthead .pm-tanggal-cetak { font-size: 11px; color: #999; margin-top: 2px; }
+
+  /* ── CARD ── */
+  .card { background: #fff; border-radius: 14px; border: 1px solid #eee; margin-bottom: 20px; overflow: hidden; }
+  .card-header { padding: 16px 20px; border-bottom: 1px solid #f5f5f5; }
+  .card-title { font-size: 14px; font-weight: 700; color: #1a1a2e; }
+  .card-subtitle { font-size: 12px; color: #aaa; margin-top: 2px; }
+  .card-body { padding: 18px 20px; }
+
+  /* ── SEMESTER & JENIS TOGGLE ── */
+  .toggle-group-label { font-size: 11px; font-weight: 700; color: #666; margin: 12px 0 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .toggle-group-label:first-child { margin-top: 0; }
+  .semester-toggle { display: flex; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
+  .semester-btn {
+    padding: 9px 18px; border-radius: 20px; border: 1.5px solid #d8e0ea; background: #fff;
+    font-size: 13px; font-weight: 600; color: #666; cursor: pointer; transition: all 0.15s;
+  }
+  .semester-btn.active { background: #0d9488; border-color: #0d9488; color: #fff; }
+  .jenis-btn.active { background: #1a4f8a; border-color: #1a4f8a; color: #fff; }
+
+  /* ── STAT CARDS ── */
+  .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin: 16px 0; }
+  .stat-card { border-radius: 12px; padding: 14px 12px; text-align: center; }
+  .stat-card .sv { font-size: 22px; font-weight: 800; line-height: 1.1; }
+  .stat-card .sl { font-size: 10.5px; margin-top: 5px; font-weight: 600; }
+  .sc-rata { background: #eef4fb; } .sc-rata .sv, .sc-rata .sl { color: #1a4f8a; }
+  .sc-tinggi { background: #f0faf4; } .sc-tinggi .sv, .sc-tinggi .sl { color: #065f46; }
+  .sc-rendah { background: #fff5f5; } .sc-rendah .sv, .sc-rendah .sl { color: #c53030; }
+  .sc-jtinggi { background: #f3f0ff; } .sc-jtinggi .sv, .sc-jtinggi .sl { color: #7c3aed; }
+  .sc-jrendah { background: #fff8ee; } .sc-jrendah .sv, .sc-jrendah .sl { color: #b45309; }
+  @media (max-width: 900px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+
+  /* ── CHART ── */
+  .chart-wrap { margin: 6px 0 18px; border: 1px solid #f0f0f0; border-radius: 12px; padding: 16px; overflow-x: auto; }
+  .chart-title { font-size: 12px; font-weight: 700; color: #666; margin-bottom: 10px; }
+  .chart-bar-name { font-size: 8.5px; fill: #888; }
+  .chart-bar-val { font-size: 9.5px; font-weight: 700; }
+  .chart-legend { display: flex; gap: 14px; margin-top: 10px; flex-wrap: wrap; font-size: 11px; color: #777; }
+  .chart-legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .legend-dot { width: 9px; height: 9px; border-radius: 3px; display: inline-block; }
+
+  /* ── FILTER BAR ── */
+  .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; margin-top: 14px; }
+  .filter-group { min-width: 160px; }
+  .filter-group label { display: block; font-size: 11px; font-weight: 600; color: #666; margin-bottom: 6px; }
+  .filter-group select {
+    width: 100%; padding: 10px 12px; border: 1.5px solid #d8e0ea; border-radius: 8px;
+    font-size: 13px; outline: none; transition: border 0.15s; background: #fff;
+  }
+  .filter-group select:focus { border-color: #0d9488; }
+
+  .sumber-info {
+    background: #f0fbfa; border: 1px solid #b8ece5; border-radius: 8px; padding: 10px 14px;
+    font-size: 12px; color: #0b6b62; margin: 14px 0 4px;
+  }
+
+  .ringkasan { display: flex; gap: 14px; margin: 14px 0 4px; flex-wrap: wrap; }
+  .ringkasan-chip { font-size: 12px; padding: 6px 12px; border-radius: 20px; font-weight: 600; }
+  .chip-total { background: #eef4fb; color: #1a4f8a; }
+  .chip-rata { background: #f0faf4; color: #2d8653; }
+
+  /* ── TABLE ── */
+  .table-wrap { max-height: 560px; overflow: auto; }
+  table.nilai-table { width: 100%; border-collapse: collapse; font-size: 12px; white-space: nowrap; }
+  .nilai-table th {
+    padding: 8px 10px; text-align: center; font-size: 9.5px; font-weight: 700; color: #999;
+    letter-spacing: 0.03em; text-transform: uppercase; border-bottom: 1px solid #eee;
+    background: #f8f9fb; position: sticky; top: 0; z-index: 2;
+  }
+  .nilai-table th.col-nama { text-align: left; position: sticky; left: 0; z-index: 3; background: #f8f9fb; }
+  .nilai-table th.col-nis { text-align: left; }
+  .nilai-table td { padding: 8px 10px; border-bottom: 1px solid #f5f5f5; color: #333; text-align: center; }
+  .nilai-table td.col-nama { text-align: left; font-weight: 600; position: sticky; left: 0; background: #fff; z-index: 1; }
+  .nilai-table tr:hover td { background: #fafafa; }
+  .nilai-table tr:hover td.col-nama { background: #f5f5f5; }
+  .nilai-table td.kosong { color: #ccc; }
+  .nilai-table td.rendah { color: #e53e3e; font-weight: 700; }
+  .nilai-table td.rata { font-weight: 700; color: #1a4f8a; background: #f7fafd; }
+
+  .loading-mini, .empty-state { text-align: center; padding: 30px 20px; color: #aaa; font-size: 13px; }
+
+  /* Print */
+  @media print {
+    .stats-grid { grid-template-columns: repeat(5, 1fr); gap: 6px; margin: 6px 0; }
+    .stat-card { padding: 6px 4px; }
+    .stat-card .sv { font-size: 14px; }
+    .stat-card .sl { font-size: 8px; }
+    @page { size: landscape; margin: 8mm; }
+    .sidebar, .topbar .btn-primary, .semester-toggle, .toggle-group-label, .filter-bar, .toast, .chart-wrap { display: none !important; }
+    .main { padding: 0; overflow: visible !important; height: auto !important; }
+    .card { border: none; box-shadow: none; }
+    .table-wrap { max-height: none !important; overflow: visible !important; }
+    .nilai-table thead th, .nilai-table th.col-nama, .nilai-table td.col-nama { position: static; }
+    .nilai-table { font-size: 8px; width: 100%; table-layout: fixed; }
+    .nilai-table th, .nilai-table td { padding: 3px 3px !important; white-space: normal !important; word-break: break-word; }
+    .nilai-table th.col-nama, .nilai-table td.col-nama { max-width: 85px; }
+    .nilai-table th.col-nis, .nilai-table td.col-nis { max-width: 40px; }
+    .card-subtitle, .sumber-info { font-size: 9px !important; }
+    .print-masthead { display: block !important; padding: 0 0 8px; border-bottom: 1.5px solid #1a4f8a; margin-bottom: 10px; }
+    .print-masthead .pm-judul { font-size: 14px; }
+    .print-masthead .pm-periode { font-size: 11px; }
+    .card-header { padding: 6px 0 !important; }
+    body { background: #fff; display: block !important; }
+  }
+
+  @media (max-width: 700px) {
+    .filter-bar { flex-direction: column; align-items: stretch; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── SIDEBAR ── -->
+<div class="sidebar">
+  <div class="sidebar-header">
+    <img class="sidebar-logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Abu_Hurairah.svg/200px-Abu_Hurairah.svg.png" onerror="this.style.display='none'" alt="Logo" />
+    <div class="sidebar-school">SD IT Abu Hurairah<br>Sembalun<span>Lombok Timur, NTB</span></div>
+  </div>
+
+  <div class="user-info">
+    <div class="avatar" id="sidebar-avatar">—</div>
+    <div>
+      <div class="user-name" id="sidebar-nama">Memuat...</div>
+      <div class="user-role">STAFF TU · ADMINISTRASI</div>
+    </div>
+  </div>
+
+  <nav class="nav">
+    <div class="nav-section-label">Menu Administrasi</div>
+    <a class="nav-item" href="kelola-siswa-administrasi.html">
+      <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="2.6" stroke="currentColor" stroke-width="1.4"/><path d="M2.5 14c0-3 2.5-5 5.5-5s5.5 2 5.5 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Kelola Data Siswa
+    </a>
+    <a class="nav-item" href="kelola-guru-administrasi.html">
+      <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.4" stroke="currentColor" stroke-width="1.4"/><path d="M2 6.5h12M5.5 3v10" stroke="currentColor" stroke-width="1.2"/></svg>
+      Kelola Data Guru &amp; Pegawai
+    </a>
+    <a class="nav-item" href="rekap-absensi-administrasi.html">
+      <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="1.4" stroke="currentColor" stroke-width="1.4"/><path d="M5 6h6M5 9h6M5 12h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Rekap Absensi Siswa
+    </a>
+    <a class="nav-item active" href="rekap-nilai-administrasi.html">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M3 13V8M8 13V3M13 13V6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      Rekap Nilai Murni
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <button class="btn-logout" onclick="doLogout()">⇠ &nbsp;Keluar</button>
+  </div>
+</div>
+
+<!-- ── MAIN ── -->
+<div class="main">
+
+  <div class="toast" id="toast"></div>
+
+  <div class="topbar">
+    <div>
+      <div class="page-title">Rekap Nilai Murni per Semester</div>
+      <div class="page-sub">Laporan nilai murni untuk disetor ke Yayasan.</div>
+    </div>
+    <button class="btn-outline" onclick="window.print()">🖨 Cetak Laporan</button>
+  </div>
+
+  <div class="card">
+    <div class="print-masthead" id="print-masthead">
+      <div class="pm-sekolah">SD IT Abu Hurairah Sembalun — Lombok Timur, NTB</div>
+      <div class="pm-judul">Rekap Nilai Murni</div>
+      <div class="pm-periode" id="pm-periode">—</div>
+      <div class="pm-tanggal-cetak" id="pm-tanggal-cetak"></div>
+    </div>
+    <div class="card-header">
+      <div class="card-title">📄 Rekap Nilai Murni</div>
+      <div class="card-subtitle">Nilai murni = NILAI MID atau NILAI UAS apa adanya (tidak memakai nilai remidi).</div>
+    </div>
+    <div class="card-body">
+      <div class="toggle-group-label">Semester</div>
+      <div class="semester-toggle">
+        <button class="semester-btn active" id="btn-ganjil" onclick="pilihSemester('ganjil')">Semester Ganjil</button>
+        <button class="semester-btn" id="btn-genap" onclick="pilihSemester('genap')">Semester Genap</button>
+      </div>
+
+      <div class="toggle-group-label">Jenis Nilai</div>
+      <div class="semester-toggle">
+        <button class="semester-btn jenis-btn active" id="btn-mid" onclick="pilihJenis('mid')">MID (Tengah Semester)</button>
+        <button class="semester-btn jenis-btn" id="btn-uas" onclick="pilihJenis('uas')">UAS (Akhir Semester)</button>
+      </div>
+
+      <div class="filter-bar">
+        <div class="filter-group">
+          <label>Kelas</label>
+          <select id="f-kelas"></select>
+        </div>
+        <button class="btn-primary" onclick="muatRekap()">Tampilkan Rekap</button>
+      </div>
+
+      <div class="sumber-info" id="sumber-info" style="display:none"></div>
+      <div class="ringkasan" id="ringkasan"></div>
+
+      <div class="stats-grid" id="stats-grid" style="display:none"></div>
+
+      <div class="chart-wrap" id="chart-wrap" style="display:none">
+        <div class="chart-title" id="chart-title">Rata-rata Nilai Murni per Siswa</div>
+        <div id="chart-svg-holder"></div>
+        <div class="chart-legend">
+          <span><span class="legend-dot" style="background:#0d9488"></span>Rata-rata normal</span>
+          <span><span class="legend-dot" style="background:#2d8653"></span>Nilai tertinggi</span>
+          <span><span class="legend-dot" style="background:#c53030"></span>Nilai terendah</span>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="nilai-table" id="nilai-table">
+          <thead><tr><th colspan="4" style="text-align:left">Pilih semester &amp; kelas, lalu klik "Tampilkan Rekap".</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   KONFIGURASI — GANTI URL INI setelah deploy Code-Administrasi-Nilai.gs
+   (backend TERPISAH dari modul Administrasi lainnya)
+══════════════════════════════════════════════════════════ */
+const ADMINISTRASI_NILAI_API_URL = 'https://script.google.com/macros/s/AKfycbwKkC_Qhn-RxmPbCkEO4nGQhFSEZIMkqZZisi4ugJrYPZsP9N4QS_2XKquIw3buySYs/exec';
+
+let semesterAktif = 'ganjil';
+let jenisAktif = 'mid';
+
+/* ── Sesi login ── */
+function getProfilAdministrasi() {
+  const raw = sessionStorage.getItem('profil');
+  if (!raw) return null;
+  try {
+    const p = JSON.parse(raw);
+    const mapel = String(p.mapel || '').trim().toUpperCase();
+    if (p.role === 'guru' && mapel === 'STAFF ADMINISTRASI') return p;
+  } catch(e) {}
+  return null;
+}
+
+function doLogout() { sessionStorage.clear(); window.location.href = 'index.html'; }
+
+function showToast(msg, ok=true) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + (ok?'ok':'err');
+  setTimeout(()=>{ t.className = 'toast ' + (ok?'ok':'err'); }, 3200);
+}
+
+/* ── API helpers ── */
+async function apiGet(params) {
+  const qs = new URLSearchParams({ ...params, _: Date.now() }).toString();
+  const res = await fetch(`${ADMINISTRASI_NILAI_API_URL}?${qs}`, { cache: 'no-store' });
+  const json = await res.json();
+  if (!json.ok) throw new Error(json.error || 'Gagal mengambil data.');
+  return json.data;
+}
+
+/* ── Semester toggle ── */
+function pilihSemester(s) {
+  semesterAktif = s;
+  document.getElementById('btn-ganjil').classList.toggle('active', s==='ganjil');
+  document.getElementById('btn-genap').classList.toggle('active', s==='genap');
+}
+
+/* ── Jenis nilai toggle ── */
+function pilihJenis(j) {
+  jenisAktif = j;
+  document.getElementById('btn-mid').classList.toggle('active', j==='mid');
+  document.getElementById('btn-uas').classList.toggle('active', j==='uas');
+}
+
+async function muatKelasFilter() {
+  const ref = await apiGet({ action:'referensi' });
+  const sel = document.getElementById('f-kelas');
+  sel.innerHTML = ref.kelas.map(k => `<option value="${k}">Kelas ${k}</option>`).join('');
+}
+
+/* ── Muat rekap ── */
+async function muatRekap() {
+  const kelas = document.getElementById('f-kelas').value;
+  const table = document.getElementById('nilai-table');
+  table.querySelector('thead').innerHTML = '<tr><th colspan="4" style="text-align:left">Memuat rekap...</th></tr>';
+  table.querySelector('tbody').innerHTML = '';
+  document.getElementById('sumber-info').style.display = 'none';
+  document.getElementById('ringkasan').innerHTML = '';
+  document.getElementById('stats-grid').style.display = 'none';
+  document.getElementById('chart-wrap').style.display = 'none';
+
+  try {
+    const data = await apiGet({ action:'rekap_nilai', semester: semesterAktif, jenis: jenisAktif, kelas });
+    isiKopLaporan(semesterAktif, jenisAktif, kelas);
+    renderSumberInfo(data);
+    renderStats(data);
+    renderChart(data);
+    renderTabel(data);
+  } catch(err) {
+    table.querySelector('thead').innerHTML = '<tr><th colspan="4" style="text-align:left">Gagal memuat</th></tr>';
+    table.querySelector('tbody').innerHTML = `<tr><td class="empty-state">${err.message}</td></tr>`;
+  }
+}
+
+function isiKopLaporan(semester, jenis, kelas) {
+  const NAMA_BULAN = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  const semesterTeks = semester === 'ganjil' ? 'Semester Ganjil' : 'Semester Genap';
+  const jenisTeks = jenis === 'mid' ? 'Nilai MID' : 'Nilai UAS';
+  const kelasTeks = kelas ? `Kelas ${kelas}` : 'Semua Kelas';
+  document.getElementById('pm-periode').textContent = `${jenisTeks} — ${semesterTeks} — ${kelasTeks}`;
+  const sekarang = new Date();
+  const tglCetak = `${sekarang.getDate()} ${NAMA_BULAN[sekarang.getMonth()+1]} ${sekarang.getFullYear()}, ${sekarang.getHours().toString().padStart(2,'0')}:${sekarang.getMinutes().toString().padStart(2,'0')}`;
+  document.getElementById('pm-tanggal-cetak').textContent = `Dicetak pada: ${tglCetak}`;
+}
+
+function renderSumberInfo(data) {
+  const el = document.getElementById('sumber-info');
+  el.style.display = 'block';
+  el.innerHTML = `📌 Sumber nilai: <strong>${data.sumber}</strong> — dari sheet "<strong>${data.sheet}</strong>"`;
+}
+
+function renderRingkasan(data) {
+  const el = document.getElementById('ringkasan');
+  if (!data.data.length) { el.innerHTML = ''; return; }
+  el.innerHTML = `<span class="ringkasan-chip chip-total">${data.data.length} siswa</span>`;
+}
+
+function renderStats(data) {
+  const el = document.getElementById('stats-grid');
+  const s = data.statistik;
+  if (!s || s.jumlahDinilai === 0) { el.style.display = 'none'; return; }
+  el.style.display = 'grid';
+  el.innerHTML = `
+    <div class="stat-card sc-rata"><div class="sv">${s.rataKelas}</div><div class="sl">Rata-rata Kelas</div></div>
+    <div class="stat-card sc-tinggi"><div class="sv">${s.tertinggi}</div><div class="sl">Nilai Tertinggi</div></div>
+    <div class="stat-card sc-rendah"><div class="sv">${s.terendah}</div><div class="sl">Nilai Terendah</div></div>
+    <div class="stat-card sc-jtinggi"><div class="sv">${s.jumlahTertinggi}</div><div class="sl">Siswa Bernilai Tertinggi</div></div>
+    <div class="stat-card sc-jrendah"><div class="sv">${s.jumlahTerendah}</div><div class="sl">Siswa Bernilai Terendah</div></div>
+  `;
+}
+
+function renderChart(data) {
+  const wrap = document.getElementById('chart-wrap');
+  const holder = document.getElementById('chart-svg-holder');
+  const s = data.statistik;
+  const siswa = data.data.filter(d => d.rataRata !== null);
+  if (!siswa.length) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+
+  const jenisTeks = data.jenis === 'mid' ? 'MID' : 'UAS';
+  const semesterTeks = data.semester === 'ganjil' ? 'Ganjil' : 'Genap';
+  document.getElementById('chart-title').textContent =
+    `Rata-rata Nilai Murni ${jenisTeks} Semester ${semesterTeks} per Siswa — Kelas ${data.data[0] ? data.data[0].kelas : ''}`;
+
+  const barW = 34, gap = 14, leftPad = 36, topPad = 16, bottomPad = 60;
+  const chartH = 220;
+  const w = leftPad + siswa.length * (barW + gap) + gap;
+  const h = topPad + chartH + bottomPad;
+  const maxVal = 100;
+
+  const bars = siswa.map((d, i) => {
+    const x = leftPad + gap + i * (barW + gap);
+    const barH = Math.max(2, (d.rataRata / maxVal) * chartH);
+    const y = topPad + chartH - barH;
+    let color = '#0d9488';
+    if (s.tertinggi !== null && d.rataRata === s.tertinggi) color = '#2d8653';
+    else if (s.terendah !== null && d.rataRata === s.terendah) color = '#c53030';
+    const namaSingkat = d.nama.length > 12 ? d.nama.slice(0, 11) + '…' : d.nama;
+    return `
+      <g>
+        <rect x="${x}" y="${y}" width="${barW}" height="${barH}" rx="4" fill="${color}"></rect>
+        <text x="${x + barW/2}" y="${y - 5}" text-anchor="middle" class="chart-bar-val" fill="${color}">${d.rataRata}</text>
+        <text x="${x + barW/2}" y="${topPad + chartH + 14}" text-anchor="end" class="chart-bar-name" transform="rotate(-45 ${x + barW/2} ${topPad + chartH + 14})">${namaSingkat}</text>
+      </g>`;
+  }).join('');
+
+  const gridLines = [0, 25, 50, 75, 100].map(v => {
+    const y = topPad + chartH - (v / maxVal) * chartH;
+    return `<line x1="${leftPad}" y1="${y}" x2="${w-gap}" y2="${y}" stroke="#f0f0f0" stroke-width="1"></line>
+      <text x="${leftPad - 6}" y="${y+3}" text-anchor="end" font-size="9" fill="#bbb">${v}</text>`;
+  }).join('');
+
+  holder.innerHTML = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">${gridLines}${bars}</svg>`;
+}
+
+function renderTabel(data) {
+  renderRingkasan(data);
+  const table = document.getElementById('nilai-table');
+  const thead = table.querySelector('thead');
+  const tbody = table.querySelector('tbody');
+
+  const headerMapel = data.mapel.map(m => `<th>${m}</th>`).join('');
+  thead.innerHTML = `<tr>
+    <th class="col-nis">NIS</th>
+    <th class="col-nama">Nama</th>
+    <th>Kelas</th>
+    ${headerMapel}
+    <th>Rata-rata</th>
+  </tr>`;
+
+  if (!data.data.length) {
+    tbody.innerHTML = `<tr><td colspan="${data.mapel.length+4}" class="empty-state">Tidak ada data nilai untuk periode/kelas ini.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = data.data.map(d => {
+    const selMapel = data.mapel.map(m => {
+      const v = d.nilai[m];
+      if (v === null) return '<td class="kosong">—</td>';
+      const cls = v < 70 ? 'rendah' : '';
+      return `<td class="${cls}">${v}</td>`;
+    }).join('');
+    return `<tr>
+      <td class="col-nis">${d.nis}</td>
+      <td class="col-nama">${d.nama}</td>
+      <td>${d.kelas}</td>
+      ${selMapel}
+      <td class="rata">${d.rataRata !== null ? d.rataRata : '—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── Init ── */
+async function init() {
+  const profil = getProfilAdministrasi();
+  if (!profil) { window.location.href = 'index.html'; return; }
+  document.getElementById('sidebar-nama').textContent = profil.nama || '—';
+  document.getElementById('sidebar-avatar').textContent = (profil.nama||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+
+  await muatKelasFilter();
+}
+init();
+</script>
+
+</body>
+</html>
